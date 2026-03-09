@@ -337,41 +337,42 @@ El proyecto **ActaCofrade** se desarrollará en **sprints semanales**, aprovecha
 
 | Semana | Fechas aproximadas | Objetivo principal | Entregables |
 |--------|------------------|-----------------|------------|
-| 1      | 4–8 marzo        | Análisis de necesidades y definición del alcance | Documento de requisitos y propuesta formal inicial |
-| 2      | 11–15 marzo      | Diseño de arquitectura y modelo de datos | Diagramas de arquitectura, esquema de base de datos en PostgreSQL |
-| 3-4    | 18–29 marzo      | Desarrollo backend básico (Spring Boot) | Endpoints REST para usuarios, roles y actos |
-| 5-6    | 1–12 abril       | Desarrollo frontend (Angular) | Interfaz principal, formularios y navegación básica |
-| 7      | 15–19 abril      | Integración backend-frontend | Pruebas de conexión, filtros y buscador cronológico |
-| 8      | 22–26 abril      | Implementación funcionalidades avanzadas | Confirmación de tareas, avisos visuales, control de cierre de actos |
-| 9      | 29 abril–3 mayo  | Clonación de actos y generación de resúmenes exportables | Funcionalidades de reutilización y exportación a PDF/CSV |
-| 10     | 6–10 mayo        | Pruebas finales, corrección de errores y optimización | MVP estable probado, ajustes de interfaz y accesibilidad |
-| 11     | 13–17 mayo       | Documentación completa y preparación de presentación | Markdown final, manual de usuario, diagramas y guion de exposición |
-| 12     | 18–22 mayo       | Entrega final y defensa del proyecto | Presentación lista y proyecto desplegado en Digital Ocean |
+| 1      | 9–15 marzo       | Diseño en Figma y modelado de datos | Wireframes, mockups, guía de estilo, diagrama de arquitectura y modelo de datos en PostgreSQL |
+| 2      | 16–22 marzo      | Dockerización y configuración del entorno | Entorno Docker local funcional, repositorio GitHub configurado, esquema de base de datos |
+| 3      | 23–29 marzo      | Desarrollo backend: endpoints principales | Endpoints REST para usuarios, roles, actos, decisiones e incidencias |
+| 4      | 30 marzo–5 abril | Seguridad, confirmación de responsabilidades y formularios Angular | Autenticación JWT, lógica de confirmación de tareas, formularios frontend |
+| 5      | 6–12 abril       | Avisos previos, control de cierre y navegación | Alertas visuales, control de cierre de actos, filtros y buscador global |
+| 6      | 13–19 abril      | Despliegue en DigitalOcean, clonación e integración | Aplicación desplegada externamente, clonación de actos, integración frontend-backend completa |
+| 7      | 20–26 abril      | Testing, exportación, accesibilidad y optimización | Pruebas unitarias e integración, exportación PDF/CSV, adaptación WCAG 2.1 AA |
+| 8      | 27 abril–3 mayo  | Documentación y presentación | Documentación técnica, manual de usuario, presentación PowerPoint |
+| 9      | 4–22 mayo        | Revisión final, entrega y defensa | MVP estable desplegado, documentación completa y presentación lista para defensa |
 
 ---
 
 ### Fases principales de desarrollo
 
-1. **Análisis y planificación:** identificación de necesidades, entrevistas a usuarios, definición de requisitos y propuesta formal.  
-2. **Diseño y modelado:** arquitectura cliente-servidor, diagramas de flujo, modelo de datos en PostgreSQL.  
-3. **Desarrollo backend:** API REST con Spring Boot, gestión de usuarios y roles, seguridad básica.  
-4. **Desarrollo frontend:** Angular para interfaz, formularios de actos, decisiones, incidencias y navegación principal.  
-5. **Integración y pruebas internas:** conexión entre frontend y backend, verificación de filtros, búsquedas y consultas cronológicas.  
-6. **Implementación de funcionalidades avanzadas:** confirmación de tareas, avisos, control de cierre, clonación de actos, generación de resúmenes exportables.  
-7. **Pruebas finales y optimización:** depuración, validación de datos, accesibilidad web (WCAG) y ajuste de interfaz.  
-8. **Documentación y preparación de presentación:** manual de usuario, propuesta formal final, diagramas, cronogramas y defensa del TFG.
+1. **Diseño y prototipado:** wireframes, mockups y guía de estilo en Figma; diagrama de arquitectura cliente-servidor y modelo de datos en PostgreSQL.  
+2. **Configuración del entorno:** Docker local para backend y base de datos, repositorio GitHub y esquema inicial de tablas.  
+3. **Desarrollo backend:** API REST con Spring Boot, endpoints para usuarios, roles, actos, decisiones e incidencias.  
+4. **Seguridad y funcionalidades diferenciadoras (backend):** autenticación JWT, autorización por roles y lógica de confirmación de responsabilidades.  
+5. **Desarrollo frontend:** Angular para interfaz, formularios, avisos previos a un acto, control de cierre, navegación y filtros.  
+6. **Despliegue e integración:** publicación en DigitalOcean con acceso externo verificado, clonación de actos e integración frontend-backend completa.  
+7. **Testing, exportación y accesibilidad:** pruebas unitarias y de integración, exportación PDF/CSV, adaptación WCAG 2.1 AA y optimización final.  
+8. **Documentación y presentación:** documentación técnica, manual de usuario, presentación PowerPoint y defensa del TFG.
 
 ---
 
 ### Hitos y entregas intermedias
 
-- **Semana 1:** Documento de requisitos completo y propuesta formal validada.  
-- **Semana 4:** Backend básico funcional con endpoints de usuarios, roles y actos.  
-- **Semana 6:** Frontend principal implementado con formularios y navegación.  
-- **Semana 8:** Funcionalidades avanzadas del MVP implementadas.  
-- **Semana 10:** MVP estable probado y optimizado, accesibilidad y UI ajustadas.  
-- **Semana 11:** Documentación completa lista para entregar.  
-- **Semana 12:** Entrega final del proyecto desplegado y presentación lista para defensa.
+- **Semana 1:** Wireframes, mockups y guía de estilo completados en Figma. Arquitectura y modelo de datos definidos.  
+- **Semana 2:** Entorno Docker local funcional. Repositorio GitHub configurado. Esquema de base de datos implementado.  
+- **Semana 3:** Backend básico funcional con endpoints de usuarios, roles, actos, decisiones e incidencias.  
+- **Semana 4:** Autenticación JWT y roles implementados. Confirmación de responsabilidades operativa. Formularios Angular creados.  
+- **Semana 5:** Avisos previos y control de cierre de actos implementados. Navegación y filtros operativos.  
+- **Semana 6:** Aplicación desplegada en DigitalOcean con acceso externo verificado. Clonación de actos e integración frontend-backend completada.  
+- **Semana 7:** Testing completado. Exportación PDF/CSV funcional. Accesibilidad WCAG 2.1 AA adaptada y optimización aplicada.  
+- **Semana 8:** Documentación técnica y manual de usuario redactados. Presentación PowerPoint preparada.  
+- **Semana 9 (4–22 mayo):** Entrega final del proyecto desplegado y presentación lista para defensa.
 
 ---
 
