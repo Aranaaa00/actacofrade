@@ -1,0 +1,8 @@
+# =========================
+# Maven Wrapper
+# =========================
+# Asegura que el script de Linux/Mac siempre tenga saltos de línea LF
+mvnw text eol=lf
+
+# Asegura que los scripts de Windows (como mvnw.cmd) siempre tengan CRLF
+*.cmd text eol=crlf

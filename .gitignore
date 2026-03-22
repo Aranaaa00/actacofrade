@@ -1,0 +1,62 @@
+# =========================
+# System & Editor
+# =========================
+.DS_Store
+Thumbs.db
+*~
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# =========================
+# Security & Secrets (HIPER SEGURO)
+# =========================
+.env
+.env.*
+*.pem
+*.key
+*.cert
+*.p12
+*.jks
+secret.*
+credentials.json
+*.log
+
+# =========================
+# Backend (Spring Boot / Java / Maven)
+# =========================
+backend/target/
+backend/bin/
+backend/build/
+backend/.gradle/
+backend/logs/
+backend/*.log
+backend/*.class
+# Ignorar configuraciones productivas o con secretos
+backend/src/main/resources/application-prod.yml
+backend/src/main/resources/application-prod.properties
+backend/src/main/resources/application-secret.yml
+backend/src/main/resources/application-secret.properties
+
+# =========================
+# Frontend (Angular / Node.js)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/tmp/
+frontend/out-tsc/
+frontend/.angular/
+frontend/coverage/
+frontend/npm-debug.log*
+frontend/yarn-error.log*
+frontend/yarn-debug.log*
+frontend/pnpm-debug.log*
+frontend/.npm/
+frontend/.yarn/cache/
