@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     container_name: actacofrade_backend
     ports:
-      - "8080:8080" # Puerto de la API para que Angular lo consuma
+      - "8080:8080"
     environment:
       # Sobreescribe las variables de entorno para usar el contenedor de base de datos
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
