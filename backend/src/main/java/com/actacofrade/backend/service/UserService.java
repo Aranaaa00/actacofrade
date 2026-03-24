@@ -2,20 +2,26 @@ package com.actacofrade.backend.service;
 
 import com.actacofrade.backend.dto.RoleStatsResponse;
 import com.actacofrade.backend.dto.UserResponse;
+import com.actacofrade.backend.dto.UserUpdateRequest;
+import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     public List<UserResponse> findAll() {
@@ -39,6 +45,36 @@ public class UserService {
         long consulta = countUsersWithRole(allUsers, RoleCode.CONSULTA);
 
         return new RoleStatsResponse(admins, responsables, colaboradores, consulta);
+    }
+
+    public UserResponse update(Integer id, UserUpdateRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+
+        if (request.fullName() != null) {
+            user.setFullName(request.fullName());
+        }
+        if (request.email() != null) {
+            user.setEmail(request.email());
+        }
+        if (request.roleCode() != null) {
+            RoleCode roleCode = RoleCode.valueOf(request.roleCode());
+            Role role = roleRepository.findByCode(roleCode)
+                    .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.roleCode()));
+            user.setRoles(Set.of(role));
+        }
+
+        userRepository.save(user);
+        return toResponse(user);
+    }
+
+    public UserResponse toggleActive(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+
+        user.setActive(!user.getActive());
+        userRepository.save(user);
+        return toResponse(user);
     }
 
     private long countUsersWithRole(List<User> users, RoleCode roleCode) {
