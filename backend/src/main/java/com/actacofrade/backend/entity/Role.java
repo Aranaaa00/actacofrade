@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "roles")
@@ -26,7 +28,8 @@ public class Role {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "code", nullable = false, unique = true, columnDefinition = "role_code")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "code", nullable = false, unique = true)
     private RoleCode code;
 
     @Column(name = "description")
