@@ -5,6 +5,10 @@ import com.actacofrade.backend.dto.EventResponse;
 import com.actacofrade.backend.dto.UpdateEventRequest;
 import com.actacofrade.backend.service.EventService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +18,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,6 +37,16 @@ public class EventController {
     @GetMapping
     public ResponseEntity<List<EventResponse>> findAll() {
         return ResponseEntity.ok(eventService.findAll());
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<EventResponse>> findFiltered(
+            @RequestParam(required = false) String eventType,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 10, sort = "eventDate") Pageable pageable) {
+        return ResponseEntity.ok(eventService.findFiltered(eventType, status, eventDate, search, pageable));
     }
 
     @GetMapping("/{id}")

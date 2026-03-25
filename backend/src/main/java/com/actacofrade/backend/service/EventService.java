@@ -4,10 +4,15 @@ import com.actacofrade.backend.dto.CreateEventRequest;
 import com.actacofrade.backend.dto.EventResponse;
 import com.actacofrade.backend.dto.UpdateEventRequest;
 import com.actacofrade.backend.entity.Event;
+import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.EventType;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
+import com.actacofrade.backend.repository.EventSpecification;
 import com.actacofrade.backend.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,6 +34,20 @@ public class EventService {
         return eventRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public Page<EventResponse> findFiltered(String eventType, String status, LocalDate eventDate,
+                                            String search, Pageable pageable) {
+        EventType typeFilter = (eventType != null) ? EventType.valueOf(eventType) : null;
+        EventStatus statusFilter = (status != null) ? EventStatus.valueOf(status) : null;
+
+        Specification<Event> spec = Specification
+                .where(EventSpecification.hasEventType(typeFilter))
+                .and(EventSpecification.hasStatus(statusFilter))
+                .and(EventSpecification.hasEventDate(eventDate))
+                .and(EventSpecification.searchByText(search));
+
+        return eventRepository.findAll(spec, pageable).map(this::toResponse);
     }
 
     public EventResponse findById(Integer id) {
