@@ -157,6 +157,25 @@ public class EventService {
         return toResponse(event);
     }
 
+    public EventResponse clone(Integer id) {
+        Event original = findEventOrThrow(id);
+        String reference = generateReference();
+
+        Event cloned = new Event();
+        cloned.setReference(reference);
+        cloned.setTitle(original.getTitle());
+        cloned.setEventType(original.getEventType());
+        cloned.setEventDate(original.getEventDate());
+        cloned.setLocation(original.getLocation());
+        cloned.setObservations(original.getObservations());
+        cloned.setResponsible(original.getResponsible());
+        cloned.setStatus(EventStatus.PLANIFICACION);
+
+        eventRepository.save(cloned);
+        eventRepository.insertCloneRelation(original.getId(), cloned.getId());
+        return toResponse(cloned);
+    }
+
     private EventStatus getNextStatus(EventStatus current) {
         return switch (current) {
             case PLANIFICACION -> EventStatus.PREPARACION;

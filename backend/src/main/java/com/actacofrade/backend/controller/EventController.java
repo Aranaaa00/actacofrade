@@ -86,4 +86,9 @@ public class EventController {
     public ResponseEntity<EventResponse> toggleLock(@PathVariable Integer id) {
         return ResponseEntity.ok(eventService.toggleLockForClosing(id));
     }
+
+    @PostMapping("/{id}/clone")
+    public ResponseEntity<EventResponse> cloneEvent(@PathVariable Integer id) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.clone(id));
+    }
 }

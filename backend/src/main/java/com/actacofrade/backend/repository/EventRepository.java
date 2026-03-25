@@ -3,8 +3,10 @@ package com.actacofrade.backend.repository;
 import com.actacofrade.backend.entity.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -23,4 +25,10 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
     @Query(value = "SELECT COUNT(*) FROM incidents WHERE event_id = :eventId AND status = 'ABIERTA'",
             nativeQuery = true)
     long countOpenIncidentsByEventId(@Param("eventId") Integer eventId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO event_clones (original_event_id, cloned_event_id) VALUES (:originalId, :clonedId)",
+            nativeQuery = true)
+    void insertCloneRelation(@Param("originalId") Integer originalId, @Param("clonedId") Integer clonedId);
 }
