@@ -4,7 +4,6 @@ import com.actacofrade.backend.dto.CreateEventRequest;
 import com.actacofrade.backend.dto.EventResponse;
 import com.actacofrade.backend.dto.UpdateEventRequest;
 import com.actacofrade.backend.entity.Event;
-import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.EventType;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
