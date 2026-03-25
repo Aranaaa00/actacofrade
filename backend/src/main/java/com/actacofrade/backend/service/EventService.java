@@ -105,6 +105,33 @@ public class EventService {
         eventRepository.delete(event);
     }
 
+    public EventResponse advanceStatus(Integer id) {
+        Event event = findEventOrThrow(id);
+        EventStatus currentStatus = event.getStatus();
+
+        if (currentStatus == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto ya se encuentra cerrado y no puede avanzar de fase");
+        }
+        if (currentStatus == EventStatus.CIERRE) {
+            throw new IllegalStateException("El acto esta en fase de cierre. Use la accion de cerrar acto");
+        }
+
+        EventStatus nextStatus = getNextStatus(currentStatus);
+        event.setStatus(nextStatus);
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+        return toResponse(event);
+    }
+
+    private EventStatus getNextStatus(EventStatus current) {
+        return switch (current) {
+            case PLANIFICACION -> EventStatus.PREPARACION;
+            case PREPARACION -> EventStatus.CONFIRMACION;
+            case CONFIRMACION -> EventStatus.CIERRE;
+            default -> throw new IllegalStateException("No se puede avanzar desde el estado: " + current.name());
+        };
+    }
+
     private Event findEventOrThrow(Integer id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Acto no encontrado con id: " + id));
