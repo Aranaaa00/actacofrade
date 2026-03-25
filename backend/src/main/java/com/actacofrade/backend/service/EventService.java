@@ -123,6 +123,40 @@ public class EventService {
         return toResponse(event);
     }
 
+    public EventResponse close(Integer id) {
+        Event event = findEventOrThrow(id);
+
+        if (event.getStatus() == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto ya se encuentra cerrado");
+        }
+
+        long pendingTasks = eventRepository.countPendingTasksByEventId(id);
+        long openIncidents = eventRepository.countOpenIncidentsByEventId(id);
+
+        if (pendingTasks > 0 || openIncidents > 0) {
+            throw new IllegalStateException("No es posible cerrar el acto. Quedan elementos sin resolver");
+        }
+
+        event.setStatus(EventStatus.CERRADO);
+        event.setIsLockedForClosing(true);
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+        return toResponse(event);
+    }
+
+    public EventResponse toggleLockForClosing(Integer id) {
+        Event event = findEventOrThrow(id);
+
+        if (event.getStatus() == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto ya esta cerrado y no puede modificarse");
+        }
+
+        event.setIsLockedForClosing(!event.getIsLockedForClosing());
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+        return toResponse(event);
+    }
+
     private EventStatus getNextStatus(EventStatus current) {
         return switch (current) {
             case PLANIFICACION -> EventStatus.PREPARACION;

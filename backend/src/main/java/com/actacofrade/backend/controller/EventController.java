@@ -76,4 +76,14 @@ public class EventController {
     public ResponseEntity<EventResponse> advanceStatus(@PathVariable Integer id) {
         return ResponseEntity.ok(eventService.advanceStatus(id));
     }
+
+    @PatchMapping("/{id}/close")
+    public ResponseEntity<EventResponse> close(@PathVariable Integer id) {
+        return ResponseEntity.ok(eventService.close(id));
+    }
+
+    @PatchMapping("/{id}/toggle-lock")
+    public ResponseEntity<EventResponse> toggleLock(@PathVariable Integer id) {
+        return ResponseEntity.ok(eventService.toggleLockForClosing(id));
+    }
 }
