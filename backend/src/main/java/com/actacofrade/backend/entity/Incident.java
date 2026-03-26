@@ -53,4 +53,8 @@ public class Incident {
 
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resolved_by")
+    private User resolvedBy;
 }
