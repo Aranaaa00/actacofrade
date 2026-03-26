@@ -85,7 +85,7 @@ public class TaskService {
         taskRepository.delete(task);
     }
 
-    public TaskResponse confirm(Integer eventId, Integer taskId) {
+    public TaskResponse confirm(Integer eventId, Integer taskId, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Task task = findTaskOrThrow(taskId, eventId);
 
@@ -93,14 +93,18 @@ public class TaskService {
             throw new IllegalStateException("La tarea ya esta confirmada");
         }
 
+        User confirmer = findUserByEmailOrThrow(authenticatedEmail);
+
         task.setStatus(TaskStatus.CONFIRMADA);
         task.setRejectionReason(null);
+        task.setConfirmedBy(confirmer);
+        task.setConfirmedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
         return toResponse(task);
     }
 
-    public TaskResponse reject(Integer eventId, Integer taskId, String rejectionReason) {
+    public TaskResponse reject(Integer eventId, Integer taskId, String rejectionReason, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Task task = findTaskOrThrow(taskId, eventId);
 
@@ -111,14 +115,18 @@ public class TaskService {
             throw new IllegalStateException("El motivo de rechazo es obligatorio");
         }
 
+        User confirmer = findUserByEmailOrThrow(authenticatedEmail);
+
         task.setStatus(TaskStatus.RECHAZADA);
         task.setRejectionReason(rejectionReason);
+        task.setConfirmedBy(confirmer);
+        task.setConfirmedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
         return toResponse(task);
     }
 
-    public TaskResponse resetToPending(Integer eventId, Integer taskId) {
+    public TaskResponse resetToPending(Integer eventId, Integer taskId, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Task task = findTaskOrThrow(taskId, eventId);
 
@@ -128,6 +136,8 @@ public class TaskService {
 
         task.setStatus(TaskStatus.PENDIENTE);
         task.setRejectionReason(null);
+        task.setConfirmedBy(null);
+        task.setConfirmedAt(null);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
         return toResponse(task);
@@ -153,12 +163,24 @@ public class TaskService {
         return user;
     }
 
+    private User findUserByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado: " + email));
+    }
+
     private TaskResponse toResponse(Task task) {
         Integer assignedToId = null;
         String assignedToName = null;
         if (task.getAssignedTo() != null) {
             assignedToId = task.getAssignedTo().getId();
             assignedToName = task.getAssignedTo().getFullName();
+        }
+
+        Integer confirmedById = null;
+        String confirmedByName = null;
+        if (task.getConfirmedBy() != null) {
+            confirmedById = task.getConfirmedBy().getId();
+            confirmedByName = task.getConfirmedBy().getFullName();
         }
 
         return new TaskResponse(
@@ -171,6 +193,9 @@ public class TaskService {
                 task.getStatus().name(),
                 task.getDeadline(),
                 task.getRejectionReason(),
+                confirmedById,
+                confirmedByName,
+                task.getConfirmedAt(),
                 task.getCreatedAt(),
                 task.getUpdatedAt()
         );

@@ -60,7 +60,7 @@ public class IncidentService {
         incidentRepository.delete(incident);
     }
 
-    public IncidentResponse resolve(Integer eventId, Integer incidentId) {
+    public IncidentResponse resolve(Integer eventId, Integer incidentId, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
@@ -68,13 +68,16 @@ public class IncidentService {
             throw new IllegalStateException("La incidencia ya esta resuelta");
         }
 
+        User resolver = findUserByEmailOrThrow(authenticatedEmail);
+
         incident.setStatus(IncidentStatus.RESUELTA);
         incident.setResolvedAt(LocalDateTime.now());
+        incident.setResolvedBy(resolver);
         incidentRepository.save(incident);
         return toResponse(incident);
     }
 
-    public IncidentResponse reopen(Integer eventId, Integer incidentId) {
+    public IncidentResponse reopen(Integer eventId, Integer incidentId, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
@@ -84,6 +87,7 @@ public class IncidentService {
 
         incident.setStatus(IncidentStatus.ABIERTA);
         incident.setResolvedAt(null);
+        incident.setResolvedBy(null);
         incidentRepository.save(incident);
         return toResponse(incident);
     }
@@ -108,12 +112,24 @@ public class IncidentService {
         return user;
     }
 
+    private User findUserByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado: " + email));
+    }
+
     private IncidentResponse toResponse(Incident incident) {
         Integer reportedById = null;
         String reportedByName = null;
         if (incident.getReportedBy() != null) {
             reportedById = incident.getReportedBy().getId();
             reportedByName = incident.getReportedBy().getFullName();
+        }
+
+        Integer resolvedById = null;
+        String resolvedByName = null;
+        if (incident.getResolvedBy() != null) {
+            resolvedById = incident.getResolvedBy().getId();
+            resolvedByName = incident.getResolvedBy().getFullName();
         }
 
         return new IncidentResponse(
@@ -123,6 +139,8 @@ public class IncidentService {
                 incident.getStatus().name(),
                 reportedById,
                 reportedByName,
+                resolvedById,
+                resolvedByName,
                 incident.getCreatedAt(),
                 incident.getResolvedAt()
         );
