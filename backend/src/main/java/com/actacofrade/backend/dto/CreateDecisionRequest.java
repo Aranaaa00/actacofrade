@@ -1,0 +1,16 @@
+package com.actacofrade.backend.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record CreateDecisionRequest(
+
+        @NotBlank(message = "El area de la decision es obligatoria")
+        String area,
+
+        @NotBlank(message = "El titulo de la decision es obligatorio")
+        @Size(max = 255, message = "El titulo de la decision no puede superar los 255 caracteres")
+        String title,
+
+        Integer reviewedById
+) {}
