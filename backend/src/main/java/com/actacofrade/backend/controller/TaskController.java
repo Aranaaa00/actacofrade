@@ -7,6 +7,9 @@ import com.actacofrade.backend.service.TaskService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -62,21 +65,27 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/confirm")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<TaskResponse> confirm(@PathVariable Integer eventId,
-                                                @PathVariable Integer taskId) {
-        return ResponseEntity.ok(taskService.confirm(eventId, taskId));
+                                                @PathVariable Integer taskId,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.confirm(eventId, taskId, userDetails.getUsername()));
     }
 
     @PatchMapping("/{taskId}/reject")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<TaskResponse> reject(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
-                                               @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(taskService.reject(eventId, taskId, body.get("rejectionReason")));
+                                               @RequestBody Map<String, String> body,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.reject(eventId, taskId, body.get("rejectionReason"), userDetails.getUsername()));
     }
 
     @PatchMapping("/{taskId}/reset")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<TaskResponse> resetToPending(@PathVariable Integer eventId,
-                                                       @PathVariable Integer taskId) {
-        return ResponseEntity.ok(taskService.resetToPending(eventId, taskId));
+                                                       @PathVariable Integer taskId,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.resetToPending(eventId, taskId, userDetails.getUsername()));
     }
 }
