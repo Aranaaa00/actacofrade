@@ -1,0 +1,609 @@
+{
+  "info": {
+    "name": "ActaCofrade API",
+    "description": "Complete endpoint collection for ActaCofrade backend API. Import this file into Postman to test all endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": "1"
+    },
+    {
+      "key": "userId",
+      "value": "1"
+    },
+    {
+      "key": "taskId",
+      "value": "1"
+    },
+    {
+      "key": "incidentId",
+      "value": "1"
+    },
+    {
+      "key": "decisionId",
+      "value": "1"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    pm.test('Register returns token', function () {",
+                  "        pm.expect(json.token).to.be.a('string');",
+                  "        pm.expect(json.email).to.eql('admin@test.com');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test Admin\",\n  \"email\": \"admin@test.com\",\n  \"password\": \"admin123\",\n  \"roleCode\": \"ADMINISTRADOR\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/register" }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.token);",
+                  "pm.test('Login returns token', function () {",
+                  "    pm.expect(json.token).to.be.a('string');",
+                  "});",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login" }
+          }
+        },
+        {
+          "name": "Login - Bad credentials (error case)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Roles",
+      "item": [
+        {
+          "name": "List all roles",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/roles" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Users",
+      "item": [
+        {
+          "name": "List all users",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users" }
+          }
+        },
+        {
+          "name": "Get user by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}" }
+          }
+        },
+        {
+          "name": "Get user by ID - Not found (error case)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users/9999" }
+          }
+        },
+        {
+          "name": "Get user statistics",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/users/stats" }
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Admin Actualizado\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}" }
+          }
+        },
+        {
+          "name": "Toggle active status",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}/toggle-active" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Events",
+      "item": [
+        {
+          "name": "Create event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('eventId', json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ensayo General\",\n  \"eventType\": \"ENSAYO\",\n  \"eventDate\": \"2026-04-15\",\n  \"location\": \"Templo\",\n  \"responsibleId\": 1,\n  \"observations\": \"Primer ensayo del curso\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events" }
+          }
+        },
+        {
+          "name": "List all events",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events" }
+          }
+        },
+        {
+          "name": "Filter events",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/filter?eventType=ENSAYO&page=0&size=5" }
+          }
+        },
+        {
+          "name": "Get event by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}" }
+          }
+        },
+        {
+          "name": "Get event - Not found (error case)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/9999" }
+          }
+        },
+        {
+          "name": "Update event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ensayo General Actualizado\",\n  \"location\": \"Casa Hermandad\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}" }
+          }
+        },
+        {
+          "name": "Advance phase",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/advance-status" }
+          }
+        },
+        {
+          "name": "Toggle closing lock",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/toggle-lock" }
+          }
+        },
+        {
+          "name": "Close event",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/close" }
+          }
+        },
+        {
+          "name": "Clone event",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/clone" }
+          }
+        },
+        {
+          "name": "Delete event",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Tasks",
+      "item": [
+        {
+          "name": "Create task",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('taskId', json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Preparar megafonia\",\n  \"description\": \"Instalar altavoces en el templo\",\n  \"assignedToId\": 1,\n  \"deadline\": \"2026-04-10\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks" }
+          }
+        },
+        {
+          "name": "List tasks",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks" }
+          }
+        },
+        {
+          "name": "Get task by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}" }
+          }
+        },
+        {
+          "name": "Update task",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Megafonia actualizada\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}" }
+          }
+        },
+        {
+          "name": "Confirm task",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}/confirm" }
+          }
+        },
+        {
+          "name": "Confirm task - Already confirmed (error case)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}/confirm" }
+          }
+        },
+        {
+          "name": "Reset task to pending",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}/reset" }
+          }
+        },
+        {
+          "name": "Reject task",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"No hay equipos disponibles\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}/reject" }
+          }
+        },
+        {
+          "name": "Reject task - No reason (error case)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejectionReason\": \"\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}/reject" }
+          }
+        },
+        {
+          "name": "Delete task",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks/{{taskId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Incidents",
+      "item": [
+        {
+          "name": "Create incident",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('incidentId', json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Fallo en el sistema de sonido\",\n  \"reportedById\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents" }
+          }
+        },
+        {
+          "name": "List incidents",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents" }
+          }
+        },
+        {
+          "name": "Get incident by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents/{{incidentId}}" }
+          }
+        },
+        {
+          "name": "Resolve incident",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents/{{incidentId}}/resolve" }
+          }
+        },
+        {
+          "name": "Resolve incident - Already resolved (error case)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents/{{incidentId}}/resolve" }
+          }
+        },
+        {
+          "name": "Reopen incident",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents/{{incidentId}}/reopen" }
+          }
+        },
+        {
+          "name": "Delete incident",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents/{{incidentId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Decisions",
+      "item": [
+        {
+          "name": "Create decision",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var json = pm.response.json();",
+                  "    pm.collectionVariables.set('decisionId', json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"area\": \"MAYORDOMIA\",\n  \"title\": \"Aprobar presupuesto flores\",\n  \"reviewedById\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions" }
+          }
+        },
+        {
+          "name": "List decisions",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions" }
+          }
+        },
+        {
+          "name": "Get decision by ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}" }
+          }
+        },
+        {
+          "name": "Update decision",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Presupuesto actualizado\",\n  \"area\": \"TESORERIA\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}" }
+          }
+        },
+        {
+          "name": "Mark decision as ready",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}/ready" }
+          }
+        },
+        {
+          "name": "Mark as ready - Already ready (error case)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}/ready" }
+          }
+        },
+        {
+          "name": "Reset decision to pending",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}/reset" }
+          }
+        },
+        {
+          "name": "Reject decision",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}/reject" }
+          }
+        },
+        {
+          "name": "Delete decision",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/decisions/{{decisionId}}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Integration - Close validation",
+      "item": [
+        {
+          "name": "Create task (pending)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tarea bloqueante\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/tasks" }
+          }
+        },
+        {
+          "name": "Create incident (open)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Incidencia bloqueante\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/incidents" }
+          }
+        },
+        {
+          "name": "Close event - Should fail 409 (pending items)",
+          "request": {
+            "method": "PATCH",
+            "url": { "raw": "{{baseUrl}}/api/events/{{eventId}}/close" }
+          }
+        }
+      ]
+    }
+  ]
+}
