@@ -13,6 +13,9 @@ public record TaskResponse(
         String status,
         LocalDate deadline,
         String rejectionReason,
+        Integer confirmedById,
+        String confirmedByName,
+        LocalDateTime confirmedAt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}
