@@ -2,6 +2,7 @@ package com.actacofrade.backend.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -26,6 +27,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BadCredentialsException.class, AuthenticationException.class})
     public ResponseEntity<Map<String, Object>> handleAuthError(AuthenticationException ex) {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta accion");
     }
 
     private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
