@@ -1,0 +1,56 @@
+<section class="container">
+  <h1>{{ isEditMode ? 'Editar decisión' : 'Nueva decisión' }}</h1>
+
+  @if (errorMessage) {
+    <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="banner banner--info" role="alert">{{ successMessage }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <fieldset class="form-field" [class.form-field--error]="hasError('area')">
+      <label class="form-field__label" for="decision-area">Área *</label>
+      <select id="decision-area" formControlName="area">
+        <option value="" disabled>Selecciona un área</option>
+        <option value="CULTOS">Cultos</option>
+        <option value="FORMACION">Formación</option>
+        <option value="PATRIMONIO">Patrimonio</option>
+        <option value="CARIDAD">Caridad</option>
+        <option value="ECONOMIA">Economía</option>
+        <option value="GENERAL">General</option>
+      </select>
+      @if (hasError('area')) {
+        <small class="form-field__error">{{ getError('area') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field" [class.form-field--error]="hasError('title')">
+      <label class="form-field__label" for="decision-title">Título *</label>
+      <input id="decision-title" type="text" formControlName="title">
+      @if (hasError('title')) {
+        <small class="form-field__error">{{ getError('title') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field">
+      <label class="form-field__label" for="decision-reviewer">Revisado por</label>
+      <select id="decision-reviewer" formControlName="reviewedById">
+        <option [ngValue]="null">Sin asignar</option>
+        @for (user of users; track user.id) {
+          <option [ngValue]="user.id">{{ user.fullName }}</option>
+        }
+      </select>
+    </fieldset>
+
+    <footer class="form__actions">
+      <button type="submit" class="button button--primary" [disabled]="loading">
+        {{ isEditMode ? 'Guardar cambios' : 'Crear decisión' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="goBack()">
+        Cancelar
+      </button>
+    </footer>
+  </form>
+</section>
