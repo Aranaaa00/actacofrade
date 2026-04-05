@@ -1,0 +1,53 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Barra de navegacion superior
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: $space-64;
+  padding-inline: $space-16;
+  background-color: var(--nav-bg);
+
+  @include from-tablet {
+    padding-inline: $space-24;
+  }
+
+  @include from-desktop {
+    padding-inline: $space-32;
+  }
+}
+
+.navbar__brand {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-bold;
+  color: var(--text-on-dark);
+  letter-spacing: 0.02em;
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: $space-24;
+}
+
+.navbar__link {
+  @include focus-visible;
+  @include transition(color);
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark-muted);
+
+  &:hover,
+  &--active {
+    color: var(--nav-active);
+  }
+}
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+}
