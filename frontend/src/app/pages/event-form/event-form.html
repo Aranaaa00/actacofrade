@@ -1,0 +1,76 @@
+<section class="container">
+  <h1>{{ isEditMode ? 'Editar evento' : 'Nuevo evento' }}</h1>
+
+  @if (errorMessage) {
+    <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="banner banner--info" role="alert">{{ successMessage }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <fieldset class="form-field" [class.form-field--error]="hasError('title')">
+      <label class="form-field__label" for="event-title">Título *</label>
+      <input id="event-title" type="text" formControlName="title">
+      @if (hasError('title')) {
+        <small class="form-field__error">{{ getError('title') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field" [class.form-field--error]="hasError('eventType')">
+      <label class="form-field__label" for="event-type">Tipo de acto *</label>
+      <select id="event-type" formControlName="eventType">
+        <option value="" disabled>Selecciona un tipo</option>
+        <option value="PROCESION">Procesión</option>
+        <option value="CULTO">Culto</option>
+        <option value="REUNION">Reunión</option>
+        <option value="FORMACION">Formación</option>
+        <option value="OTRO">Otro</option>
+      </select>
+      @if (hasError('eventType')) {
+        <small class="form-field__error">{{ getError('eventType') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field" [class.form-field--error]="hasError('eventDate')">
+      <label class="form-field__label" for="event-date">Fecha *</label>
+      <input id="event-date" type="date" formControlName="eventDate">
+      @if (hasError('eventDate')) {
+        <small class="form-field__error">{{ getError('eventDate') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field" [class.form-field--error]="hasError('location')">
+      <label class="form-field__label" for="event-location">Ubicación</label>
+      <input id="event-location" type="text" formControlName="location">
+      @if (hasError('location')) {
+        <small class="form-field__error">{{ getError('location') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field">
+      <label class="form-field__label" for="event-responsible">Responsable</label>
+      <select id="event-responsible" formControlName="responsibleId">
+        <option [ngValue]="null">Sin asignar</option>
+        @for (user of users; track user.id) {
+          <option [ngValue]="user.id">{{ user.fullName }}</option>
+        }
+      </select>
+    </fieldset>
+
+    <fieldset class="form-field">
+      <label class="form-field__label" for="event-observations">Observaciones</label>
+      <textarea id="event-observations" formControlName="observations" rows="4"></textarea>
+    </fieldset>
+
+    <footer class="form__actions">
+      <button type="submit" class="button button--primary" [disabled]="loading">
+        {{ isEditMode ? 'Guardar cambios' : 'Crear evento' }}
+      </button>
+      <button type="button" class="button button--secondary" (click)="router.navigate(['/events'])">
+        Cancelar
+      </button>
+    </footer>
+  </form>
+</section>
