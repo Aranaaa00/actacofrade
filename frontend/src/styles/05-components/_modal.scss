@@ -1,0 +1,60 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Ventana emergente de confirmacion, formularios rapidos
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--overlay-modal);
+  z-index: 100;
+}
+
+.modal {
+  background-color: var(--bg-surface);
+  width: 100%;
+  max-width: 32rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: $space-32;
+  margin: $space-16;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-24;
+}
+
+.modal__title {
+  font-family: $font-heading;
+  font-size: $text-h3;
+  font-weight: $weight-semibold;
+}
+
+.modal__close {
+  @include focus-visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $size-icon-24;
+  height: $size-icon-24;
+  color: var(--text-secondary);
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.modal__body {
+  margin-bottom: $space-24;
+}
+
+.modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-12;
+}
