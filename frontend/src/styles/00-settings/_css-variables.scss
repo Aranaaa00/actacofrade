@@ -1,0 +1,90 @@
+@use 'variables' as *;
+
+:root {
+  // Background
+  --bg-page: #{$color-cream};
+  --bg-surface: #{$color-white};
+  --bg-surface-hover: #{$color-cream};
+  --bg-inverse: #{$color-inverse-bg};
+
+  // Text
+  --text-primary: #{$color-black};
+  --text-secondary: #{$color-warm-gray-text};
+  --text-on-dark: #{$color-white};
+  --text-on-dark-muted: #{$color-warm-gray};
+  --text-disabled: #{$color-disabled};
+
+  // Border
+  --border-default: #{$color-line};
+  --border-strong: #{$color-black};
+  --border-focus: #{$color-gold};
+  --border-error: #{$color-red-falon};
+
+  // Link
+  --link-default: #{$color-black};
+  --link-hover: #{$color-gold};
+
+  // Navigation
+  --nav-bg: #{$color-wood};
+  --nav-active: #{$color-gold};
+
+  // Overlay
+  --overlay-modal: rgba(0, 0, 0, 0.5);
+
+  // Banner
+  --banner-info-bg: #{$color-black};
+  --banner-info-text: #{$color-white};
+  --banner-critical-bg: #{$color-red-falon};
+  --banner-critical-text: #{$color-white};
+
+  // Button primary
+  --btn-primary-bg: #{$color-wood};
+  --btn-primary-bg-hover: #{$color-black};
+  --btn-primary-text: #{$color-white};
+  --btn-primary-bg-disabled: #{$color-disabled};
+  --btn-primary-text-disabled: #{$color-warm-gray};
+
+  // Button secondary
+  --btn-secondary-bg: transparent;
+  --btn-secondary-bg-hover: #{$color-cream};
+  --btn-secondary-border: #{$color-black};
+  --btn-secondary-text: #{$color-black};
+  --btn-secondary-bg-disabled: transparent;
+  --btn-secondary-border-disabled: #{$color-disabled};
+  --btn-secondary-text-disabled: #{$color-warm-gray};
+
+  // Button danger
+  --btn-danger-bg: #{$color-red-falon};
+  --btn-danger-bg-hover: #{$color-red-falon-hover};
+  --btn-danger-text: #{$color-white};
+  --btn-danger-bg-disabled: #{$color-disabled};
+  --btn-danger-text-disabled: #{$color-warm-gray};
+
+  // Input
+  --input-bg: #{$color-white};
+  --input-bg-hover: #{$color-cream};
+  --input-text: #{$color-black};
+  --input-placeholder: #{$color-warm-gray-text};
+  --input-line-hover: #{$color-black};
+  --input-line-focus: #{$color-gold};
+  --input-line-error: #{$color-red-falon};
+  --input-line-disabled: #{$color-line};
+  --input-text-disabled: #{$color-disabled};
+  --input-icon: #{$color-warm-gray};
+  --input-icon-hover: #{$color-black};
+
+  // Badge
+  --badge-pending-bg: transparent;
+  --badge-pending-border: #{$color-gold};
+  --badge-pending-text: #{$color-gold-text};
+
+  --badge-confirmed-bg: #{$color-black};
+  --badge-confirmed-text: #{$color-white};
+
+  --badge-rejected-bg: #{$color-red-falon};
+  --badge-rejected-text: #{$color-white};
+
+  --badge-neutral-bg: #{$color-white};
+  --badge-neutral-border: #{$color-line};
+  --badge-neutral-text: #{$color-black};
+}
