@@ -1,0 +1,40 @@
+<section class="container">
+  <h1>Nueva incidencia</h1>
+
+  @if (errorMessage) {
+    <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
+  }
+
+  @if (successMessage) {
+    <p class="banner banner--info" role="alert">{{ successMessage }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+    <fieldset class="form-field" [class.form-field--error]="hasError('description')">
+      <label class="form-field__label" for="incident-description">Descripción *</label>
+      <textarea id="incident-description" formControlName="description" rows="4"></textarea>
+      @if (hasError('description')) {
+        <small class="form-field__error">{{ getError('description') }}</small>
+      }
+    </fieldset>
+
+    <fieldset class="form-field">
+      <label class="form-field__label" for="incident-reporter">Reportado por</label>
+      <select id="incident-reporter" formControlName="reportedById">
+        <option [ngValue]="null">Sin asignar</option>
+        @for (user of users; track user.id) {
+          <option [ngValue]="user.id">{{ user.fullName }}</option>
+        }
+      </select>
+    </fieldset>
+
+    <footer class="form__actions">
+      <button type="submit" class="button button--primary" [disabled]="loading">
+        Registrar incidencia
+      </button>
+      <button type="button" class="button button--secondary" (click)="goBack()">
+        Cancelar
+      </button>
+    </footer>
+  </form>
+</section>
