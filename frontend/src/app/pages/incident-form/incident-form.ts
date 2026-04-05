@@ -1,0 +1,79 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { IncidentService } from '../../services/incident.service';
+import { UserService } from '../../services/user.service';
+import { UserResponse } from '../../models/user.model';
+
+@Component({
+  selector: 'app-incident-form',
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './incident-form.html',
+  styleUrl: './incident-form.scss',
+})
+export class IncidentForm implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly incidentService = inject(IncidentService);
+  private readonly userService = inject(UserService);
+  private readonly route = inject(ActivatedRoute);
+  readonly router = inject(Router);
+
+  form!: FormGroup;
+  users: UserResponse[] = [];
+  eventId!: number;
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
+
+  ngOnInit(): void {
+    this.eventId = Number(this.route.snapshot.paramMap.get('eventId'));
+
+    this.form = this.fb.group({
+      description: ['', [Validators.required]],
+      reportedById: [null]
+    });
+
+    this.userService.findAll().subscribe({
+      next: (users) => this.users = users
+    });
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.incidentService.create(this.eventId, this.form.value).subscribe({
+      next: () => {
+        this.successMessage = 'Incidencia registrada correctamente.';
+        this.loading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.';
+        this.loading = false;
+      }
+    });
+  }
+
+  hasError(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && control.touched);
+  }
+
+  getError(field: string): string {
+    const control = this.form.get(field);
+    if (!control || !control.errors) return '';
+    if (control.errors['required']) return 'Este campo es obligatorio.';
+    return '';
+  }
+
+  goBack(): void {
+    this.router.navigate(['/events', this.eventId]);
+  }
+}
