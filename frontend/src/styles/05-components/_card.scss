@@ -1,0 +1,46 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Tarjeta resumen de eventos, tareas, incidencias
+.card {
+  @include transition(background-color);
+  background-color: var(--bg-surface);
+  border-bottom: $border-1 solid var(--border-default);
+  padding: $space-16;
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+  }
+}
+
+.card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $space-8;
+  margin-bottom: $space-8;
+}
+
+.card__title {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+}
+
+.card__meta {
+  font-size: $text-meta;
+  color: var(--text-secondary);
+}
+
+.card__body {
+  font-size: $text-paragraph;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.card__actions {
+  display: flex;
+  gap: $space-8;
+  margin-top: $space-16;
+}
