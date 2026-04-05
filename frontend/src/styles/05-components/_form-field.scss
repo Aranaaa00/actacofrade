@@ -1,0 +1,44 @@
+@use '../00-settings/variables' as *;
+
+// Form layout
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  margin-top: $space-24;
+  max-width: 36rem;
+}
+
+// Field wrapper: label + input + error message
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.form-field__label {
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-field__error {
+  font-size: $text-meta;
+  color: var(--border-error);
+  min-height: 1rem;
+}
+
+.form-field--error input,
+.form-field--error textarea,
+.form-field--error select {
+  border-bottom-color: var(--input-line-error);
+}
+
+// Form actions: submit + cancel buttons
+.form__actions {
+  display: flex;
+  gap: $space-12;
+  margin-top: $space-8;
+}
