@@ -1,0 +1,37 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Tabla de listados: tareas, decisiones, usuarios
+.table {
+  width: 100%;
+  text-align: left;
+}
+
+.table__head {
+  border-bottom: $border-2 solid var(--border-strong);
+}
+
+.table__head th {
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: $space-8 $space-12;
+}
+
+.table__body tr {
+  @include transition(background-color);
+  border-bottom: $border-1 solid var(--border-default);
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+  }
+}
+
+.table__body td {
+  padding: $space-12;
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
