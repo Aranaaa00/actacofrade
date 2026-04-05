@@ -1,0 +1,30 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Pestanas para alternar entre secciones del evento
+.tabs {
+  display: flex;
+  border-bottom: $border-1 solid var(--border-default);
+}
+
+.tab {
+  @include focus-visible;
+  @include transition(color, border-color);
+  display: flex;
+  align-items: center;
+  height: $size-tab-height;
+  padding-inline: $space-16;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-secondary);
+  border-bottom: $border-2 solid transparent;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &--active {
+    color: var(--text-primary);
+    border-bottom-color: var(--border-strong);
+  }
+}
