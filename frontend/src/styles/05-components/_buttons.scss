@@ -1,0 +1,84 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Botones de acciones principales, secundarias y peligrosas
+.button {
+  @include focus-visible;
+  @include transition(background-color, color, border-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-8;
+  height: $size-button-height;
+  padding-inline: $space-24;
+  font-family: $font-body;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  line-height: 1;
+  border-radius: $radius-2;
+  cursor: pointer;
+  user-select: none;
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+// Boton principal: guardar, confirmar, enviar
+.button--primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg-hover);
+  }
+
+  &:disabled {
+    background-color: var(--btn-primary-bg-disabled);
+    color: var(--btn-primary-text-disabled);
+  }
+}
+
+// Boton secundario: cancelar, volver
+.button--secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: $border-1 solid var(--btn-secondary-border);
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-secondary-bg-hover);
+  }
+
+  &:disabled {
+    background-color: var(--btn-secondary-bg-disabled);
+    border-color: var(--btn-secondary-border-disabled);
+    color: var(--btn-secondary-text-disabled);
+  }
+}
+
+// Boton de eliminacion o acciones destructivas
+.button--danger {
+  background-color: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-danger-bg-hover);
+  }
+
+  &:disabled {
+    background-color: var(--btn-danger-bg-disabled);
+    color: var(--btn-danger-text-disabled);
+  }
+}
+
+.button--full-width {
+  width: 100%;
+}
+
+.button__icon {
+  width: $size-icon-20;
+  height: $size-icon-20;
+  flex-shrink: 0;
+}
