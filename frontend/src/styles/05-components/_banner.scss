@@ -1,0 +1,21 @@
+@use '../00-settings/variables' as *;
+
+// Avisos globales: notificaciones, errores del servidor
+.banner {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-12 $space-16;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+}
+
+.banner--info {
+  background-color: var(--banner-info-bg);
+  color: var(--banner-info-text);
+}
+
+.banner--critical {
+  background-color: var(--banner-critical-bg);
+  color: var(--banner-critical-text);
+}
