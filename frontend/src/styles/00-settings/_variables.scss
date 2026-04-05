@@ -1,0 +1,67 @@
+// Colors
+$color-black: #0d0d0d;
+$color-white: #f9f9f9;
+$color-gold: #c9a961;
+$color-red-falon: #8b3a3a;
+$color-red-falon-hover: #742f2f;
+$color-wood: #5c4033;
+$color-warm-gray: #a0957d;
+$color-line: #e8e8e8;
+$color-disabled: #d0d0d0;
+$color-cream: #f5f3f0;
+$color-inverse-bg: #1a1a1a;
+$color-warm-gray-text: #736856;
+$color-gold-text: #866f2e;
+
+// Typography
+$font-heading: 'EB Garamond', Georgia, serif;
+$font-body: 'Inter', system-ui, sans-serif;
+
+$text-h1: 3rem;
+$text-h2: 2.5rem;
+$text-h3: 2rem;
+$text-h4: 1.5rem;
+$text-body: 1rem;
+$text-paragraph: 0.875rem;
+$text-label: 0.75rem;
+$text-meta: 0.75rem;
+$text-badge: 0.6875rem;
+
+$weight-regular: 400;
+$weight-semibold: 600;
+$weight-bold: 700;
+
+// Spacing
+$space-4: 0.25rem;
+$space-8: 0.5rem;
+$space-12: 0.75rem;
+$space-16: 1rem;
+$space-24: 1.5rem;
+$space-32: 2rem;
+$space-48: 3rem;
+$space-64: 4rem;
+
+// Sizes
+$size-button-height: 3rem;
+$size-input-height: 2.5rem;
+$size-tab-height: 2.5rem;
+$size-icon-16: 1rem;
+$size-icon-20: 1.25rem;
+$size-icon-24: 1.5rem;
+
+// Borders
+$border-1: 0.0625rem;
+$border-2: 0.125rem;
+$radius-0: 0;
+$radius-2: 0.125rem;
+
+// Motion
+$motion-hover: 180ms;
+$motion-press: 120ms;
+$motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Breakpoints
+$breakpoint-mobile: 30rem;
+$breakpoint-tablet: 48rem;
+$breakpoint-desktop: 64rem;
+$breakpoint-wide: 80rem;
