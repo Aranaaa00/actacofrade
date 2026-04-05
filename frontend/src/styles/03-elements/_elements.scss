@@ -1,0 +1,102 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+body {
+  @include body-text;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+}
+
+h1 {
+  @include heading($text-h1);
+}
+
+h2 {
+  @include heading($text-h2);
+}
+
+h3 {
+  @include heading($text-h3);
+}
+
+h4 {
+  @include heading($text-h4);
+}
+
+p {
+  font-size: $text-paragraph;
+  line-height: 1.6;
+}
+
+strong {
+  font-weight: $weight-semibold;
+}
+
+small {
+  font-size: $text-meta;
+}
+
+a {
+  @include focus-visible;
+  @include transition(color);
+  color: var(--link-default);
+
+  &:hover {
+    color: var(--link-hover);
+  }
+}
+
+label {
+  display: block;
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+input,
+textarea,
+select {
+  @include transition(border-color, background-color);
+  display: block;
+  width: 100%;
+  height: $size-input-height;
+  padding: $space-8 $space-12;
+  background-color: var(--input-bg);
+  border: none;
+  border-bottom: $border-1 solid var(--border-default);
+  font-size: $text-body;
+  color: var(--input-text);
+
+  &::placeholder {
+    color: var(--input-placeholder);
+  }
+
+  &:hover {
+    background-color: var(--input-bg-hover);
+    border-bottom-color: var(--input-line-hover);
+  }
+
+  &:focus {
+    outline: none;
+    border-bottom: $border-2 solid var(--input-line-focus);
+  }
+
+  &:disabled {
+    border-bottom-color: var(--input-line-disabled);
+    color: var(--input-text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+textarea {
+  height: auto;
+  min-height: 6rem;
+  resize: vertical;
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+}
