@@ -1,0 +1,38 @@
+@use '../00-settings/variables' as *;
+
+// Etiquetas de estado: pendiente, confirmado, rechazado
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  padding-inline: $space-8;
+  font-size: $text-badge;
+  font-weight: $weight-semibold;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: $radius-2;
+  white-space: nowrap;
+}
+
+.badge--pending {
+  background-color: var(--badge-pending-bg);
+  color: var(--badge-pending-text);
+  border: $border-1 solid var(--badge-pending-border);
+}
+
+.badge--confirmed {
+  background-color: var(--badge-confirmed-bg);
+  color: var(--badge-confirmed-text);
+}
+
+.badge--rejected {
+  background-color: var(--badge-rejected-bg);
+  color: var(--badge-rejected-text);
+}
+
+.badge--neutral {
+  background-color: var(--badge-neutral-bg);
+  color: var(--badge-neutral-text);
+  border: $border-1 solid var(--badge-neutral-border);
+}
