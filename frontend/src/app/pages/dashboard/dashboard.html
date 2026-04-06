@@ -1,0 +1,60 @@
+<section class="dashboard" aria-label="Panel principal">
+
+  <header class="dashboard__greeting">
+    <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
+    <p class="dashboard__summary">Tienes <strong>{{ pendingTasksCount }} tareas pendientes</strong> para hoy.</p>
+  </header>
+
+  <ul class="dashboard__stats" role="list">
+    <li class="dashboard__stat">
+      <strong class="dashboard__stat-number">{{ events.length }}</strong>
+      <p class="dashboard__stat-label">Actos activos</p>
+    </li>
+    <li class="dashboard__stat">
+      <strong class="dashboard__stat-number">{{ pendingDecisionsCount }}</strong>
+      <p class="dashboard__stat-label">Decisiones pendientes</p>
+    </li>
+    <li class="dashboard__stat">
+      <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
+      <p class="dashboard__stat-label">Listos para cerrar</p>
+    </li>
+  </ul>
+
+  <section class="dashboard__grid">
+
+    <section class="dashboard__events" aria-label="Actos activos">
+      <h2 class="dashboard__section-title">Actos activos</h2>
+
+      <ul class="dashboard__event-list" role="list">
+        @for (event of events; track event.id) {
+          <li class="dashboard__event">
+            <span class="badge badge--wood dashboard__event-type">{{ event.eventType }}</span>
+            <p class="dashboard__event-title">{{ event.title }}</p>
+            <span class="badge" [class]="getStatusBadgeClass(event.status)">{{ event.statusLabel }}</span>
+            <span class="dashboard__event-action" aria-hidden="true">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 5l7 7-7 7"/></svg>
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="dashboard__alerts" aria-label="Alertas recientes">
+      <h2 class="dashboard__section-title">
+        <span class="dashboard__dot" aria-hidden="true"></span>
+        Alertas recientes
+      </h2>
+
+      <ul class="dashboard__alert-list" role="list">
+        @for (alert of alerts; track alert.description) {
+          <li class="dashboard__alert-item">
+            <span class="badge badge--wood">{{ alert.type }}</span>
+            <p class="dashboard__alert-item-text">{{ alert.description }}</p>
+          </li>
+        }
+      </ul>
+    </section>
+
+  </section>
+
+</section>
