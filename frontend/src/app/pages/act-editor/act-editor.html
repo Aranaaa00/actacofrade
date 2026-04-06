@@ -1,0 +1,60 @@
+<app-modal-overlay modalClass="act-editor" headerClass="act-editor__header" titleId="act-editor-heading" (closed)="close()">
+  <h1 modalTitle class="act-editor__title" id="act-editor-heading">{{ isEditMode ? 'Editar acto' : 'Nuevo acto' }}</h1>
+
+  @if (errorMessage) {
+    <app-banner type="critical">{{ errorMessage }}</app-banner>
+  }
+
+  @if (successMessage) {
+    <app-banner type="info">{{ successMessage }}</app-banner>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="act-editor__body" aria-label="Formulario de acto">
+    <app-form-field label="Nombre del acto" fieldId="act-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
+      <input #titleInput id="act-title" type="text" formControlName="title" placeholder="Ej. Cabildo Extraordinario">
+    </app-form-field>
+
+    <section class="act-editor__row">
+      <app-form-field label="Tipo de acto" fieldId="act-type" styleClass="act-editor__field--bordered" [hasError]="hasError('eventType')" [errorMessage]="hasError('eventType') ? getError('eventType') : ''">
+        <select id="act-type" formControlName="eventType">
+          <option value="" disabled>Seleccionar tipo</option>
+          <option value="CABILDO">Cabildo</option>
+          <option value="CULTOS">Cultos</option>
+          <option value="PROCESION">Procesión</option>
+          <option value="ENSAYO">Ensayo</option>
+          <option value="OTRO">Otro</option>
+        </select>
+      </app-form-field>
+
+      <app-form-field label="Fecha" fieldId="act-date" styleClass="act-editor__field--bordered" [hasError]="hasError('eventDate')" [errorMessage]="hasError('eventDate') ? getError('eventDate') : ''">
+        <input id="act-date" type="date" formControlName="eventDate">
+      </app-form-field>
+    </section>
+
+    <app-form-field label="Ubicación" fieldId="act-location" [hasError]="hasError('location')" [errorMessage]="hasError('location') ? getError('location') : ''">
+      <input id="act-location" type="text" formControlName="location" placeholder="Lugar donde se celebra">
+    </app-form-field>
+
+    <app-form-field label="Responsable" fieldId="act-responsible" styleClass="act-editor__field--bordered">
+      <select id="act-responsible" formControlName="responsibleId">
+        <option [ngValue]="null">Asignar responsable</option>
+        @for (user of users; track user.id) {
+          <option [ngValue]="user.id">{{ user.fullName }}</option>
+        }
+      </select>
+    </app-form-field>
+
+    <app-form-field label="Observaciones" fieldId="act-observations" styleClass="act-editor__field--bordered">
+      <textarea id="act-observations" formControlName="observations" rows="2" placeholder="Detalles adicionales..."></textarea>
+    </app-form-field>
+
+    <footer class="act-editor__footer">
+      <button type="button" class="button button--secondary" (click)="close()">
+        Cancelar
+      </button>
+      <button type="submit" class="button button--primary" [disabled]="loading" [attr.aria-busy]="loading">
+        {{ isEditMode ? 'Guardar cambios' : 'Guardar acto' }} →
+      </button>
+    </footer>
+  </form>
+</app-modal-overlay>

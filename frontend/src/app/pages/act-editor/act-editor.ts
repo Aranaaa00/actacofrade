@@ -1,64 +1,71 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecisionService } from '../../services/decision.service';
+import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
 import { UserResponse } from '../../models/user.model';
+import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 
 @Component({
-  selector: 'app-decision-form',
-  imports: [ReactiveFormsModule, Banner, FormField],
-  templateUrl: './decision-form.html',
+  selector: 'app-act-editor',
+  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField],
+  templateUrl: './act-editor.html',
 })
-export class DecisionForm implements OnInit {
+export class ActEditor implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
-  private readonly decisionService = inject(DecisionService);
+  private readonly eventService = inject(EventService);
   private readonly userService = inject(UserService);
   private readonly route = inject(ActivatedRoute);
-  readonly router = inject(Router);
+  private readonly router = inject(Router);
+
+  @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
 
   form!: FormGroup;
   users: UserResponse[] = [];
   isEditMode = false;
-  eventId!: number;
-  decisionId: number | null = null;
+  eventId: number | null = null;
   loading = false;
   errorMessage = '';
   successMessage = '';
 
   ngOnInit(): void {
-    this.eventId = Number(this.route.snapshot.paramMap.get('eventId'));
-
     this.form = this.fb.group({
-      area: ['', [Validators.required]],
       title: ['', [Validators.required, Validators.maxLength(255)]],
-      reviewedById: [null]
+      eventType: ['', [Validators.required]],
+      eventDate: ['', [Validators.required]],
+      location: ['', [Validators.maxLength(255)]],
+      responsibleId: [null],
+      observations: ['']
     });
 
     this.userService.findAll().subscribe({
       next: (users) => this.users = users
     });
 
-    const decisionId = this.route.snapshot.paramMap.get('decisionId');
-    if (decisionId) {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
       this.isEditMode = true;
-      this.decisionId = Number(decisionId);
-      this.loadDecision();
+      this.eventId = Number(id);
+      this.loadEvent(this.eventId);
     }
   }
 
-  private loadDecision(): void {
+  ngAfterViewInit(): void {
+    this.titleInput?.nativeElement.focus();
+  }
+
+  private loadEvent(id: number): void {
     this.loading = true;
-    this.decisionService.findById(this.eventId, this.decisionId!).subscribe({
-      next: (decision) => {
-        this.form.patchValue(decision);
+    this.eventService.findById(id).subscribe({
+      next: (event) => {
+        this.form.patchValue(event);
         this.loading = false;
       },
       error: () => {
-        this.errorMessage = 'No se pudo cargar la decisión.';
+        this.errorMessage = 'No se pudo cargar el acto.';
         this.loading = false;
       }
     });
@@ -73,14 +80,14 @@ export class DecisionForm implements OnInit {
       this.successMessage = '';
 
       const request$ = this.isEditMode
-        ? this.decisionService.update(this.eventId, this.decisionId!, this.form.value)
-        : this.decisionService.create(this.eventId, this.form.value);
+        ? this.eventService.update(this.eventId!, this.form.value)
+        : this.eventService.create(this.form.value);
 
       request$.subscribe({
         next: () => {
           this.successMessage = this.isEditMode
-            ? 'Decisión actualizada correctamente.'
-            : 'Decisión creada correctamente.';
+            ? 'Acto actualizado correctamente.'
+            : 'Acto creado correctamente.';
           this.loading = false;
         },
         error: (err) => {
@@ -91,15 +98,15 @@ export class DecisionForm implements OnInit {
     }
   }
 
+  close(): void {
+    this.router.navigate(['/dashboard']);
+  }
+
   hasError(field: string): boolean {
     return hasFieldError(this.form, field);
   }
 
   getError(field: string): string {
     return getFieldError(this.form, field);
-  }
-
-  goBack(): void {
-    this.router.navigate(['/events', this.eventId]);
   }
 }

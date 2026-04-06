@@ -1,36 +1,16 @@
 import { Component, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-
-function passwordStrength(control: AbstractControl): ValidationErrors | null {
-  const value: string = control.value || '';
-  const errors: ValidationErrors = {};
-
-  if (value.length < 8) {
-    errors['minlength'] = true;
-  }
-  if (!/[A-Z]/.test(value)) {
-    errors['noUppercase'] = true;
-  }
-  if (!/[a-z]/.test(value)) {
-    errors['noLowercase'] = true;
-  }
-  if (!/\d/.test(value)) {
-    errors['noDigit'] = true;
-  }
-  if (!/[@$!%*?&.#_\-]/.test(value)) {
-    errors['noSpecial'] = true;
-  }
-
-  return Object.keys(errors).length ? errors : null;
-}
+import { Banner } from '../../shared/components/banner/banner';
+import { FormField } from '../../shared/components/form-field/form-field';
+import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
+import { passwordStrength } from '../../shared/validators/password-strength.validator';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, Banner, FormField],
   templateUrl: './register.html',
-  styleUrl: './register.scss',
 })
 export class Register implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
@@ -102,16 +82,7 @@ export class Register implements AfterViewInit {
   }
 
   hasError(field: string): boolean {
-    const control = this.form.get(field);
-    let showError = false;
-    if (control && control.invalid) {
-      const isRequired = !!control.errors?.['required'];
-      if (isRequired) {
-        showError = this.submitted;
-      } else {
-        showError = control.touched;
-      }
-    }
+    let showError = hasFieldError(this.form, field, this.submitted);
     if (field === 'confirmPassword' && this.submitted && !this.passwordsMatch()) {
       showError = true;
     }
@@ -119,19 +90,15 @@ export class Register implements AfterViewInit {
   }
 
   getError(field: string): string {
-    const control = this.form.get(field);
-    let message = '';
-    if (control?.errors) {
-      if (control.errors['required']) {
-        message = 'Este campo es obligatorio.';
-      } else if (control.errors['email']) {
-        message = 'Introduce un email válido.';
-      } else if (field === 'password') {
+    let message = getFieldError(this.form, field);
+    if (!message) {
+      const control = this.form.get(field);
+      if (field === 'password' && control?.errors) {
         message = this.getPasswordError(control.errors);
       }
-    }
-    if (!message && field === 'confirmPassword' && this.submitted && !this.passwordsMatch()) {
-      message = 'Las contraseñas no coinciden.';
+      if (field === 'confirmPassword' && this.submitted && !this.passwordsMatch()) {
+        message = 'Las contraseñas no coinciden.';
+      }
     }
     return message;
   }

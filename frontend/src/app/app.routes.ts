@@ -12,6 +12,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login').then(m => m.Login)
   },
   {
+    path: 'register',
+    loadComponent: () => import('./pages/register/register').then(m => m.Register)
+  },
+  {
     path: '',
     loadComponent: () => import('./layout/main/main').then(m => m.Main),
     canActivate: [authGuard],
@@ -22,11 +26,11 @@ export const routes: Routes = [
       },
       {
         path: 'events/new',
-        loadComponent: () => import('./pages/event-form/event-form').then(m => m.EventForm)
+        loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
       },
       {
         path: 'events/:id/edit',
-        loadComponent: () => import('./pages/event-form/event-form').then(m => m.EventForm)
+        loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
       },
       {
         path: 'events/:eventId/decisions/new',

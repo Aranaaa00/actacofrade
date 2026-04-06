@@ -7,6 +7,9 @@ import { IncidentService } from '../../services/incident.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
 import { IncidentResponse } from '../../models/incident.model';
+import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
+import { Banner } from '../../shared/components/banner/banner';
+import { Badge } from '../../shared/components/badge/badge';
 
 interface BlockingItem {
   type: 'TAREA' | 'INCIDENCIA';
@@ -16,8 +19,8 @@ interface BlockingItem {
 
 @Component({
   selector: 'app-close-event',
+  imports: [ModalOverlay, Banner, Badge],
   templateUrl: './close-event.html',
-  styleUrl: './close-event.scss',
 })
 export class CloseEvent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -62,12 +65,6 @@ export class CloseEvent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/']);
-  }
-
-  onOverlayClick(event: MouseEvent): void {
-    if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
-      this.goBack();
-    }
   }
 
   private loadEventData(eventId: number): void {

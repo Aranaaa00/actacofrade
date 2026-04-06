@@ -1,84 +1,77 @@
-<section class="modal-overlay"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="close-event-heading"
-  (click)="onOverlayClick($event)"
-  (keydown.escape)="goBack()">
+<app-modal-overlay modalClass="close-event" titleId="close-event-heading" (closed)="goBack()">
+  <h1 modalTitle class="modal__title" id="close-event-heading">
+    <svg class="close-event__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    </svg>
+    Cerrar acto
+  </h1>
 
-  <article class="modal close-event">
-    <header class="modal__header">
-      <h1 class="modal__title" id="close-event-heading">
-        <svg class="close-event__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        Cerrar acto
-      </h1>
-      <button class="modal__close" type="button" (click)="goBack()" aria-label="Cerrar ventana">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/>
-          <line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-    </header>
+  @if (loading) {
+    <p class="close-event__loading" role="status" aria-live="polite">Cargando información del acto...</p>
+  }
 
-    @if (loading) {
-      <p class="close-event__loading" role="status" aria-live="polite">Cargando información del acto...</p>
-    }
+  @if (successMessage) {
+    <app-banner type="info" role="status" ariaLive="polite">{{ successMessage }}</app-banner>
+  }
 
-    @if (successMessage) {
-      <p class="banner banner--info" role="status" aria-live="polite">{{ successMessage }}</p>
-    }
+  @if (!loading && !successMessage) {
+    <section class="modal__body">
+      @if (isBlocked) {
+        <app-banner styleClass="close-event__banner">
+          <svg class="close-event__banner-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          No es posible cerrar el acto — quedan elementos sin resolver
+        </app-banner>
 
-    @if (!loading && !successMessage) {
-      <section class="modal__body">
-        @if (isBlocked) {
-          <p class="banner banner--critical" role="alert" aria-live="assertive">
-            ⚠ No es posible cerrar el acto — quedan elementos sin resolver
-          </p>
+        <ul class="close-event__list" aria-label="Elementos pendientes de resolución">
+          @for (item of blockingItems; track item.label) {
+            <li class="close-event__item">
+              <app-badge styleClass="close-event__type-badge">{{ item.type }}</app-badge>
+              <span class="close-event__item-text">{{ item.label }} — <strong>{{ item.status }}</strong></span>
+              <span class="close-event__item-action" aria-label="Resolver {{ item.label }}">Resolver →</span>
+            </li>
+          }
+        </ul>
 
-          <ul class="close-event__list" aria-label="Elementos pendientes de resolución">
-            @for (item of blockingItems; track item.label) {
-              <li class="close-event__item">
-                <span class="badge badge--pending">{{ item.type }}</span>
-                <span class="close-event__item-text">{{ item.label }} — <strong>{{ item.status }}</strong></span>
-                <span class="close-event__item-action" aria-label="Resolver {{ item.label }}">Resolver →</span>
-              </li>
-            }
-          </ul>
+        <p class="close-event__help">Resuelve todos los elementos pendientes para poder cerrar el acto.</p>
+      }
 
-          <p class="close-event__help">Resuelve todos los elementos pendientes para poder cerrar el acto.</p>
-        }
+      @if (errorMessage) {
+        <app-banner type="critical">{{ errorMessage }}</app-banner>
+      }
+    </section>
 
-        @if (errorMessage) {
-          <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
-        }
-      </section>
-
-      <footer class="modal__footer close-event__footer">
-        @if (isBlocked) {
-          <button type="button"
-            class="button button--primary button--full-width close-event__blocked-button"
-            disabled
-            aria-disabled="true">
-            🔒 Cerrar acto — no disponible
-          </button>
-          <p class="close-event__footer-help">No es posible cerrar el acto. Quedan elementos sin resolver.</p>
-        } @else {
-          <button type="button"
-            class="button button--secondary"
-            (click)="goBack()">
-            Cancelar
-          </button>
-          <button type="button"
-            class="button button--primary"
-            (click)="close()"
-            [disabled]="closing"
-            [attr.aria-busy]="closing">
-            Cerrar acto →
-          </button>
-        }
-      </footer>
-    }
-  </article>
-</section>
+    <footer class="modal__footer close-event__footer">
+      @if (isBlocked) {
+        <button type="button"
+          class="button button--primary button--full-width close-event__blocked-button"
+          disabled
+          aria-disabled="true">
+          <svg class="close-event__lock-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Cerrar acto — no disponible
+        </button>
+        <p class="close-event__footer-help">No es posible cerrar el acto. Quedan elementos sin resolver.</p>
+      } @else {
+        <button type="button"
+          class="button button--secondary"
+          (click)="goBack()">
+          Cancelar
+        </button>
+        <button type="button"
+          class="button button--primary"
+          (click)="close()"
+          [disabled]="closing"
+          [attr.aria-busy]="closing">
+          Cerrar acto →
+        </button>
+      }
+    </footer>
+  }
+</app-modal-overlay>

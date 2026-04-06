@@ -1,16 +1,17 @@
 import { Component, OnInit, inject } from '@angular/core';
-
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IncidentService } from '../../services/incident.service';
 import { UserService } from '../../services/user.service';
 import { UserResponse } from '../../models/user.model';
+import { Banner } from '../../shared/components/banner/banner';
+import { FormField } from '../../shared/components/form-field/form-field';
+import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 
 @Component({
   selector: 'app-incident-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, Banner, FormField],
   templateUrl: './incident-form.html',
-  styleUrl: './incident-form.scss',
 })
 export class IncidentForm implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -61,17 +62,11 @@ export class IncidentForm implements OnInit {
   }
 
   hasError(field: string): boolean {
-    const control = this.form.get(field);
-    return !!(control && control.invalid && control.touched);
+    return hasFieldError(this.form, field);
   }
 
   getError(field: string): string {
-    const control = this.form.get(field);
-    let message = '';
-    if (control?.errors?.['required']) {
-      message = 'Este campo es obligatorio.';
-    }
-    return message;
+    return getFieldError(this.form, field);
   }
 
   goBack(): void {

@@ -28,9 +28,9 @@
       <ul class="dashboard__event-list" role="list">
         @for (event of events; track event.id) {
           <li class="dashboard__event">
-            <span class="badge badge--wood dashboard__event-type">{{ event.eventType }}</span>
+            <app-badge variant="wood" styleClass="dashboard__event-type">{{ event.eventType }}</app-badge>
             <p class="dashboard__event-title">{{ event.title }}</p>
-            <span class="badge" [class]="getStatusBadgeClass(event.status)">{{ event.statusLabel }}</span>
+            <app-badge [variant]="getStatusBadgeVariant(event.status)">{{ event.statusLabel }}</app-badge>
             <span class="dashboard__event-action" aria-hidden="true">
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 5l7 7-7 7"/></svg>
             </span>
@@ -48,7 +48,7 @@
       <ul class="dashboard__alert-list" role="list">
         @for (alert of alerts; track alert.description) {
           <li class="dashboard__alert-item">
-            <span class="badge badge--wood">{{ alert.type }}</span>
+            <app-badge variant="wood">{{ alert.type }}</app-badge>
             <p class="dashboard__alert-item-text">{{ alert.description }}</p>
           </li>
         }

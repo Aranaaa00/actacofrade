@@ -2,31 +2,26 @@
   <h1>Nueva incidencia</h1>
 
   @if (errorMessage) {
-    <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
+    <app-banner type="critical">{{ errorMessage }}</app-banner>
   }
 
   @if (successMessage) {
-    <p class="banner banner--info" role="alert">{{ successMessage }}</p>
+    <app-banner type="info">{{ successMessage }}</app-banner>
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-    <fieldset class="form-field" [class.form-field--error]="hasError('description')">
-      <label class="form-field__label" for="incident-description">Descripción *</label>
+    <app-form-field label="Descripción *" fieldId="incident-description" [hasError]="hasError('description')" [errorMessage]="hasError('description') ? getError('description') : ''">
       <textarea id="incident-description" formControlName="description" rows="4"></textarea>
-      @if (hasError('description')) {
-        <small class="form-field__error">{{ getError('description') }}</small>
-      }
-    </fieldset>
+    </app-form-field>
 
-    <fieldset class="form-field">
-      <label class="form-field__label" for="incident-reporter">Reportado por</label>
+    <app-form-field label="Reportado por" fieldId="incident-reporter">
       <select id="incident-reporter" formControlName="reportedById">
         <option [ngValue]="null">Sin asignar</option>
         @for (user of users; track user.id) {
           <option [ngValue]="user.id">{{ user.fullName }}</option>
         }
       </select>
-    </fieldset>
+    </app-form-field>
 
     <footer class="form__actions">
       <button type="submit" class="button button--primary" [disabled]="loading">

@@ -2,12 +2,14 @@ import { Component, inject, ElementRef, ViewChild, AfterViewInit } from '@angula
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { Banner } from '../../shared/components/banner/banner';
+import { FormField } from '../../shared/components/form-field/form-field';
+import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, Banner, FormField],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
 })
 export class Login implements AfterViewInit {
   private readonly fb = inject(FormBuilder);
@@ -64,29 +66,10 @@ export class Login implements AfterViewInit {
   }
 
   hasError(field: string): boolean {
-    const control = this.form.get(field);
-    let showError = false;
-    if (control && control.invalid) {
-      const isRequired = !!control.errors?.['required'];
-      if (isRequired) {
-        showError = this.submitted;
-      } else {
-        showError = control.dirty;
-      }
-    }
-    return showError;
+    return hasFieldError(this.form, field, this.submitted);
   }
 
   getError(field: string): string {
-    const control = this.form.get(field);
-    let message = '';
-    if (control?.errors) {
-      if (control.errors['required']) {
-        message = 'Este campo es obligatorio.';
-      } else if (control.errors['email']) {
-        message = 'Introduce un email válido.';
-      }
-    }
-    return message;
+    return getFieldError(this.form, field);
   }
 }

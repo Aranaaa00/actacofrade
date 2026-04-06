@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { Badge } from '../../shared/components/badge/badge';
 
 interface MockEvent {
   id: number;
@@ -16,9 +17,8 @@ interface MockAlert {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  imports: [Badge],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
 })
 export class Dashboard {
   private readonly authService = inject(AuthService);
@@ -75,12 +75,12 @@ export class Dashboard {
     return name;
   }
 
-  getStatusBadgeClass(status: string): string {
-    const classMap: Record<string, string> = {
-      'in-progress': 'badge--confirmed',
-      'blocked': 'badge--rejected',
-      'planning': 'badge--neutral',
+  getStatusBadgeVariant(status: string): string {
+    const variantMap: Record<string, string> = {
+      'in-progress': 'confirmed',
+      'blocked': 'rejected',
+      'planning': 'neutral',
     };
-    return classMap[status] || 'badge--neutral';
+    return variantMap[status] || 'neutral';
   }
 }

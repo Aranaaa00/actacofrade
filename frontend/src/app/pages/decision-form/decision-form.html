@@ -2,16 +2,15 @@
   <h1>{{ isEditMode ? 'Editar decisión' : 'Nueva decisión' }}</h1>
 
   @if (errorMessage) {
-    <p class="banner banner--critical" role="alert">{{ errorMessage }}</p>
+    <app-banner type="critical">{{ errorMessage }}</app-banner>
   }
 
   @if (successMessage) {
-    <p class="banner banner--info" role="alert">{{ successMessage }}</p>
+    <app-banner type="info">{{ successMessage }}</app-banner>
   }
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
-    <fieldset class="form-field" [class.form-field--error]="hasError('area')">
-      <label class="form-field__label" for="decision-area">Área *</label>
+    <app-form-field label="Área *" fieldId="decision-area" [hasError]="hasError('area')" [errorMessage]="hasError('area') ? getError('area') : ''">
       <select id="decision-area" formControlName="area">
         <option value="" disabled>Selecciona un área</option>
         <option value="CULTOS">Cultos</option>
@@ -21,28 +20,20 @@
         <option value="ECONOMIA">Economía</option>
         <option value="GENERAL">General</option>
       </select>
-      @if (hasError('area')) {
-        <small class="form-field__error">{{ getError('area') }}</small>
-      }
-    </fieldset>
+    </app-form-field>
 
-    <fieldset class="form-field" [class.form-field--error]="hasError('title')">
-      <label class="form-field__label" for="decision-title">Título *</label>
+    <app-form-field label="Título *" fieldId="decision-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
       <input id="decision-title" type="text" formControlName="title">
-      @if (hasError('title')) {
-        <small class="form-field__error">{{ getError('title') }}</small>
-      }
-    </fieldset>
+    </app-form-field>
 
-    <fieldset class="form-field">
-      <label class="form-field__label" for="decision-reviewer">Revisado por</label>
+    <app-form-field label="Revisado por" fieldId="decision-reviewer">
       <select id="decision-reviewer" formControlName="reviewedById">
         <option [ngValue]="null">Sin asignar</option>
         @for (user of users; track user.id) {
           <option [ngValue]="user.id">{{ user.fullName }}</option>
         }
       </select>
-    </fieldset>
+    </app-form-field>
 
     <footer class="form__actions">
       <button type="submit" class="button button--primary" [disabled]="loading">
