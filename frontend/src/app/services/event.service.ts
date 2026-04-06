@@ -27,4 +27,12 @@ export class EventService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  close(id: number): Observable<EventResponse> {
+    return this.http.patch<EventResponse>(`${this.baseUrl}/${id}/close`, {});
+  }
+
+  advanceStatus(id: number): Observable<EventResponse> {
+    return this.http.patch<EventResponse>(`${this.baseUrl}/${id}/advance-status`, {});
+  }
 }
