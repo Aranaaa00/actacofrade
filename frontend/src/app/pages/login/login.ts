@@ -1,11 +1,11 @@
 import { Component, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -42,7 +42,7 @@ export class Login implements AfterViewInit {
       this.authService.login(this.form.value).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/events/new']);
+          this.router.navigate(['/dashboard']);
         },
         error: () => {
           this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
