@@ -41,12 +41,12 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new IllegalArgumentException("El correo electrónico ya está registrado");
         }
 
         RoleCode roleCode = RoleCode.valueOf(request.roleCode());
         Role role = roleRepository.findByCode(roleCode)
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.roleCode()));
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + request.roleCode()));
 
         User user = new User();
         user.setFullName(request.fullName());
@@ -71,7 +71,7 @@ public class AuthService {
         );
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         user.setLastLogin(LocalDateTime.now());
         userRepository.save(user);
