@@ -1,0 +1,50 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-page);
+}
+
+.landing__hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-32;
+  padding: $space-64 $space-32;
+  text-align: center;
+}
+
+.landing__logo {
+  width: 15rem;
+  height: auto;
+}
+
+.landing__tagline {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  color: var(--text-secondary);
+  max-width: 36rem;
+  line-height: 1.6;
+}
+
+.landing__cta {
+  margin-top: $space-16;
+  font-size: $text-body;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.landing__footer {
+  padding: $space-24 $space-32;
+  text-align: center;
+}
+
+.landing__copyright {
+  font-size: $text-meta;
+  color: var(--text-secondary);
+}
