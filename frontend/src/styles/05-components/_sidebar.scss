@@ -1,0 +1,267 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Shell: sidebar + main area
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+// Overlay para cerrar sidebar en movil
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--overlay-modal);
+  z-index: 90;
+
+  @include from-desktop {
+    display: none;
+  }
+}
+
+// Sidebar de navegacion principal
+.sidebar {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  display: flex;
+  flex-direction: column;
+  width: 16rem;
+  background-color: var(--nav-bg);
+  color: var(--text-on-dark);
+  transform: translateX(-100%);
+  z-index: 95;
+
+  @include from-desktop {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transform: none;
+    flex-shrink: 0;
+  }
+
+  &--open {
+    transform: translateX(0);
+  }
+}
+
+.sidebar__header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: $space-24 $space-24 $space-16;
+}
+
+.sidebar__logo {
+  width: 3.5rem;
+  height: auto;
+}
+
+.sidebar__brand {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-bold;
+  color: var(--text-on-dark);
+  margin-top: $space-12;
+  letter-spacing: 0.02em;
+}
+
+.sidebar__subtitle {
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: $space-4;
+}
+
+// Lista de enlaces de navegacion
+.sidebar__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  padding: $space-16 $space-12;
+  list-style: none;
+}
+
+.sidebar__link {
+  @include focus-visible;
+  @include transition(background-color, color);
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-12 $space-16;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark-muted);
+  border-radius: $radius-2;
+  cursor: pointer;
+  min-height: 3rem;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-on-dark);
+  }
+
+  &--active {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: var(--nav-active);
+  }
+}
+
+.sidebar__icon {
+  width: $size-icon-20;
+  height: $size-icon-20;
+  flex-shrink: 0;
+}
+
+// Pie del sidebar con info de usuario
+.sidebar__footer {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-16 $space-24;
+  border-top: $border-1 solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar__avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--nav-bg);
+  background-color: var(--text-on-dark);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sidebar__user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar__user-name {
+  @include truncate;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark);
+}
+
+.sidebar__user-role {
+  @include truncate;
+  font-size: $text-label;
+  color: var(--text-on-dark-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sidebar__logout {
+  @include focus-visible;
+  @include transition(color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-on-dark-muted);
+  flex-shrink: 0;
+  cursor: pointer;
+
+  & svg {
+    width: $size-icon-20;
+    height: $size-icon-20;
+  }
+
+  &:hover {
+    color: var(--nav-active);
+  }
+}
+
+// Topbar superior con info contextual
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: $space-16;
+  padding: $space-12 $space-16;
+  background-color: var(--bg-surface);
+  border-bottom: $border-1 solid var(--border-default);
+  min-height: 3.5rem;
+
+  @include from-desktop {
+    padding: $space-12 $space-32;
+  }
+}
+
+.topbar__toggle {
+  @include focus-visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+
+  & svg {
+    width: $size-icon-24;
+    height: $size-icon-24;
+  }
+
+  @include from-desktop {
+    display: none;
+  }
+}
+
+.topbar__title {
+  font-family: $font-heading;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+  flex: 1;
+  display: none;
+
+  @include from-tablet {
+    display: block;
+  }
+}
+
+.topbar__date {
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  display: none;
+
+  @include from-tablet {
+    display: block;
+  }
+}
+
+.topbar__user {
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+  white-space: nowrap;
+  margin-inline-start: auto;
+}
+
+// Area principal (derecha del sidebar)
+.app-shell__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-shell__content {
+  flex: 1;
+  overflow-y: auto;
+}
