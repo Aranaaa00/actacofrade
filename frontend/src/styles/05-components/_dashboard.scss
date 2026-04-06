@@ -1,0 +1,228 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Panel principal
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: $space-32;
+  padding: $space-24 $space-16;
+
+  @include from-tablet {
+    padding: $space-32 $space-24;
+  }
+
+  @include from-desktop {
+    padding: $space-48 $space-32;
+  }
+}
+
+// Saludo personal
+.dashboard__greeting {
+  display: flex;
+  flex-direction: column;
+  gap: $space-8;
+}
+
+.dashboard__welcome {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  line-height: 1.2;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.dashboard__summary {
+  font-size: $text-body;
+  color: var(--text-secondary);
+  line-height: 1.5;
+
+  & strong {
+    color: var(--text-primary);
+    font-weight: $weight-bold;
+  }
+}
+
+// Fila de metricas
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-12;
+  list-style: none;
+
+  @include from-tablet {
+    gap: $space-16;
+  }
+}
+
+.dashboard__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $space-8;
+  padding: $space-24 $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-bg);
+  border-radius: $radius-2;
+}
+
+.dashboard__stat-number {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  line-height: 1;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.dashboard__stat-label {
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// Grid: eventos + alertas
+.dashboard__grid {
+  display: grid;
+  gap: $space-24;
+  grid-template-columns: 1fr;
+
+  @include from-desktop {
+    grid-template-columns: 3fr 2fr;
+  }
+}
+
+// Titulo de seccion
+.dashboard__section-title {
+  display: flex;
+  align-items: center;
+  gap: $space-8;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: $space-16;
+}
+
+.dashboard__dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--badge-rejected-bg);
+  border-radius: 50%;
+}
+
+// Lista de actos (filas compactas)
+.dashboard__event-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+  overflow: hidden;
+}
+
+.dashboard__event {
+  @include transition(background-color, border-color);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-16;
+  background-color: var(--bg-surface);
+  border-bottom: $border-1 solid var(--border-default);
+  border-inline-start: $border-2 solid transparent;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+    border-inline-start-color: var(--nav-active);
+  }
+}
+
+.dashboard__event-type {
+  flex-shrink: 0;
+}
+
+.dashboard__event-title {
+  flex: 1;
+  min-width: 0;
+  font-family: $font-heading;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+
+  @include from-tablet {
+    font-size: $text-h4;
+  }
+}
+
+.dashboard__event-action {
+  @include focus-visible;
+  @include transition(color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-secondary);
+  border-radius: $radius-2;
+
+  &:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface-hover);
+  }
+}
+
+// Alertas recientes
+.dashboard__alerts {
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--badge-rejected-bg);
+  border-radius: $radius-2;
+  padding: $space-24 $space-16;
+}
+
+.dashboard__alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  list-style: none;
+}
+
+.dashboard__alert-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: $space-8;
+  padding-bottom: $space-16;
+  border-bottom: $border-1 solid var(--border-default);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+.dashboard__alert-item-text {
+  flex: 1;
+  min-width: 0;
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
