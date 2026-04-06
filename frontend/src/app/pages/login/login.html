@@ -1,0 +1,78 @@
+<section class="login-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="login-heading"
+  (click)="onOverlayClick($event)"
+  (keydown.escape)="close()">
+
+  <article class="login" #loginModal>
+    <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
+      <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
+      <h2 class="login__brand">ActaCofrade</h2>
+      <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
+      <p class="login__version">Secretaría General V2.4</p>
+    </aside>
+
+    <section class="login__main">
+      <h1 class="login__heading" id="login-heading">Acceso al Archivo</h1>
+
+      @if (errorMessage) {
+        <p class="banner banner--critical" role="alert" aria-live="assertive">{{ errorMessage }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login__form" aria-label="Formulario de inicio de sesión">
+        <fieldset class="form-field" [class.form-field--error]="hasError('email')">
+          <label class="form-field__label" for="login-email">Correo electrónico</label>
+          <input id="login-email"
+            type="email"
+            formControlName="email"
+            placeholder="ejemplo@hermandad.es"
+            autocomplete="email"
+            [attr.aria-invalid]="hasError('email')"
+            [attr.aria-describedby]="hasError('email') ? 'login-email-error' : null">
+          @if (hasError('email')) {
+            <small class="form-field__error" id="login-email-error" role="alert">{{ getError('email') }}</small>
+          }
+        </fieldset>
+
+        <fieldset class="form-field" [class.form-field--error]="hasError('password')">
+          <label class="form-field__label" for="login-password">Contraseña institucional</label>
+          <input id="login-password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            [attr.aria-invalid]="hasError('password')"
+            [attr.aria-describedby]="hasError('password') ? 'login-password-error' : null">
+          @if (hasError('password')) {
+            <small class="form-field__error" id="login-password-error" role="alert">{{ getError('password') }}</small>
+          }
+        </fieldset>
+
+        <nav class="login__options" aria-label="Opciones de sesión">
+          <label class="login__remember">
+            <input type="checkbox" formControlName="rememberMe">
+            Recordar sesión
+          </label>
+          <a class="login__forgot" href="#">¿Olvidó sus credenciales?</a>
+        </nav>
+
+        <footer class="login__submit">
+          <button type="submit"
+            class="button button--primary button--full-width"
+            [disabled]="loading"
+            [attr.aria-busy]="loading">
+            Autenticar acceso
+          </button>
+        </footer>
+
+        <a class="login__register" href="#">No tengo acceso, solicitar cuenta institucional</a>
+      </form>
+
+      <p class="login__legal">
+        Este sistema contiene información privada protegida por los protocolos de la hermandad.
+        El acceso no autorizado será debidamente registrado.
+      </p>
+    </section>
+  </article>
+</section>
