@@ -1,0 +1,81 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Modal de creacion/edicion de actos
+.act-editor {
+  max-width: 48rem;
+  padding: $space-16 $space-24 $space-12;
+
+  @include from-tablet {
+    padding: $space-24 $space-32 $space-16;
+  }
+}
+
+.act-editor__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: $space-12;
+  border-bottom: $border-1 solid var(--border-default);
+  margin-bottom: $space-16;
+
+  @include from-tablet {
+    margin-bottom: $space-24;
+  }
+}
+
+.act-editor__title {
+  font-family: $font-heading;
+  font-size: $text-h3;
+  font-weight: $weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.act-editor__body {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+}
+
+.act-editor__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-16;
+
+  @include from-tablet {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// Campos con borde completo (selects, date, textarea)
+.act-editor__field--bordered {
+  select,
+  input[type='date'],
+  textarea {
+    border: $border-1 solid var(--border-default);
+    border-bottom: $border-1 solid var(--border-default);
+
+    &:hover {
+      border-color: var(--input-line-hover);
+    }
+
+    &:focus {
+      border: $border-2 solid var(--input-line-focus);
+    }
+  }
+}
+
+.act-editor__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-16;
+  padding-top: $space-16;
+  border-top: $border-1 solid var(--border-default);
+  margin-top: $space-4;
+
+  .button {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}

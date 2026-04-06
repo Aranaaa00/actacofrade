@@ -36,3 +36,8 @@
   color: var(--badge-neutral-text);
   border: $border-1 solid var(--badge-neutral-border);
 }
+
+.badge--wood {
+  background-color: var(--badge-wood-bg);
+  color: var(--badge-wood-text);
+}

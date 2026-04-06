@@ -1,10 +1,33 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
+// Titulo del modal en mayusculas
+.close-event {
+  & .modal__title {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
 // Icono de candado en el titulo del modal
 .close-event__icon {
   width: $size-icon-24;
   height: $size-icon-24;
+  flex-shrink: 0;
+}
+
+// Banner de aviso con fondo madera
+.close-event__banner {
+  background-color: var(--nav-bg);
+  color: var(--text-on-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// Icono de triangulo de advertencia en el banner
+.close-event__banner-icon {
+  width: $size-icon-20;
+  height: $size-icon-20;
   flex-shrink: 0;
 }
 
@@ -14,6 +37,13 @@
   padding: $space-32 0;
   text-align: center;
   color: var(--text-secondary);
+}
+
+// Etiqueta de tipo en la lista de bloqueos
+.close-event__type-badge {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: $border-1 solid var(--border-strong);
 }
 
 // Lista de elementos que bloquean el cierre
@@ -62,7 +92,7 @@
 .close-event__help {
   font-size: $text-paragraph;
   font-style: italic;
-  color: var(--text-secondary);
+  color: var(--badge-pending-text);
   margin-bottom: $space-24;
 }
 
@@ -70,6 +100,13 @@
 .close-event__footer {
   flex-direction: column;
   align-items: stretch;
+}
+
+// Icono de candado en el boton bloqueado
+.close-event__lock-icon {
+  width: $size-icon-20;
+  height: $size-icon-20;
+  flex-shrink: 0;
 }
 
 .close-event__blocked-button {
