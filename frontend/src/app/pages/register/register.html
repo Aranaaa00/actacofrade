@@ -1,0 +1,116 @@
+<section class="login-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="register-heading"
+  (click)="onOverlayClick($event)"
+  (keydown.escape)="close()">
+
+    <article class="login login--register" #registerModal>
+    <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
+      <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
+      <h2 class="login__brand">ActaCofrade</h2>
+      <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
+      <p class="login__version">Secretaría General V2.4</p>
+    </aside>
+
+    <section class="login__main">
+      <h1 class="login__heading" id="register-heading">Crear Cuenta</h1>
+
+      @if (errorMessage) {
+        <p class="banner banner--critical" role="alert" aria-live="assertive">{{ errorMessage }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login__form" aria-label="Formulario de registro">
+        <fieldset class="form-field" [class.form-field--error]="hasError('fullName')">
+          <label class="form-field__label" for="register-name">Nombre completo</label>
+          <input id="register-name"
+            type="text"
+            formControlName="fullName"
+            autocomplete="name"
+            [attr.aria-invalid]="hasError('fullName')"
+            [attr.aria-describedby]="hasError('fullName') ? 'register-name-error' : null">
+          @if (hasError('fullName')) {
+            <small class="form-field__error" id="register-name-error" role="alert">{{ getError('fullName') }}</small>
+          }
+        </fieldset>
+
+        <fieldset class="form-field" [class.form-field--error]="hasError('email')">
+          <label class="form-field__label" for="register-email">Correo electrónico</label>
+          <input id="register-email"
+            type="email"
+            formControlName="email"
+            placeholder="ejemplo@hermandad.es"
+            autocomplete="email"
+            [attr.aria-invalid]="hasError('email')"
+            [attr.aria-describedby]="hasError('email') ? 'register-email-error' : null">
+          @if (hasError('email')) {
+            <small class="form-field__error" id="register-email-error" role="alert">{{ getError('email') }}</small>
+          }
+        </fieldset>
+
+        <fieldset class="register__row">
+          <fieldset class="form-field" [class.form-field--error]="hasError('password')">
+            <label class="form-field__label" for="register-password">Contraseña institucional</label>
+            <input id="register-password"
+              type="password"
+              formControlName="password"
+              placeholder="••••••••"
+              autocomplete="new-password"
+              [attr.aria-invalid]="hasError('password')"
+              [attr.aria-describedby]="hasError('password') ? 'register-password-error' : null">
+            @if (hasError('password')) {
+              <small class="form-field__error" id="register-password-error" role="alert">{{ getError('password') }}</small>
+            }
+          </fieldset>
+
+          <fieldset class="form-field" [class.form-field--error]="hasError('confirmPassword')">
+            <label class="form-field__label" for="register-confirm">Confirmar contraseña</label>
+            <input id="register-confirm"
+              type="password"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              autocomplete="new-password"
+              [attr.aria-invalid]="hasError('confirmPassword')"
+              [attr.aria-describedby]="hasError('confirmPassword') ? 'register-confirm-error' : null">
+            @if (hasError('confirmPassword')) {
+              <small class="form-field__error" id="register-confirm-error" role="alert">{{ getError('confirmPassword') }}</small>
+            }
+          </fieldset>
+        </fieldset>
+
+        <fieldset class="form-field" [class.form-field--error]="hasError('roleCode')">
+          <label class="form-field__label" for="register-role">Rol</label>
+          <select id="register-role"
+            formControlName="roleCode"
+            [attr.aria-invalid]="hasError('roleCode')"
+            [attr.aria-describedby]="hasError('roleCode') ? 'register-role-error' : null">
+            @for (role of roles; track role.code) {
+              <option [value]="role.code">{{ role.label }}</option>
+            }
+          </select>
+          @if (hasError('roleCode')) {
+            <small class="form-field__error" id="register-role-error" role="alert">{{ getError('roleCode') }}</small>
+          }
+        </fieldset>
+
+        <footer class="login__submit">
+          <button type="submit"
+            class="button register__submit-button button--full-width"
+            [disabled]="loading"
+            [attr.aria-busy]="loading">
+            Crear cuenta →
+          </button>
+        </footer>
+
+        <p class="register__login-link">
+          ¿Ya tienes cuenta? <a class="login__register" routerLink="/login">Acceda aquí</a>
+        </p>
+      </form>
+
+      <section class="login__legal" aria-label="Aviso de privacidad">
+        <p class="register__legal-title">Privacidad y protección de datos</p>
+        <p>De conformidad con el RGPD, los datos facilitados serán tratados por la Secretaría General de ActaCofrade con la única finalidad de gestión institucional y protocolos internos.</p>
+      </section>
+    </section>
+  </article>
+</section>

@@ -1,0 +1,77 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Modificador para compactar el modal de registro sin scroll
+.login--register {
+  & .login__main {
+    padding: $space-24 $space-32;
+
+    @include from-tablet {
+      padding: $space-24 $space-48;
+    }
+  }
+
+  & .login__heading {
+    margin-bottom: $space-16;
+  }
+
+  & .login__form {
+    gap: $space-12;
+  }
+
+  & .login__submit {
+    margin-top: $space-4;
+  }
+
+  & .login__legal {
+    margin-top: $space-16;
+  }
+}
+
+// Fila de dos columnas para contraseña y confirmacion
+.register__row {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+
+  @include from-tablet {
+    flex-direction: row;
+
+    & > .form-field {
+      flex: 1;
+    }
+  }
+}
+
+// Boton oscuro de crear cuenta
+.register__submit-button {
+  background-color: var(--bg-inverse);
+  color: var(--text-on-dark);
+  border: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--btn-primary-bg);
+  }
+
+  &:disabled {
+    background-color: var(--btn-primary-bg-disabled);
+    color: var(--btn-primary-text-disabled);
+  }
+}
+
+// Enlace de retorno a login
+.register__login-link {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+  text-align: center;
+
+  & .login__register {
+    font-weight: $weight-semibold;
+  }
+}
+
+// Titulo de privacidad en seccion legal
+.register__legal-title {
+  font-weight: $weight-semibold;
+  margin-bottom: $space-8;
+}
