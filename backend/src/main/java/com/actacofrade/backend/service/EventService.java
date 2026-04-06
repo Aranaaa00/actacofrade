@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -130,11 +131,13 @@ public class EventService {
             throw new IllegalStateException("El acto ya se encuentra cerrado");
         }
 
-        long pendingTasks = eventRepository.countPendingTasksByEventId(id);
+        long pendingTasks = eventRepository.countTasksWithPendingStatus(id);
+        long rejectedTasks = eventRepository.countTasksWithRejectedStatus(id);
         long openIncidents = eventRepository.countOpenIncidentsByEventId(id);
 
-        if (pendingTasks > 0 || openIncidents > 0) {
-            throw new IllegalStateException("No es posible cerrar el acto. Quedan elementos sin resolver");
+        String blockReason = buildClosureBlockReason(pendingTasks, rejectedTasks, openIncidents);
+        if (!blockReason.isEmpty()) {
+            throw new IllegalStateException(blockReason);
         }
 
         event.setStatus(EventStatus.CERRADO);
@@ -183,6 +186,24 @@ public class EventService {
             case CONFIRMACION -> EventStatus.CIERRE;
             default -> throw new IllegalStateException("No se puede avanzar desde el estado: " + current.name());
         };
+    }
+
+    private String buildClosureBlockReason(long pending, long rejected, long incidents) {
+        List<String> reasons = new ArrayList<>();
+        if (pending > 0) {
+            reasons.add(pending + " tarea(s) pendiente(s)");
+        }
+        if (rejected > 0) {
+            reasons.add(rejected + " tarea(s) rechazada(s)");
+        }
+        if (incidents > 0) {
+            reasons.add(incidents + " incidencia(s) abierta(s)");
+        }
+        String result = "";
+        if (!reasons.isEmpty()) {
+            result = "No es posible cerrar el acto. Quedan: " + String.join(", ", reasons);
+        }
+        return result;
     }
 
     private Event findEventOrThrow(Integer id) {
