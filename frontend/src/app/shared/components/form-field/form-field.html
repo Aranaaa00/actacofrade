@@ -1,0 +1,7 @@
+<fieldset [class]="'form-field' + (hasError ? ' form-field--error' : '') + (styleClass ? ' ' + styleClass : '')">
+  <label class="form-field__label" [attr.for]="fieldId">{{ label }}</label>
+  <ng-content />
+  @if (errorMessage) {
+    <small class="form-field__error" [attr.id]="fieldId ? fieldId + '-error' : null" role="alert">{{ errorMessage }}</small>
+  }
+</fieldset>

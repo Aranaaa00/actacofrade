@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AuthResponse } from '../../models/auth.model';
+import { Sidebar } from '../../shared/components/sidebar/sidebar';
+import { Header } from '../header/header';
 
 @Component({
   selector: 'app-main',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, Sidebar, Header],
   templateUrl: './main.html',
-  styleUrl: './main.scss',
 })
 export class Main {
   private readonly authService = inject(AuthService);
@@ -31,16 +32,6 @@ export class Main {
         .substring(0, 2);
     }
     return initials;
-  }
-
-  get formattedDate(): string {
-    const now = new Date();
-    return now.toLocaleDateString('es-ES', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }).toUpperCase();
   }
 
   toggleSidebar(): void {

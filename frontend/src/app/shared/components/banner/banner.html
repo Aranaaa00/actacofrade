@@ -1,0 +1,5 @@
+<p [class]="'banner' + (type ? ' banner--' + type : '') + (styleClass ? ' ' + styleClass : '')"
+  [attr.role]="role"
+  [attr.aria-live]="ariaLive">
+  <ng-content />
+</p>
