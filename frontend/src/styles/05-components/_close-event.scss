@@ -1,0 +1,87 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Icono de candado en el titulo del modal
+.close-event__icon {
+  width: $size-icon-24;
+  height: $size-icon-24;
+  flex-shrink: 0;
+}
+
+// Texto de carga
+.close-event__loading {
+  @include body-text($text-paragraph);
+  padding: $space-32 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+// Lista de elementos que bloquean el cierre
+.close-event__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: $space-24 0;
+}
+
+.close-event__item {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-16 0;
+  border-bottom: $border-1 solid var(--border-default);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.close-event__item-text {
+  flex: 1;
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+}
+
+.close-event__item-action {
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--link-hover);
+  }
+}
+
+// Texto de ayuda debajo de la lista
+.close-event__help {
+  font-size: $text-paragraph;
+  font-style: italic;
+  color: var(--text-secondary);
+  margin-bottom: $space-24;
+}
+
+// Footer con boton bloqueado
+.close-event__footer {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.close-event__blocked-button {
+  background-color: var(--border-default);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.close-event__footer-help {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: $space-8;
+}
