@@ -36,6 +36,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'events/:eventId/close',
+    loadComponent: () => import('./pages/close-event/close-event').then(m => m.CloseEvent),
+    canActivate: [authGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }
