@@ -21,8 +21,10 @@
 @use '05-components/nav';
 @use '05-components/banner';
 @use '05-components/tabs';
+@use '05-components/sidebar';
 @use '05-components/login';
 @use '05-components/landing';
+@use '05-components/dashboard';
 @use '05-components/close-event';
 
 // Utilities
