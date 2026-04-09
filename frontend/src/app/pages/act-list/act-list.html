@@ -1,0 +1,102 @@
+<section class="act-list" aria-label="Registro de actos">
+  <header class="act-list__header">
+    <h1 class="act-list__title">Registro de Actos</h1>
+    <button class="button button--secondary" type="button" (click)="openNewActModal()">
+      <lucide-icon name="file-text" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+      Nuevo acto
+    </button>
+  </header>
+
+  <search class="act-list__filters" aria-label="Filtros de búsqueda">
+    <div class="act-list__filter-dropdown">
+      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('type')">
+        {{ activeTypeLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'type') {
+        <ul class="act-list__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectFilter('type', '')">Todos</li>
+          <li role="option" (click)="selectFilter('type', 'CABILDO')">Cabildo</li>
+          <li role="option" (click)="selectFilter('type', 'CULTOS')">Cultos</li>
+          <li role="option" (click)="selectFilter('type', 'PROCESION')">Procesión</li>
+          <li role="option" (click)="selectFilter('type', 'ENSAYO')">Ensayo</li>
+          <li role="option" (click)="selectFilter('type', 'OTRO')">Otro</li>
+        </ul>
+      }
+    </div>
+    <div class="act-list__filter-dropdown">
+      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('status')">
+        {{ activeStatusLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'status') {
+        <ul class="act-list__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectFilter('status', '')">Todos</li>
+          <li role="option" (click)="selectFilter('status', 'En preparación')">En preparación</li>
+          <li role="option" (click)="selectFilter('status', 'Abierto')">Abierto</li>
+          <li role="option" (click)="selectFilter('status', 'Completado')">Completado</li>
+          <li role="option" (click)="selectFilter('status', 'Cerrado')">Cerrado</li>
+        </ul>
+      }
+    </div>
+    <div class="act-list__filter-date">
+      <input class="act-list__filter-date-input" type="date" [value]="filterDate" [min]="minEventDate" [max]="maxEventDate" (change)="onDateChange($any($event.target).value)" aria-label="Filtrar por fecha del acto">
+    </div>
+    <div class="act-list__search-wrapper">
+      <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
+      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global">
+    </div>
+    <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
+  </search>
+
+  <ul class="act-list__cards" role="list">
+    @for (act of paginatedActs; track act.id; let idx = $index) {
+      <li class="act-card" [class.act-card--dark]="idx % 2 === 0">
+        <aside class="act-card__type-band" aria-hidden="true">
+          <span class="act-card__type-label">{{ act.eventType }}</span>
+        </aside>
+        <section class="act-card__body">
+          <header class="act-card__info">
+            <h2 class="act-card__title">{{ act.title }}</h2>
+            <p class="act-card__reference">Ref: {{ act.reference }}</p>
+          </header>
+          <dl class="act-card__meta">
+            <dt class="act-card__meta-label">Fecha</dt>
+            <dd class="act-card__meta-value">{{ act.eventDate }}</dd>
+            <dt class="act-card__meta-label">Responsable</dt>
+            <dd class="act-card__meta-value">{{ act.responsibleName }}</dd>
+          </dl>
+          <section class="act-card__progress" aria-label="Progreso: paso {{ act.currentStep }} de {{ stepLabels.length }}">
+            <ol class="act-card__steps">
+              @for (step of stepLabels; track $index) {
+                <li class="act-card__step" [class.act-card__step--done]="isStepDone(act.currentStep, $index)">
+                  <span class="act-card__step-bar" aria-hidden="true"></span>
+                  <span class="act-card__step-gem" aria-hidden="true">
+                    <lucide-icon name="gem" [size]="12"></lucide-icon>
+                  </span>
+                </li>
+              }
+            </ol>
+            <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ act.statusLabel }}</app-badge>
+          </section>
+          <nav class="act-card__actions" aria-label="Acciones de {{ act.title }}">
+            <a class="act-card__action" [routerLink]="['/events', act.id]">Gestionar</a>
+            <a class="act-card__action">Clonar</a>
+          </nav>
+        </section>
+      </li>
+    }
+  </ul>
+
+  <nav class="act-list__pagination" aria-label="Navegación de páginas">
+    <button class="act-list__page-link" type="button" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">← Anterior</button>
+    @for (page of pages; track page) {
+      <button class="act-list__page-link" [class.act-list__page-link--active]="page === currentPage" type="button" [attr.aria-current]="page === currentPage ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
+    }
+    <button class="act-list__page-link" type="button" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Siguiente →</button>
+  </nav>
+</section>
+
+@if (showNewActModal) {
+  <app-act-editor [embedded]="true" (editorClosed)="closeNewActModal()" />
+}
