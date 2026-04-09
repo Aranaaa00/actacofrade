@@ -1,0 +1,12 @@
+<nav class="tabs" role="tablist">
+  @for (tab of tabs; track tab) {
+    <button class="tab"
+      [class.tab--active]="tab === activeTab"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="tab === activeTab"
+      (click)="selectTab(tab)">
+      {{ tab }}
+    </button>
+  }
+</nav>

@@ -25,8 +25,16 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard)
       },
       {
+        path: 'events',
+        loadComponent: () => import('./pages/act-list/act-list').then(m => m.ActList)
+      },
+      {
         path: 'events/new',
         loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
+      },
+      {
+        path: 'events/:id',
+        loadComponent: () => import('./pages/act-detail/act-detail').then(m => m.ActDetail)
       },
       {
         path: 'events/:id/edit',
