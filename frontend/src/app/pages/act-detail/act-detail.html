@@ -1,0 +1,173 @@
+<section class="act-detail" aria-label="Detalle del acto">
+  <header class="act-detail__header">
+    <aside class="act-detail__type-band" aria-hidden="true">
+      <span class="act-detail__type-label">{{ event.eventType }}</span>
+    </aside>
+    <section class="act-detail__header-content">
+      <section class="act-detail__header-main">
+        <h1 class="act-detail__title">{{ event.title }}</h1>
+        <p class="act-detail__meta">
+          Ref: {{ event.reference }} · {{ event.eventType }} · {{ event.eventDate }} · {{ event.location }} · {{ event.responsibleName }}
+        </p>
+      </section>
+      <aside class="act-detail__header-side">
+        <app-badge [variant]="statusVariant" styleClass="act-detail__status-badge">{{ event.statusLabel }}</app-badge>
+        <nav class="act-detail__header-links" aria-label="Acciones del acto">
+          <a class="act-detail__header-link">Exportar acta →</a>
+          <a class="act-detail__header-link">Clonar →</a>
+        </nav>
+      </aside>
+    </section>
+  </header>
+
+  @if (hasPendingItems) {
+    <app-banner type="info" styleClass="act-detail__alert">
+      <lucide-icon name="triangle-alert" class="act-detail__alert-icon" [size]="20" aria-hidden="true"></lucide-icon>
+      {{ unconfirmedTasksCount }} tareas sin confirmar · {{ openIncidentsCount }} incidencia abierta — Revisar antes del cierre
+      <a class="act-detail__alert-link" [routerLink]="['/events', eventId, 'close']">Ver pendientes →</a>
+    </app-banner>
+  }
+
+  <nav class="act-detail__stepper" aria-label="Progreso del acto">
+    @for (step of steps; track step.key) {
+      <section class="act-detail__step" [class.act-detail__step--done]="step.done">
+        <span class="act-detail__step-dot" aria-hidden="true"></span>
+        <span class="act-detail__step-label">{{ step.label }}</span>
+      </section>
+    }
+  </nav>
+
+  <app-tabs [tabs]="tabLabels" [activeTab]="selectedTab" (tabChanged)="selectedTab = $event" />
+
+  <section class="act-detail__tab-content">
+    @switch (selectedTab) {
+      @case ('Tareas') {
+        <section class="act-detail__panel" role="tabpanel" aria-label="Tareas">
+          <header class="act-detail__panel-header">
+            <button class="act-detail__add-btn" type="button">+ Añadir tarea</button>
+          </header>
+          <table class="table act-detail__table">
+            <thead class="table__head">
+              <tr>
+                <th>Tarea</th>
+                <th>Asignado a</th>
+                <th>Estado</th>
+                <th>Fecha límite</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="table__body">
+              @for (task of tasks; track task.id) {
+                <tr [class.act-detail__row--rejected]="task.status === 'RECHAZADA'">
+                  <td>
+                    <strong class="act-detail__task-title">{{ task.title }}</strong>
+                    @if (task.description) {
+                      <small class="act-detail__task-desc">{{ task.description }}</small>
+                    }
+                  </td>
+                  <td>{{ task.assignedToName }}</td>
+                  <td><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ task.status }}</app-badge></td>
+                  <td>{{ task.deadline }}</td>
+                  <td>
+                    <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
+                      @if (task.status === 'PENDIENTE') {
+                        <a class="act-detail__row-link">Recordar →</a>
+                      }
+                      <a class="act-detail__row-link">Editar</a>
+                      <a class="act-detail__row-link">Eliminar</a>
+                    </nav>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('Decisiones') {
+        <section class="act-detail__panel" role="tabpanel" aria-label="Decisiones">
+          <header class="act-detail__panel-header">
+            <a class="act-detail__add-btn" [routerLink]="['/events', eventId, 'decisions', 'new']">+ Añadir decisión</a>
+          </header>
+          <table class="table act-detail__table">
+            <thead class="table__head">
+              <tr>
+                <th>Área</th>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Revisado por</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="table__body">
+              @for (decision of decisions; track decision.id) {
+                <tr>
+                  <td><strong class="act-detail__task-title">{{ decision.area }}</strong></td>
+                  <td>{{ decision.title }}</td>
+                  <td><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ decision.statusLabel }}</app-badge></td>
+                  <td>{{ decision.reviewedByName }}</td>
+                  <td>
+                    <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
+                      <a class="act-detail__row-link" [routerLink]="['/events', eventId, 'decisions', decision.id, 'edit']">Editar</a>
+                      <a class="act-detail__row-link">Eliminar</a>
+                    </nav>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('Incidencias') {
+        <section class="act-detail__panel" role="tabpanel" aria-label="Incidencias">
+          <header class="act-detail__panel-header">
+            <a class="act-detail__add-btn" [routerLink]="['/events', eventId, 'incidents', 'new']">+ Añadir incidencia</a>
+          </header>
+          <table class="table act-detail__table">
+            <thead class="table__head">
+              <tr>
+                <th>Descripción</th>
+                <th>Reportado por</th>
+                <th>Estado</th>
+                <th>Resuelto por</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="table__body">
+              @for (incident of incidents; track incident.id) {
+                <tr>
+                  <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
+                  <td>{{ incident.reportedByName }}</td>
+                  <td><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ incident.statusLabel }}</app-badge></td>
+                  <td>{{ incident.resolvedByName || '—' }}</td>
+                  <td>
+                    <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
+                      <a class="act-detail__row-link">Resolver</a>
+                      <a class="act-detail__row-link">Eliminar</a>
+                    </nav>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </section>
+      }
+      @case ('Historial del acto') {
+        <section class="act-detail__panel act-detail__panel--empty" role="tabpanel" aria-label="Historial del acto">
+        </section>
+      }
+    }
+  </section>
+
+  <footer class="act-detail__footer">
+    <p class="act-detail__footer-stats">{{ tasks.length }} tareas pendientes · {{ openIncidentsCount }} incidencia abierta</p>
+    <section class="act-detail__footer-actions">
+      <a class="button button--primary" [routerLink]="['/events', eventId, 'close']">
+        <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+        Cerrar acto
+      </a>
+      @if (hasPendingItems) {
+        <small class="act-detail__footer-warning">No es posible cerrar el acto. Quedan elementos sin resolver.</small>
+      }
+    </section>
+  </footer>
+</section>
