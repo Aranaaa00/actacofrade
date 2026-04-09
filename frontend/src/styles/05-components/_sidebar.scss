@@ -75,7 +75,6 @@
   margin-top: $space-4;
 }
 
-// Lista de enlaces de navegacion
 .sidebar__nav {
   flex: 1;
   display: flex;
@@ -96,6 +95,7 @@
   font-weight: $weight-semibold;
   color: var(--text-on-dark-muted);
   border-radius: $radius-2;
+  border-inline-start: 0.25rem solid transparent;
   cursor: pointer;
   min-height: 3rem;
 
@@ -107,16 +107,72 @@
   &--active {
     background-color: rgba(255, 255, 255, 0.12);
     color: var(--nav-active);
+    border-inline-start-color: var(--nav-active);
+  }
+
+  &--parent {
+    width: 100%;
   }
 }
 
 .sidebar__icon {
-  width: $size-icon-20;
-  height: $size-icon-20;
+  display: inline-flex;
   flex-shrink: 0;
 }
 
-// Pie del sidebar con info de usuario
+.sidebar__chevron {
+  @include transition(transform);
+  display: inline-flex;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+
+  &--open {
+    transform: rotate(180deg);
+  }
+}
+
+.sidebar__submenu {
+  display: flex;
+  flex-direction: column;
+  padding-inline-start: $space-48;
+  list-style: none;
+}
+
+.sidebar__sublink {
+  @include focus-visible;
+  @include transition(background-color, color, border-color);
+  display: flex;
+  align-items: center;
+  padding: $space-8 $space-16;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark-muted);
+  border-inline-start: 0.25rem solid transparent;
+  border-radius: $radius-2;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-on-dark);
+  }
+
+  &--active {
+    color: var(--nav-active);
+    background-color: rgba(255, 255, 255, 0.12);
+    border-inline-start-color: var(--nav-active);
+  }
+
+  &--disabled {
+    color: rgba(255, 255, 255, 0.3);
+    cursor: default;
+
+    &:hover {
+      background-color: transparent;
+      color: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
 .sidebar__footer {
   display: flex;
   align-items: center;
@@ -173,7 +229,7 @@
   flex-shrink: 0;
   cursor: pointer;
 
-  & svg {
+  & lucide-icon {
     width: $size-icon-20;
     height: $size-icon-20;
   }
@@ -208,7 +264,7 @@
   color: var(--text-primary);
   cursor: pointer;
 
-  & svg {
+  & lucide-icon {
     width: $size-icon-24;
     height: $size-icon-24;
   }
@@ -221,8 +277,9 @@
 .topbar__title {
   font-family: $font-heading;
   font-size: $text-body;
-  font-weight: $weight-semibold;
-  color: var(--text-primary);
+  font-weight: $weight-bold;
+  font-style: italic;
+  color: var(--text-secondary);
   flex: 1;
   display: none;
 
@@ -232,28 +289,20 @@
 }
 
 .topbar__date {
-  font-size: $text-label;
+  font-size: $text-paragraph;
   font-weight: $weight-semibold;
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
   display: none;
+  margin-inline-start: auto;
 
   @include from-tablet {
     display: block;
   }
 }
 
-.topbar__user {
-  font-size: $text-paragraph;
-  font-weight: $weight-semibold;
-  color: var(--text-primary);
-  white-space: nowrap;
-  margin-inline-start: auto;
-}
-
-// Area principal (derecha del sidebar)
 .app-shell__main {
   flex: 1;
   display: flex;
