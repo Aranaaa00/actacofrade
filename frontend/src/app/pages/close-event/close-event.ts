@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
+import { LucideAngularModule } from 'lucide-angular';
 import { EventService } from '../../services/event.service';
 import { TaskService } from '../../services/task.service';
 import { IncidentService } from '../../services/incident.service';
@@ -19,7 +20,7 @@ interface BlockingItem {
 
 @Component({
   selector: 'app-close-event',
-  imports: [ModalOverlay, Banner, Badge],
+  imports: [ModalOverlay, Banner, Badge, LucideAngularModule],
   templateUrl: './close-event.html',
 })
 export class CloseEvent implements OnInit {

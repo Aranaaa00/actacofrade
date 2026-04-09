@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { AuthResponse } from '../../../models/auth.model';
 
 @Component({
   selector: 'app-topbar',
+  imports: [LucideAngularModule],
   templateUrl: './topbar.html',
 })
 export class Topbar {

@@ -32,7 +32,7 @@
             <p class="dashboard__event-title">{{ event.title }}</p>
             <app-badge [variant]="getStatusBadgeVariant(event.status)">{{ event.statusLabel }}</app-badge>
             <span class="dashboard__event-action" aria-hidden="true">
-              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 5l7 7-7 7"/></svg>
+              <lucide-icon name="chevron-right" [size]="20" aria-hidden="true"></lucide-icon>
             </span>
           </li>
         }

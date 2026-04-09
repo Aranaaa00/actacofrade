@@ -1,9 +1,6 @@
 <app-modal-overlay modalClass="close-event" titleId="close-event-heading" (closed)="goBack()">
   <h1 modalTitle class="modal__title" id="close-event-heading">
-    <svg class="close-event__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-      <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-    </svg>
+    <lucide-icon name="lock" class="close-event__icon" [size]="24" aria-hidden="true"></lucide-icon>
     Cerrar acto
   </h1>
 
@@ -19,11 +16,7 @@
     <section class="modal__body">
       @if (isBlocked) {
         <app-banner styleClass="close-event__banner">
-          <svg class="close-event__banner-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
+          <lucide-icon name="triangle-alert" class="close-event__banner-icon" [size]="20" aria-hidden="true"></lucide-icon>
           No es posible cerrar el acto — quedan elementos sin resolver
         </app-banner>
 
@@ -51,10 +44,7 @@
           class="button button--primary button--full-width close-event__blocked-button"
           disabled
           aria-disabled="true">
-          <svg class="close-event__lock-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
+          <lucide-icon name="lock" class="close-event__lock-icon" [size]="20" aria-hidden="true"></lucide-icon>
           Cerrar acto — no disponible
         </button>
         <p class="close-event__footer-help">No es posible cerrar el acto. Quedan elementos sin resolver.</p>

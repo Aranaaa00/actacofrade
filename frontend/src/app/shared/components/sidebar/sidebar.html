@@ -12,31 +12,46 @@
   <ul class="sidebar__nav" role="list">
     <li>
       <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
-        <svg class="sidebar__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+        <lucide-icon name="house" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Inicio
       </a>
     </li>
     <li>
-      <a class="sidebar__link" routerLink="/events/new" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
-        <svg class="sidebar__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <button class="sidebar__link sidebar__link--parent" type="button" (click)="toggleActsMenu()" [attr.aria-expanded]="actsMenuOpen">
+        <lucide-icon name="file-text" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Actos
-      </a>
+        <lucide-icon name="chevron-down" class="sidebar__chevron" [class.sidebar__chevron--open]="actsMenuOpen" [size]="16" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (actsMenuOpen) {
+        <ul class="sidebar__submenu" role="list">
+          <li>
+            <a class="sidebar__sublink" routerLink="/events" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+              Registro de Actos
+            </a>
+          </li>
+          <li>
+            <a class="sidebar__sublink" (click)="closed.emit()">
+              Mis Tareas
+            </a>
+          </li>
+        </ul>
+      }
     </li>
     <li>
       <a class="sidebar__link" (click)="closed.emit()">
-        <svg class="sidebar__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <lucide-icon name="clock" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Historial
       </a>
     </li>
     <li>
       <a class="sidebar__link" (click)="closed.emit()">
-        <svg class="sidebar__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"/></svg>
+        <lucide-icon name="users" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Usuarios
       </a>
     </li>
     <li>
       <a class="sidebar__link" (click)="closed.emit()">
-        <svg class="sidebar__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Configuración
       </a>
     </li>
@@ -49,7 +64,7 @@
       <small class="sidebar__user-role">{{ user?.roles?.[0] }}</small>
     </section>
     <button class="sidebar__logout" type="button" (click)="loggedOut.emit()" aria-label="Cerrar sesión">
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
     </button>
   </footer>
 </nav>

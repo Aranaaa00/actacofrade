@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, inject, ElementRef, ViewChild, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -22,6 +22,9 @@ export class ActEditor implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
 
   @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
+
+  @Input() embedded = false;
+  @Output() editorClosed = new EventEmitter<void>();
 
   form!: FormGroup;
   users: UserResponse[] = [];
@@ -99,7 +102,11 @@ export class ActEditor implements OnInit, AfterViewInit {
   }
 
   close(): void {
-    this.router.navigate(['/dashboard']);
+    if (this.embedded) {
+      this.editorClosed.emit();
+    } else {
+      this.router.navigate(['/events']);
+    }
   }
 
   hasError(field: string): boolean {

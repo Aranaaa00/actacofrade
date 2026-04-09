@@ -1,7 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-modal-overlay',
+  imports: [LucideAngularModule],
   templateUrl: './modal-overlay.html',
 })
 export class ModalOverlay {

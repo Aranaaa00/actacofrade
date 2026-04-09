@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { Badge } from '../../shared/components/badge/badge';
 
@@ -17,7 +18,7 @@ interface MockAlert {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Badge],
+  imports: [Badge, LucideAngularModule],
   templateUrl: './dashboard.html',
 })
 export class Dashboard {
