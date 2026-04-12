@@ -39,9 +39,11 @@
         </ul>
       }
     </div>
-    <div class="act-list__filter-date">
-      <input class="act-list__filter-date-input" type="date" [value]="filterDate" [min]="minEventDate" [max]="maxEventDate" (change)="onDateChange($any($event.target).value)" aria-label="Filtrar por fecha del acto">
-    </div>
+    <app-datepicker
+      [availableDates]="eventDates"
+      [selectedDate]="filterDate"
+      placeholder="Fecha"
+      (dateSelected)="onDateChange($event)" />
     <div class="act-list__search-wrapper">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global">

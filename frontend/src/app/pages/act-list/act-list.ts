@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
+import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { ActEditor } from '../act-editor/act-editor';
 
 interface MockAct {
@@ -19,7 +20,7 @@ interface MockAct {
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, ActEditor],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor],
   templateUrl: './act-list.html',
 })
 export class ActList {
@@ -84,14 +85,8 @@ export class ActList {
     }
   ];
 
-  get minEventDate(): string {
-    const dates = this.acts.map(a => a.eventIso).sort();
-    return dates[0] || '';
-  }
-
-  get maxEventDate(): string {
-    const dates = this.acts.map(a => a.eventIso).sort();
-    return dates[dates.length - 1] || '';
+  get eventDates(): string[] {
+    return this.acts.map(a => a.eventIso);
   }
 
   get filteredActs(): MockAct[] {
