@@ -107,26 +107,6 @@
   }
 }
 
-.act-list__filter-date {
-  flex-shrink: 0;
-}
-
-.act-list__filter-date-input {
-  height: $size-input-height;
-  padding-inline: $space-12;
-  font-size: $text-paragraph;
-  font-weight: $weight-semibold;
-  color: var(--text-primary);
-  background-color: var(--bg-surface);
-  border: $border-1 solid var(--border-default);
-  border-radius: $radius-2;
-  cursor: pointer;
-
-  &:hover {
-    border-color: var(--border-strong);
-  }
-}
-
 .act-list__search-wrapper {
   position: relative;
   display: flex;
@@ -137,16 +117,17 @@
 
 .act-list__search-icon {
   position: absolute;
+  top: 50%;
   inset-inline-start: $space-12;
   display: flex;
   align-items: center;
+  transform: translateY(-50%);
   color: var(--text-secondary);
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 }
 
 .act-list__filter-search {
-  position: relative;
   width: 100%;
   height: $size-input-height;
   padding-inline: $space-48 $space-12;
