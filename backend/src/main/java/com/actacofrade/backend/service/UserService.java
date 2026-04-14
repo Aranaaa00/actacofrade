@@ -9,11 +9,14 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -61,7 +64,7 @@ public class UserService {
             RoleCode roleCode = RoleCode.valueOf(request.roleCode());
             Role role = roleRepository.findByCode(roleCode)
                     .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.roleCode()));
-            user.setRoles(Set.of(role));
+            user.setRoles(new HashSet<>(Set.of(role)));
         }
 
         userRepository.save(user);
