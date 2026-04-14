@@ -1,0 +1,105 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.element-form {
+  max-width: 40rem;
+
+  & .modal__body {
+    display: flex;
+    flex-direction: column;
+    gap: $space-16;
+  }
+}
+
+.element-form__tabs {
+  display: flex;
+  border: $border-1 solid var(--border-default);
+  margin-bottom: $space-24;
+}
+
+.element-form__tab {
+  @include focus-visible;
+  @include transition(background-color, color, border-color);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: $size-button-height;
+  font-family: $font-body;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: none;
+  cursor: pointer;
+
+  &:not(:last-child) {
+    border-right: $border-1 solid var(--border-default);
+  }
+
+  &:disabled:not(.element-form__tab--active) {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.element-form__tab--active.element-form__tab--task {
+  background-color: var(--nav-bg);
+  color: var(--text-on-dark);
+}
+
+.element-form__tab--active.element-form__tab--decision {
+  background-color: var(--nav-active);
+  color: var(--text-on-dark);
+}
+
+.element-form__tab--active.element-form__tab--incident {
+  background-color: var(--btn-danger-bg);
+  color: var(--text-on-dark);
+}
+
+.element-form__row {
+  display: flex;
+  gap: $space-16;
+}
+
+.element-form__field--half {
+  flex: 1;
+  min-width: 0;
+}
+
+.element-form__status-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-16 $space-24;
+  border: $border-1 solid var(--badge-pending-border);
+  text-align: center;
+  margin-top: $space-8;
+}
+
+.element-form__status-text {
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.element-form__hint {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+  line-height: 1.5;
+
+  &--italic {
+    font-style: italic;
+    color: var(--badge-pending-text);
+  }
+}
+
+.element-form__cancel {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: none;
+}
