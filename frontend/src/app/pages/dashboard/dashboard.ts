@@ -1,71 +1,38 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
+import { EventService } from '../../services/event.service';
+import { EventResponse } from '../../models/event.model';
 import { Badge } from '../../shared/components/badge/badge';
 
-interface MockEvent {
-  id: number;
-  title: string;
-  status: string;
-  statusLabel: string;
-  eventType: string;
-}
-
-interface MockAlert {
+interface Alert {
   type: 'TAREA' | 'INCIDENCIA' | 'CIERRE';
   description: string;
 }
 
 @Component({
   selector: 'app-dashboard',
-  imports: [Badge, LucideAngularModule],
+  imports: [RouterLink, Badge, LucideAngularModule],
   templateUrl: './dashboard.html',
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly eventService = inject(EventService);
 
-  readonly events: MockEvent[] = [
-    {
-      id: 1,
-      title: 'Cabildo General Ordinario de Cuentas',
-      status: 'in-progress',
-      statusLabel: 'En proceso',
-      eventType: 'CABILDO'
-    },
-    {
-      id: 2,
-      title: 'Solemne Quinario al Santísimo Cristo',
-      status: 'blocked',
-      statusLabel: 'Bloqueado',
-      eventType: 'CULTOS'
-    },
-    {
-      id: 3,
-      title: 'Estación de Penitencia — Viernes Santo',
-      status: 'planning',
-      statusLabel: 'Planificación',
-      eventType: 'PROCESIÓN'
-    }
-  ];
+  events: EventResponse[] = [];
+  alerts: Alert[] = [];
+  loading = true;
 
-  readonly alerts: MockAlert[] = [
-    {
-      type: 'TAREA',
-      description: 'Validar presupuesto anual adjunto al acta de cuentas.'
-    },
-    {
-      type: 'INCIDENCIA',
-      description: 'Falta firma digital del Hermano Mayor en certificación.'
-    },
-    {
-      type: 'CIERRE',
-      description: 'Expediente listo para archivo definitivo y foliación.'
-    }
-  ];
+  get pendingTasksCount(): number {
+    return this.events.reduce((sum, e) => sum + e.pendingTasks, 0);
+  }
 
-  readonly pendingDecisionsCount = 8;
-  readonly readyToCloseCount = 3;
-  readonly pendingTasksCount = 3;
+  get readyToCloseCount(): number {
+    return this.events.filter(e =>
+      e.status === 'CONFIRMACION' && e.pendingTasks === 0 && e.openIncidents === 0
+    ).length;
+  }
 
   get userName(): string {
     const user = this.authService.getUser();
@@ -76,12 +43,61 @@ export class Dashboard {
     return name;
   }
 
+  ngOnInit(): void {
+    this.eventService.findAll().subscribe({
+      next: (events) => {
+        this.events = events;
+        this.buildAlerts();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  getStatusLabel(status: string): string {
+    const map: Record<string, string> = {
+      'PLANIFICACION': 'Planificación',
+      'PREPARACION': 'En preparación',
+      'CONFIRMACION': 'Confirmación',
+      'CERRADO': 'Cerrado',
+    };
+    return map[status] || status;
+  }
+
   getStatusBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
-      'in-progress': 'confirmed',
-      'blocked': 'rejected',
-      'planning': 'neutral',
+      'PLANIFICACION': 'neutral',
+      'PREPARACION': 'pending',
+      'CONFIRMACION': 'confirmed',
+      'CERRADO': 'neutral',
     };
     return variantMap[status] || 'neutral';
+  }
+
+  private buildAlerts(): void {
+    const result: Alert[] = [];
+    for (const event of this.events) {
+      if (event.pendingTasks > 0) {
+        result.push({
+          type: 'TAREA',
+          description: `${event.pendingTasks} tarea(s) pendiente(s) en «${event.title}».`
+        });
+      }
+      if (event.openIncidents > 0) {
+        result.push({
+          type: 'INCIDENCIA',
+          description: `${event.openIncidents} incidencia(s) abierta(s) en «${event.title}».`
+        });
+      }
+      if (event.status === 'CONFIRMACION' && event.pendingTasks === 0 && event.openIncidents === 0) {
+        result.push({
+          type: 'CIERRE',
+          description: `«${event.title}» listo para cerrar.`
+        });
+      }
+    }
+    this.alerts = result;
   }
 }

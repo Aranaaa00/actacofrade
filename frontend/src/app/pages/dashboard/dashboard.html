@@ -1,8 +1,12 @@
 <section class="dashboard" aria-label="Panel principal">
 
+  @if (loading) {
+    <p class="dashboard__loading">Cargando datos…</p>
+  } @else {
+
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
-    <p class="dashboard__summary">Tienes <strong>{{ pendingTasksCount }} tareas pendientes</strong> para hoy.</p>
+    <p class="dashboard__summary">Tienes <strong>{{ pendingTasksCount }} tareas pendientes</strong> en total.</p>
   </header>
 
   <ul class="dashboard__stats" role="list">
@@ -11,8 +15,8 @@
       <p class="dashboard__stat-label">Actos activos</p>
     </li>
     <li class="dashboard__stat">
-      <strong class="dashboard__stat-number">{{ pendingDecisionsCount }}</strong>
-      <p class="dashboard__stat-label">Decisiones pendientes</p>
+      <strong class="dashboard__stat-number">{{ pendingTasksCount }}</strong>
+      <p class="dashboard__stat-label">Tareas pendientes</p>
     </li>
     <li class="dashboard__stat">
       <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
@@ -29,11 +33,16 @@
         @for (event of events; track event.id) {
           <li class="dashboard__event">
             <app-badge variant="wood" styleClass="dashboard__event-type">{{ event.eventType }}</app-badge>
-            <p class="dashboard__event-title">{{ event.title }}</p>
-            <app-badge [variant]="getStatusBadgeVariant(event.status)">{{ event.statusLabel }}</app-badge>
-            <span class="dashboard__event-action" aria-hidden="true">
+            <a class="dashboard__event-title" [routerLink]="['/events', event.id]">{{ event.title }}</a>
+            <app-badge [variant]="getStatusBadgeVariant(event.status)">{{ getStatusLabel(event.status) }}</app-badge>
+            <a class="dashboard__event-action" [routerLink]="['/events', event.id]" aria-label="Ver {{ event.title }}">
               <lucide-icon name="chevron-right" [size]="20" aria-hidden="true"></lucide-icon>
-            </span>
+            </a>
+          </li>
+        }
+        @empty {
+          <li class="dashboard__event">
+            <p class="dashboard__event-title">No hay actos registrados.</p>
           </li>
         }
       </ul>
@@ -52,9 +61,16 @@
             <p class="dashboard__alert-item-text">{{ alert.description }}</p>
           </li>
         }
+        @empty {
+          <li class="dashboard__alert-item">
+            <p class="dashboard__alert-item-text">Sin alertas pendientes.</p>
+          </li>
+        }
       </ul>
     </section>
 
   </section>
+
+  }
 
 </section>
