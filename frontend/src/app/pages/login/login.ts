@@ -41,14 +41,19 @@ export class Login implements AfterViewInit {
       this.loading = true;
       this.errorMessage = '';
 
-      this.authService.login(this.form.value).subscribe({
+      const { rememberMe, ...credentials } = this.form.value;
+      this.authService.login(credentials).subscribe({
         next: () => {
           this.loading = false;
           this.router.navigate(['/dashboard']);
         },
-        error: () => {
-          this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
+        error: (err) => {
           this.loading = false;
+          if (err.status === 0 || err.status >= 500) {
+            this.errorMessage = 'Error del servidor. Inténtalo de nuevo más tarde.';
+          } else {
+            this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
+          }
         }
       });
     }
