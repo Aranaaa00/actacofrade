@@ -1,150 +1,106 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Banner } from '../../shared/components/banner/banner';
 import { Tabs } from '../../shared/components/tabs/tabs';
+import { ElementForm } from '../element-form/element-form';
+import { CloseEvent } from '../close-event/close-event';
+import { EventService } from '../../services/event.service';
+import { TaskService } from '../../services/task.service';
+import { DecisionService } from '../../services/decision.service';
+import { IncidentService } from '../../services/incident.service';
+import { EventResponse } from '../../models/event.model';
+import { TaskResponse } from '../../models/task.model';
+import { DecisionResponse } from '../../models/decision.model';
+import { IncidentResponse } from '../../models/incident.model';
 
-interface MockEvent {
+type ElementTab = 'task' | 'decision' | 'incident';
+
+interface EditData {
+  type: ElementTab;
   id: number;
-  reference: string;
   title: string;
-  eventType: string;
-  eventDate: string;
-  location: string;
-  responsibleName: string;
-  status: string;
-  statusLabel: string;
+  assignedToId: number | null;
+  deadline: string;
+  notes: string;
+  area: string;
 }
 
-interface MockStep {
+interface StepInfo {
   key: string;
   label: string;
   done: boolean;
-}
-
-interface MockTask {
-  id: number;
-  title: string;
-  description: string;
-  assignedToName: string;
-  status: string;
-  deadline: string;
-}
-
-interface MockDecision {
-  id: number;
-  area: string;
-  title: string;
-  status: string;
-  statusLabel: string;
-  reviewedByName: string;
-}
-
-interface MockIncident {
-  id: number;
-  description: string;
-  status: string;
-  statusLabel: string;
-  reportedByName: string;
-  resolvedByName: string;
+  connectorDone: boolean;
 }
 
 @Component({
   selector: 'app-act-detail',
-  imports: [RouterLink, Badge, Banner, Tabs, LucideAngularModule],
+  imports: [Badge, Banner, Tabs, LucideAngularModule, ElementForm, CloseEvent],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly eventService = inject(EventService);
+  private readonly taskService = inject(TaskService);
+  private readonly decisionService = inject(DecisionService);
+  private readonly incidentService = inject(IncidentService);
 
   eventId = 0;
   selectedTab = 'Tareas';
   readonly tabLabels = ['Tareas', 'Decisiones', 'Incidencias', 'Historial del acto'];
 
-  readonly event: MockEvent = {
-    id: 1,
-    reference: '2026/0042',
-    title: 'Cabildo General Ordinario',
-    eventType: 'CABILDO',
-    eventDate: '15 Mar 2026',
-    location: 'Casa Hermandad',
-    responsibleName: 'Mayordomía',
-    status: 'EN_PROCESO',
-    statusLabel: 'En proceso'
+  showElementForm = false;
+  elementFormTab: ElementTab = 'task';
+  elementEditData: EditData | null = null;
+  showCloseEvent = false;
+  loading = true;
+
+  event: EventResponse | null = null;
+  tasks: TaskResponse[] = [];
+  decisions: DecisionResponse[] = [];
+  incidents: IncidentResponse[] = [];
+
+  private readonly stepKeys = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE'];
+  private readonly stepLabels: Record<string, string> = {
+    PLANIFICACION: 'Planificación',
+    PREPARACION: 'Preparación',
+    CONFIRMACION: 'Confirmación',
+    CIERRE: 'Cierre'
   };
 
-  readonly steps: MockStep[] = [
-    { key: 'planificacion', label: 'Planificación', done: true },
-    { key: 'preparacion', label: 'Preparación', done: true },
-    { key: 'confirmacion', label: 'Confirmación', done: false },
-    { key: 'cierre', label: 'Cierre', done: false }
-  ];
+  private readonly statusLabelMap: Record<string, string> = {
+    PLANIFICACION: 'En planificación',
+    PREPARACION: 'En proceso',
+    CONFIRMACION: 'En confirmación',
+    CIERRE: 'En cierre',
+    CERRADO: 'Cerrado'
+  };
 
-  readonly tasks: MockTask[] = [
-    {
-      id: 1,
-      title: 'Preparación de Censo Electoral',
-      description: 'Revisión de altas y bajas del último trimestre',
-      assignedToName: 'M. López',
-      status: 'PENDIENTE',
-      deadline: '12 Mar 2026'
-    },
-    {
-      id: 2,
-      title: 'Reserva de Casa Hermandad',
-      description: '',
-      assignedToName: 'J. Riva',
-      status: 'CONFIRMADA',
-      deadline: '01 Mar 2026'
-    },
-    {
-      id: 3,
-      title: 'Contratación de Catering',
-      description: 'Motivo: No se realizará...',
-      assignedToName: 'F. García',
-      status: 'RECHAZADA',
-      deadline: '05 Mar 2026'
-    }
-  ];
+  get statusLabel(): string {
+    return this.statusLabelMap[this.event?.status || ''] || this.event?.status || '';
+  }
 
-  readonly decisions: MockDecision[] = [
-    {
-      id: 1,
-      area: 'Economía',
-      title: 'Aprobación de presupuesto anual 2026',
-      status: 'APROBADA',
-      statusLabel: 'Aprobada',
-      reviewedByName: 'M. Arana'
-    },
-    {
-      id: 2,
-      area: 'Cultos',
-      title: 'Cambio de horario del quinario',
-      status: 'PENDIENTE',
-      statusLabel: 'Pendiente',
-      reviewedByName: 'J. López'
-    }
-  ];
-
-  readonly incidents: MockIncident[] = [
-    {
-      id: 1,
-      description: 'Avería en sistema de megafonía de la Casa Hermandad',
-      status: 'ABIERTA',
-      statusLabel: 'Abierta',
-      reportedByName: 'F. García',
-      resolvedByName: ''
-    }
-  ];
+  get steps(): StepInfo[] {
+    const currentIndex = this.stepKeys.indexOf(this.event?.status || '');
+    return this.stepKeys.map((key, i) => ({
+      key,
+      label: this.stepLabels[key],
+      done: i <= currentIndex,
+      connectorDone: i < currentIndex
+    }));
+  }
 
   get statusVariant(): string {
     const variantMap: Record<string, string> = {
-      'EN_PROCESO': 'pending',
-      'CERRADO': 'neutral',
-      'COMPLETADO': 'confirmed',
+      'PLANIFICACION': 'pending',
+      'PREPARACION': 'pending',
+      'CONFIRMACION': 'pending',
+      'CIERRE': 'pending',
+      'CERRADO': 'confirmed',
     };
-    return variantMap[this.event.status] || 'neutral';
+    return variantMap[this.event?.status || ''] || 'pending';
   }
 
   get unconfirmedTasksCount(): number {
@@ -161,6 +117,7 @@ export class ActDetail implements OnInit {
 
   ngOnInit(): void {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
+    this.loadData();
   }
 
   getTaskBadgeVariant(status: string): string {
@@ -174,7 +131,7 @@ export class ActDetail implements OnInit {
 
   getDecisionBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
-      'APROBADA': 'confirmed',
+      'LISTA': 'confirmed',
       'PENDIENTE': 'pending',
       'RECHAZADA': 'rejected',
     };
@@ -187,5 +144,117 @@ export class ActDetail implements OnInit {
       'RESUELTA': 'confirmed',
     };
     return variantMap[status] || 'neutral';
+  }
+
+  addTask(): void {
+    this.elementFormTab = 'task';
+    this.elementEditData = null;
+    this.showElementForm = true;
+  }
+
+  addDecision(): void {
+    this.elementFormTab = 'decision';
+    this.elementEditData = null;
+    this.showElementForm = true;
+  }
+
+  addIncident(): void {
+    this.elementFormTab = 'incident';
+    this.elementEditData = null;
+    this.showElementForm = true;
+  }
+
+  onElementSaved(): void {
+    this.showElementForm = false;
+    this.elementEditData = null;
+    this.loadData();
+  }
+
+  onElementClosed(): void {
+    this.showElementForm = false;
+    this.elementEditData = null;
+  }
+
+  openCloseEvent(): void {
+    this.showCloseEvent = true;
+  }
+
+  onCloseEventClosed(): void {
+    this.showCloseEvent = false;
+    this.loadData();
+  }
+
+  editTask(task: TaskResponse): void {
+    this.elementFormTab = 'task';
+    this.elementEditData = {
+      type: 'task',
+      id: task.id,
+      title: task.title,
+      assignedToId: task.assignedToId,
+      deadline: task.deadline || '',
+      notes: task.description,
+      area: ''
+    };
+    this.showElementForm = true;
+  }
+
+  editDecision(decision: DecisionResponse): void {
+    this.elementFormTab = 'decision';
+    this.elementEditData = {
+      type: 'decision',
+      id: decision.id,
+      title: decision.title,
+      assignedToId: decision.reviewedById,
+      deadline: '',
+      notes: '',
+      area: decision.area
+    };
+    this.showElementForm = true;
+  }
+
+  deleteTask(taskId: number): void {
+    this.taskService.delete(this.eventId, taskId).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
+  deleteDecision(decisionId: number): void {
+    this.decisionService.delete(this.eventId, decisionId).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
+  deleteIncident(incidentId: number): void {
+    this.incidentService.delete(this.eventId, incidentId).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
+  formatDate(dateStr: string | null): string {
+    if (!dateStr) {
+      return '—';
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  private loadData(): void {
+    forkJoin({
+      event: this.eventService.findById(this.eventId),
+      tasks: this.taskService.findByEventId(this.eventId),
+      decisions: this.decisionService.findByEventId(this.eventId),
+      incidents: this.incidentService.findByEventId(this.eventId)
+    }).subscribe({
+      next: (data) => {
+        this.event = data.event;
+        this.tasks = data.tasks;
+        this.decisions = data.decisions;
+        this.incidents = data.incidents;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 }
