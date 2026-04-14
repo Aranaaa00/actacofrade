@@ -4,6 +4,9 @@
 // Titulo del modal en mayusculas
 .close-event {
   & .modal__title {
+    display: flex;
+    align-items: center;
+    gap: $space-12;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -20,8 +23,14 @@
 .close-event__banner {
   background-color: var(--nav-bg);
   color: var(--text-on-dark);
+  font-weight: $weight-bold;
   text-transform: uppercase;
+  text-align: center;
   letter-spacing: 0.04em;
+  justify-content: center;
+  padding: $space-16 $space-24;
+  margin-inline: -$space-32;
+  margin-bottom: $space-8;
 }
 
 // Icono de triangulo de advertencia en el banner
@@ -50,17 +59,16 @@
 .close-event__list {
   display: flex;
   flex-direction: column;
-  gap: 0;
   list-style: none;
   padding: 0;
-  margin: $space-24 0;
+  margin: $space-16 0;
 }
 
 .close-event__item {
   display: flex;
   align-items: center;
-  gap: $space-12;
-  padding: $space-16 0;
+  gap: $space-16;
+  padding: $space-16 $space-4;
   border-bottom: $border-1 solid var(--border-default);
 
   &:last-child {
@@ -75,6 +83,8 @@
 }
 
 .close-event__item-action {
+  @include focus-visible;
+  @include transition(color);
   font-size: $text-paragraph;
   font-weight: $weight-bold;
   color: var(--text-primary);
@@ -82,6 +92,7 @@
   letter-spacing: 0.04em;
   white-space: nowrap;
   cursor: pointer;
+  text-decoration: none;
 
   &:hover {
     color: var(--link-hover);
@@ -93,7 +104,8 @@
   font-size: $text-paragraph;
   font-style: italic;
   color: var(--badge-pending-text);
-  margin-bottom: $space-24;
+  text-align: center;
+  margin-bottom: $space-16;
 }
 
 // Footer con boton bloqueado
@@ -121,4 +133,24 @@
   color: var(--text-secondary);
   text-align: center;
   margin-top: $space-8;
+}
+
+// Banner cuando el acto SE PUEDE cerrar
+.close-event__banner--ready {
+  background-color: var(--badge-confirmed-bg);
+}
+
+// Estado abierto: texto confirmacion y botones
+.close-event__confirm-text {
+  font-size: $text-paragraph;
+  font-style: italic;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: $space-16;
+}
+
+.close-event__confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-12;
 }
