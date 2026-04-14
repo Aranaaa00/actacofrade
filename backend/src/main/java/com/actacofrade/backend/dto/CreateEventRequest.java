@@ -2,6 +2,7 @@ package com.actacofrade.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ public record CreateEventRequest(
         String title,
 
         @NotBlank(message = "El tipo de acto es obligatorio")
+        @Pattern(regexp = "CABILDO|CULTOS|PROCESION|ENSAYO|OTRO", message = "Tipo de acto no v\u00e1lido")
         String eventType,
 
         @NotNull(message = "La fecha del acto es obligatoria")
