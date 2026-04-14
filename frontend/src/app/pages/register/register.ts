@@ -20,7 +20,7 @@ export class Register implements AfterViewInit {
   @ViewChild('registerModal') registerModal!: ElementRef<HTMLElement>;
 
   form: FormGroup = this.fb.group({
-    fullName: ['', [Validators.required]],
+    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'-]{3,150}$/u)]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],

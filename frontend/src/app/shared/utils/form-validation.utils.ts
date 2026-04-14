@@ -22,8 +22,12 @@ export function getFieldError(form: FormGroup, field: string): string {
       message = 'Este campo es obligatorio.';
     } else if (control.errors['email']) {
       message = 'Introduce un email válido.';
+    } else if (control.errors['minlength']) {
+      message = `Mínimo ${control.errors['minlength'].requiredLength} caracteres.`;
     } else if (control.errors['maxlength']) {
       message = `Máximo ${control.errors['maxlength'].requiredLength} caracteres.`;
+    } else if (control.errors['pattern']) {
+      message = 'El valor introducido no tiene un formato válido.';
     }
   }
   return message;
