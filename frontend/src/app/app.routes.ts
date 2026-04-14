@@ -41,18 +41,6 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
       },
       {
-        path: 'events/:eventId/decisions/new',
-        loadComponent: () => import('./pages/decision-form/decision-form').then(m => m.DecisionForm)
-      },
-      {
-        path: 'events/:eventId/decisions/:decisionId/edit',
-        loadComponent: () => import('./pages/decision-form/decision-form').then(m => m.DecisionForm)
-      },
-      {
-        path: 'events/:eventId/incidents/new',
-        loadComponent: () => import('./pages/incident-form/incident-form').then(m => m.IncidentForm)
-      },
-      {
         path: 'events/:eventId/close',
         loadComponent: () => import('./pages/close-event/close-event').then(m => m.CloseEvent)
       }
