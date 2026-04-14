@@ -17,7 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
-  padding: $space-8 $space-12;
+  padding: $space-12 $space-16;
 }
 
 .table__body tr {
@@ -30,7 +30,7 @@
 }
 
 .table__body td {
-  padding: $space-12;
+  padding: $space-16;
   font-size: $text-paragraph;
   color: var(--text-primary);
   vertical-align: middle;
