@@ -1,0 +1,99 @@
+<app-modal-overlay modalClass="element-form" titleId="element-form-heading" (closed)="closed.emit()">
+  <h1 modalTitle class="modal__title" id="element-form-heading">
+    {{ isEditMode ? 'Editar elemento' : 'Añadir elemento' }}
+  </h1>
+
+  @if (errorMessage) {
+    <app-banner type="critical">{{ errorMessage }}</app-banner>
+  }
+
+  @if (successMessage) {
+    <app-banner type="info">{{ successMessage }}</app-banner>
+  }
+
+  <nav class="element-form__tabs" role="tablist" aria-label="Tipo de elemento">
+    <button class="element-form__tab element-form__tab--task"
+      [class.element-form__tab--active]="activeTab === 'task'"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeTab === 'task'"
+      [disabled]="isEditMode"
+      (click)="switchTab('task')">
+      Tarea
+    </button>
+    <button class="element-form__tab element-form__tab--decision"
+      [class.element-form__tab--active]="activeTab === 'decision'"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeTab === 'decision'"
+      [disabled]="isEditMode"
+      (click)="switchTab('decision')">
+      Decisión
+    </button>
+    <button class="element-form__tab element-form__tab--incident"
+      [class.element-form__tab--active]="activeTab === 'incident'"
+      type="button"
+      role="tab"
+      [attr.aria-selected]="activeTab === 'incident'"
+      [disabled]="isEditMode"
+      (click)="switchTab('incident')">
+      Incidencia
+    </button>
+  </nav>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal__body" aria-label="Formulario de elemento">
+    <app-form-field [label]="titleLabel" fieldId="element-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
+      <input id="element-title" type="text" formControlName="title" [placeholder]="titlePlaceholder">
+    </app-form-field>
+
+    @if (activeTab === 'decision') {
+      <app-form-field label="Área" fieldId="element-area">
+        <select id="element-area" formControlName="area">
+          @for (opt of areaOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </app-form-field>
+    }
+
+    <section class="element-form__row">
+      <app-form-field [label]="activeTab === 'decision' ? 'Revisado por' : 'Asignado a'" fieldId="element-assigned" styleClass="element-form__field--half">
+        <select id="element-assigned" formControlName="assignedToId">
+          <option [ngValue]="null">Seleccionar responsable</option>
+          @for (user of users; track user.id) {
+            <option [ngValue]="user.id">{{ user.fullName }}</option>
+          }
+        </select>
+      </app-form-field>
+
+      <app-form-field label="Fecha límite" fieldId="element-deadline" styleClass="element-form__field--half">
+        <input id="element-deadline" type="date" formControlName="deadline" placeholder="DD/MM/AAAA">
+      </app-form-field>
+    </section>
+
+    <app-form-field label="Notas adicionales" fieldId="element-notes">
+      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones relevantes..."></textarea>
+    </app-form-field>
+
+    <aside class="element-form__status-box" aria-label="Estado inicial">
+      <strong class="element-form__status-text">Estado inicial: Pendiente</strong>
+    </aside>
+
+    <p class="element-form__hint element-form__hint--italic">
+      La tarea se crea automáticamente como pendiente. El responsable asignado o un administrador deberá confirmarla o rechazarla más adelante.
+    </p>
+
+    <p class="element-form__hint">
+      Solo cuando todas las tareas estén confirmadas y no existan incidencias abiertas, el acto podrá cerrarse.
+    </p>
+
+    <footer class="modal__footer">
+      <button type="button" class="button button--secondary element-form__cancel" (click)="closed.emit()">
+        Cancelar
+      </button>
+      <button type="submit" class="button button--primary" [disabled]="loading" [attr.aria-busy]="loading">
+        {{ submitLabel }} →
+      </button>
+    </footer>
+  </form>
+</app-modal-overlay>
