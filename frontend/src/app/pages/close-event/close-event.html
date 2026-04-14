@@ -25,12 +25,19 @@
             <li class="close-event__item">
               <app-badge styleClass="close-event__type-badge">{{ item.type }}</app-badge>
               <span class="close-event__item-text">{{ item.label }} — <strong>{{ item.status }}</strong></span>
-              <span class="close-event__item-action" aria-label="Resolver {{ item.label }}">Resolver →</span>
+              <a class="close-event__item-action" aria-label="Resolver {{ item.label }}">Resolver →</a>
             </li>
           }
         </ul>
 
         <p class="close-event__help">Resuelve todos los elementos pendientes para poder cerrar el acto.</p>
+      } @else {
+        <app-banner styleClass="close-event__banner close-event__banner--ready">
+          <lucide-icon name="diamond" class="close-event__banner-icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Todos los elementos están resueltos
+        </app-banner>
+
+        <p class="close-event__confirm-text">Este acto quedará registrado como cerrado de forma definitiva. Esta acción no se puede deshacer.</p>
       }
 
       @if (errorMessage) {
@@ -49,18 +56,21 @@
         </button>
         <p class="close-event__footer-help">No es posible cerrar el acto. Quedan elementos sin resolver.</p>
       } @else {
-        <button type="button"
-          class="button button--secondary"
-          (click)="goBack()">
-          Cancelar
-        </button>
-        <button type="button"
-          class="button button--primary"
-          (click)="close()"
-          [disabled]="closing"
-          [attr.aria-busy]="closing">
-          Cerrar acto →
-        </button>
+        <section class="close-event__confirm-actions">
+          <button type="button"
+            class="button button--secondary"
+            (click)="goBack()">
+            Cancelar
+          </button>
+          <button type="button"
+            class="button button--primary"
+            (click)="close()"
+            [disabled]="closing"
+            [attr.aria-busy]="closing">
+            <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+            Cerrar acto
+          </button>
+        </section>
       }
     </footer>
   }

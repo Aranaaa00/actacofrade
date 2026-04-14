@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Input, Output, EventEmitter } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -30,6 +30,10 @@ export class CloseEvent implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly incidentService = inject(IncidentService);
 
+  @Input() embedded = false;
+  @Input() inputEventId?: number;
+  @Output() closed = new EventEmitter<void>();
+
   event: EventResponse | null = null;
   blockingItems: BlockingItem[] = [];
   loading = true;
@@ -42,7 +46,9 @@ export class CloseEvent implements OnInit {
   }
 
   ngOnInit(): void {
-    const eventId = Number(this.route.snapshot.paramMap.get('eventId'));
+    const eventId = this.embedded && this.inputEventId
+      ? this.inputEventId
+      : Number(this.route.snapshot.paramMap.get('eventId'));
     this.loadEventData(eventId);
   }
 
@@ -65,7 +71,11 @@ export class CloseEvent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    if (this.embedded) {
+      this.closed.emit();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   private loadEventData(eventId: number): void {
