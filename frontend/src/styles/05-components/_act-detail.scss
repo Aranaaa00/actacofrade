@@ -4,6 +4,11 @@
 .act-detail {
   display: flex;
   flex-direction: column;
+  margin: $space-32;
+
+  @include from-tablet {
+    margin: $space-48 $space-64;
+  }
 }
 
 // Cabecera con fondo oscuro
@@ -42,13 +47,13 @@
   display: flex;
   flex-direction: column;
   gap: $space-16;
-  padding: $space-24 $space-16;
+  padding: $space-24 $space-24;
 
   @include from-tablet {
     flex-direction: row;
     align-items: flex-start;
     justify-content: space-between;
-    padding: $space-32 $space-24;
+    padding: $space-32 $space-48;
   }
 }
 
@@ -91,15 +96,22 @@
 
 .act-detail__header-link {
   @include focus-visible;
-  @include transition(color);
-  font-size: $text-paragraph;
+  @include transition(color, border-color);
+  display: inline-flex;
+  align-items: center;
+  padding: $space-4 $space-12;
+  font-size: $text-label;
   font-weight: $weight-semibold;
   color: var(--text-on-dark-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   white-space: nowrap;
+  border: $border-1 solid var(--text-on-dark-muted);
   cursor: pointer;
 
   &:hover {
     color: var(--text-on-dark);
+    border-color: var(--text-on-dark);
   }
 }
 
@@ -110,6 +122,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: $space-8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .act-detail__alert-icon {
@@ -136,10 +150,11 @@
 // Stepper de progreso
 .act-detail__stepper {
   display: flex;
-  padding: $space-24 $space-16;
+  gap: $space-4;
+  padding: $space-32 $space-32;
 
   @include from-tablet {
-    padding: $space-32 $space-24;
+    padding: $space-48 $space-64;
   }
 }
 
@@ -160,7 +175,7 @@
     background-color: var(--border-default);
   }
 
-  &--done:not(:last-child)::after {
+  &--connector-done:not(:last-child)::after {
     background-color: var(--text-primary);
   }
 }
@@ -190,17 +205,17 @@
 
 // Contenido de pestanas
 .act-detail__tab-content {
-  padding: 0 $space-16;
+  padding: $space-24 $space-16 0;
 
   @include from-tablet {
-    padding: 0 $space-24;
+    padding: $space-24 $space-24 0;
   }
 }
 
 .act-detail__panel {
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
-  min-height: 12rem;
+  min-height: 16rem;
 }
 
 .act-detail__panel--empty {
@@ -212,7 +227,7 @@
 .act-detail__panel-header {
   display: flex;
   justify-content: flex-end;
-  padding: $space-16;
+  padding: $space-16 $space-24;
 }
 
 .act-detail__add-btn {
@@ -244,6 +259,11 @@
   font-size: $text-label;
   color: var(--text-secondary);
   margin-top: $space-4;
+}
+
+.act-detail__date {
+  font-weight: $weight-bold;
+  text-transform: uppercase;
 }
 
 .act-detail__row--rejected {
@@ -278,6 +298,13 @@
   }
 }
 
+.act-detail__loading {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: $space-64 0;
+}
+
 // Pie con estadisticas y accion
 .act-detail__footer {
   display: flex;
@@ -287,10 +314,10 @@
   gap: $space-16;
   padding: $space-24 $space-16;
   border-top: $border-1 solid var(--border-default);
-  margin-top: $space-24;
+  margin-top: $space-32;
 
   @include from-tablet {
-    padding: $space-24;
+    padding: $space-32 $space-24;
   }
 }
 
@@ -307,6 +334,11 @@
   flex-direction: column;
   align-items: flex-end;
   gap: $space-8;
+
+  & .button {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
 }
 
 .act-detail__footer-warning {
