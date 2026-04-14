@@ -10,11 +10,13 @@ import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.IncidentRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Transactional
 public class IncidentService {
 
     private final IncidentRepository incidentRepository;
