@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
 import { UserResponse } from '../../models/user.model';
+import { EventResponse } from '../../models/event.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
@@ -25,6 +26,7 @@ export class ActEditor implements OnInit, AfterViewInit {
 
   @Input() embedded = false;
   @Output() editorClosed = new EventEmitter<void>();
+  @Output() actCreated = new EventEmitter<EventResponse>();
 
   form!: FormGroup;
   users: UserResponse[] = [];
@@ -87,11 +89,13 @@ export class ActEditor implements OnInit, AfterViewInit {
         : this.eventService.create(this.form.value);
 
       request$.subscribe({
-        next: () => {
-          this.successMessage = this.isEditMode
-            ? 'Acto actualizado correctamente.'
-            : 'Acto creado correctamente.';
-          this.loading = false;
+        next: (event) => {
+          if (this.isEditMode) {
+            this.successMessage = 'Acto actualizado correctamente.';
+            this.loading = false;
+          } else {
+            this.actCreated.emit(event);
+          }
         },
         error: (err) => {
           this.errorMessage = err.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.';

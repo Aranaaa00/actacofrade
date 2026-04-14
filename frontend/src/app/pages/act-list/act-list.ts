@@ -1,29 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { ActEditor } from '../act-editor/act-editor';
-
-interface MockAct {
-  id: number;
-  reference: string;
-  title: string;
-  eventType: string;
-  eventDate: string;
-  eventIso: string;
-  responsibleName: string;
-  status: string;
-  statusLabel: string;
-  currentStep: number;
-}
+import { EventService } from '../../services/event.service';
+import { EventResponse } from '../../models/event.model';
 
 @Component({
   selector: 'app-act-list',
   imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor],
   templateUrl: './act-list.html',
 })
-export class ActList {
+export class ActList implements OnInit {
+  private readonly eventService = inject(EventService);
+
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
   readonly pageSize = 5;
   currentPage = 1;
@@ -33,72 +24,42 @@ export class ActList {
   filterStatus = '';
   filterDate = '';
   searchQuery = '';
+  loading = true;
 
-  readonly acts: MockAct[] = [
-    {
-      id: 1,
-      reference: '2026/0012',
-      title: 'Cabildo General Ordinario de Cuentas',
-      eventType: 'CABILDO',
-      eventDate: '15 Mar 2026',
-      eventIso: '2026-03-15',
-      responsibleName: 'Mayordomía',
-      status: 'EN_PREPARACION',
-      statusLabel: 'En preparación',
-      currentStep: 2
-    },
-    {
-      id: 2,
-      reference: '2026/0015',
-      title: 'Solemne Quinario al Stmo. Cristo',
-      eventType: 'CULTOS',
-      eventDate: '18-22 Mar 2026',
-      eventIso: '2026-03-18',
-      responsibleName: 'Priostra',
-      status: 'COMPLETADO',
-      statusLabel: 'Completado',
-      currentStep: 4
-    },
-    {
-      id: 3,
-      reference: '2026/0012',
-      title: 'Estación de Penitencia Jueves Santo',
-      eventType: 'PROCESION',
-      eventDate: '02 Abril 2026',
-      eventIso: '2026-04-02',
-      responsibleName: 'Dip. Mayor',
-      status: 'ABIERTO',
-      statusLabel: 'Abierto',
-      currentStep: 3
-    },
-    {
-      id: 4,
-      reference: '2026/0012',
-      title: 'Mudá y Primer Ensayo de Costaleros',
-      eventType: 'ENSAYO',
-      eventDate: '20 Feb 2026',
-      eventIso: '2026-02-20',
-      responsibleName: 'Mayordomía',
-      status: 'CERRADO',
-      statusLabel: 'Cerrado',
-      currentStep: 4
-    }
-  ];
+  events: EventResponse[] = [];
 
-  get eventDates(): string[] {
-    return this.acts.map(a => a.eventIso);
+  private readonly statusLabelMap: Record<string, string> = {
+    'PLANIFICACION': 'Planificación',
+    'PREPARACION': 'En preparación',
+    'CONFIRMACION': 'Confirmación',
+    'CERRADO': 'Cerrado',
+  };
+
+  private readonly stepIndexMap: Record<string, number> = {
+    'PLANIFICACION': 1,
+    'PREPARACION': 2,
+    'CONFIRMACION': 3,
+    'CERRADO': 4,
+  };
+
+  ngOnInit(): void {
+    this.loadEvents();
   }
 
-  get filteredActs(): MockAct[] {
-    return this.acts.filter(act => {
-      const matchesType = !this.filterType || act.eventType === this.filterType;
-      const matchesStatus = !this.filterStatus || act.statusLabel === this.filterStatus;
-      const matchesDate = !this.filterDate || act.eventIso === this.filterDate;
+  get eventDates(): string[] {
+    return this.events.map(e => e.eventDate);
+  }
+
+  get filteredActs(): EventResponse[] {
+    return this.events.filter(event => {
+      const matchesType = !this.filterType || event.eventType === this.filterType;
+      const matchesStatus = !this.filterStatus || event.status === this.filterStatus;
+      const matchesDate = !this.filterDate || event.eventDate === this.filterDate;
       const query = this.searchQuery.toLowerCase();
-      const matchesSearch = !query || act.title.toLowerCase().includes(query)
-        || act.reference.toLowerCase().includes(query)
-        || act.responsibleName.toLowerCase().includes(query)
-        || act.eventType.toLowerCase().includes(query);
+      const matchesSearch = !query || event.title.toLowerCase().includes(query)
+        || event.reference.toLowerCase().includes(query)
+        || (event.responsibleName || '').toLowerCase().includes(query)
+        || event.eventType.toLowerCase().includes(query);
       return matchesType && matchesStatus && matchesDate && matchesSearch;
     });
   }
@@ -107,7 +68,7 @@ export class ActList {
     return Math.max(1, Math.ceil(this.filteredActs.length / this.pageSize));
   }
 
-  get paginatedActs(): MockAct[] {
+  get paginatedActs(): EventResponse[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredActs.slice(start, start + this.pageSize);
   }
@@ -128,7 +89,23 @@ export class ActList {
   }
 
   get activeStatusLabel(): string {
-    return this.filterStatus || 'Estado';
+    return this.filterStatus ? (this.statusLabelMap[this.filterStatus] || this.filterStatus) : 'Estado';
+  }
+
+  getStatusLabel(status: string): string {
+    return this.statusLabelMap[status] || status;
+  }
+
+  getCurrentStep(status: string): number {
+    return this.stepIndexMap[status] || 0;
+  }
+
+  formatDate(dateStr: string | null): string {
+    if (!dateStr) {
+      return '—';
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   goToPage(page: number): void {
@@ -143,6 +120,11 @@ export class ActList {
 
   closeNewActModal(): void {
     this.showNewActModal = false;
+  }
+
+  onActCreated(event: EventResponse): void {
+    this.showNewActModal = false;
+    this.events = [event, ...this.events];
   }
 
   toggleDropdown(name: string): void {
@@ -180,9 +162,9 @@ export class ActList {
 
   getStatusBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
-      'EN_PREPARACION': 'pending',
-      'COMPLETADO': 'confirmed',
-      'ABIERTO': 'neutral',
+      'PLANIFICACION': 'neutral',
+      'PREPARACION': 'pending',
+      'CONFIRMACION': 'confirmed',
       'CERRADO': 'neutral',
     };
     return variantMap[status] || 'neutral';
@@ -190,5 +172,18 @@ export class ActList {
 
   isStepDone(currentStep: number, stepIndex: number): boolean {
     return stepIndex < currentStep;
+  }
+
+  private loadEvents(): void {
+    this.loading = true;
+    this.eventService.findAll().subscribe({
+      next: (events) => {
+        this.events = events;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 }

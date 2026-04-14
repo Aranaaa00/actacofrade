@@ -32,10 +32,10 @@
       @if (openDropdown === 'status') {
         <ul class="act-list__dropdown-menu" role="listbox">
           <li role="option" (click)="selectFilter('status', '')">Todos</li>
-          <li role="option" (click)="selectFilter('status', 'En preparación')">En preparación</li>
-          <li role="option" (click)="selectFilter('status', 'Abierto')">Abierto</li>
-          <li role="option" (click)="selectFilter('status', 'Completado')">Completado</li>
-          <li role="option" (click)="selectFilter('status', 'Cerrado')">Cerrado</li>
+          <li role="option" (click)="selectFilter('status', 'PLANIFICACION')">Planificación</li>
+          <li role="option" (click)="selectFilter('status', 'PREPARACION')">En preparación</li>
+          <li role="option" (click)="selectFilter('status', 'CONFIRMACION')">Confirmación</li>
+          <li role="option" (click)="selectFilter('status', 'CERRADO')">Cerrado</li>
         </ul>
       }
     </div>
@@ -64,14 +64,14 @@
           </header>
           <dl class="act-card__meta">
             <dt class="act-card__meta-label">Fecha</dt>
-            <dd class="act-card__meta-value">{{ act.eventDate }}</dd>
+            <dd class="act-card__meta-value">{{ formatDate(act.eventDate) }}</dd>
             <dt class="act-card__meta-label">Responsable</dt>
-            <dd class="act-card__meta-value">{{ act.responsibleName }}</dd>
+            <dd class="act-card__meta-value">{{ act.responsibleName || '—' }}</dd>
           </dl>
-          <section class="act-card__progress" aria-label="Progreso: paso {{ act.currentStep }} de {{ stepLabels.length }}">
+          <section class="act-card__progress" aria-label="Progreso: paso {{ getCurrentStep(act.status) }} de {{ stepLabels.length }}">
             <ol class="act-card__steps">
               @for (step of stepLabels; track $index) {
-                <li class="act-card__step" [class.act-card__step--done]="isStepDone(act.currentStep, $index)">
+                <li class="act-card__step" [class.act-card__step--done]="isStepDone(getCurrentStep(act.status), $index)">
                   <span class="act-card__step-bar" aria-hidden="true"></span>
                   <span class="act-card__step-gem" aria-hidden="true">
                     <lucide-icon name="gem" [size]="12"></lucide-icon>
@@ -79,12 +79,18 @@
                 </li>
               }
             </ol>
-            <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ act.statusLabel }}</app-badge>
+            <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ getStatusLabel(act.status) }}</app-badge>
           </section>
           <nav class="act-card__actions" aria-label="Acciones de {{ act.title }}">
             <a class="act-card__action" [routerLink]="['/events', act.id]">Gestionar</a>
-            <a class="act-card__action">Clonar</a>
           </nav>
+        </section>
+      </li>
+    }
+    @empty {
+      <li class="act-card">
+        <section class="act-card__body">
+          <p class="act-card__title">No hay actos registrados.</p>
         </section>
       </li>
     }
@@ -100,5 +106,5 @@
 </section>
 
 @if (showNewActModal) {
-  <app-act-editor [embedded]="true" (editorClosed)="closeNewActModal()" />
+  <app-act-editor [embedded]="true" (editorClosed)="closeNewActModal()" (actCreated)="onActCreated($event)" />
 }
