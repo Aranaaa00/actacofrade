@@ -5,6 +5,11 @@
 .tabs {
   display: flex;
   border-bottom: $border-1 solid var(--border-default);
+  padding-inline: $space-16;
+
+  @include from-tablet {
+    padding-inline: $space-24;
+  }
 }
 
 .tab {
