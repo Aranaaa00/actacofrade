@@ -9,6 +9,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.IncidentRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,21 +31,21 @@ public class IncidentService {
         this.userRepository = userRepository;
     }
 
-    public List<IncidentResponse> findByEventId(Integer eventId) {
-        findEventOrThrow(eventId);
+    public List<IncidentResponse> findByEventId(Integer eventId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         return incidentRepository.findByEventId(eventId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public IncidentResponse findById(Integer eventId, Integer incidentId) {
-        findEventOrThrow(eventId);
+    public IncidentResponse findById(Integer eventId, Integer incidentId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Incident incident = findIncidentOrThrow(incidentId, eventId);
         return toResponse(incident);
     }
 
-    public IncidentResponse create(Integer eventId, CreateIncidentRequest request) {
-        Event event = findEventOrThrow(eventId);
+    public IncidentResponse create(Integer eventId, CreateIncidentRequest request, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         User reportedBy = resolveUser(request.reportedById());
 
         Incident incident = new Incident();
@@ -56,14 +57,14 @@ public class IncidentService {
         return toResponse(incident);
     }
 
-    public void delete(Integer eventId, Integer incidentId) {
-        findEventOrThrow(eventId);
+    public void delete(Integer eventId, Integer incidentId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Incident incident = findIncidentOrThrow(incidentId, eventId);
         incidentRepository.delete(incident);
     }
 
     public IncidentResponse resolve(Integer eventId, Integer incidentId, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
         if (incident.getStatus() == IncidentStatus.RESUELTA) {
@@ -80,7 +81,7 @@ public class IncidentService {
     }
 
     public IncidentResponse reopen(Integer eventId, Integer incidentId, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
         if (incident.getStatus() == IncidentStatus.ABIERTA) {
@@ -94,9 +95,17 @@ public class IncidentService {
         return toResponse(incident);
     }
 
-    private Event findEventOrThrow(Integer eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Acto no encontrado con id: " + eventId));
+    private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
+        return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
+    }
+
+    private Integer resolveHermandadId(String authenticatedEmail) {
+        User user = findUserByEmailOrThrow(authenticatedEmail);
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        return user.getHermandad().getId();
     }
 
     private Incident findIncidentOrThrow(Integer incidentId, Integer eventId) {

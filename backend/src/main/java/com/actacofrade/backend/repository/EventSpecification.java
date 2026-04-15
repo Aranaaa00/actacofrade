@@ -12,6 +12,12 @@ public final class EventSpecification {
     private EventSpecification() {
     }
 
+    public static Specification<Event> hasHermandad(Integer hermandadId) {
+        return (root, query, cb) -> hermandadId == null
+                ? cb.conjunction()
+                : cb.equal(root.get("hermandad").get("id"), hermandadId);
+    }
+
     public static Specification<Event> hasEventType(EventType eventType) {
         return (root, query, cb) -> eventType == null
                 ? cb.conjunction()

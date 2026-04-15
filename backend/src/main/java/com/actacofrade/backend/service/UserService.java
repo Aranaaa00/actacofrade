@@ -8,6 +8,7 @@ import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,32 +28,36 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    public List<UserResponse> findAll() {
-        return userRepository.findAll().stream()
+    public List<UserResponse> findAll(String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        return userRepository.findByHermandadId(hermandadId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public UserResponse findById(Integer id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    public UserResponse findById(Integer id, String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        User user = userRepository.findByIdAndHermandadId(id, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
         return toResponse(user);
     }
 
-    public RoleStatsResponse countByRole() {
-        List<User> allUsers = userRepository.findAll();
+    public RoleStatsResponse countByRole(String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        List<User> usersInHermandad = userRepository.findByHermandadId(hermandadId);
 
-        long admins = countUsersWithRole(allUsers, RoleCode.ADMINISTRADOR);
-        long responsables = countUsersWithRole(allUsers, RoleCode.RESPONSABLE);
-        long colaboradores = countUsersWithRole(allUsers, RoleCode.COLABORADOR);
-        long consulta = countUsersWithRole(allUsers, RoleCode.CONSULTA);
+        long admins = countUsersWithRole(usersInHermandad, RoleCode.ADMINISTRADOR);
+        long responsables = countUsersWithRole(usersInHermandad, RoleCode.RESPONSABLE);
+        long colaboradores = countUsersWithRole(usersInHermandad, RoleCode.COLABORADOR);
+        long consulta = countUsersWithRole(usersInHermandad, RoleCode.CONSULTA);
 
         return new RoleStatsResponse(admins, responsables, colaboradores, consulta);
     }
 
-    public UserResponse update(Integer id, UserUpdateRequest request) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    public UserResponse update(Integer id, UserUpdateRequest request, String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        User user = userRepository.findByIdAndHermandadId(id, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
 
         if (request.fullName() != null) {
             user.setFullName(request.fullName());
@@ -71,13 +76,23 @@ public class UserService {
         return toResponse(user);
     }
 
-    public UserResponse toggleActive(Integer id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
+    public UserResponse toggleActive(Integer id, String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        User user = userRepository.findByIdAndHermandadId(id, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
 
         user.setActive(!user.getActive());
         userRepository.save(user);
         return toResponse(user);
+    }
+
+    private Integer resolveHermandadId(String authenticatedEmail) {
+        User user = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + authenticatedEmail));
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        return user.getHermandad().getId();
     }
 
     private long countUsersWithRole(List<User> users, RoleCode roleCode) {

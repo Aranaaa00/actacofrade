@@ -31,28 +31,32 @@ public class IncidentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<IncidentResponse>> findByEventId(@PathVariable Integer eventId) {
-        return ResponseEntity.ok(incidentService.findByEventId(eventId));
+    public ResponseEntity<List<IncidentResponse>> findByEventId(@PathVariable Integer eventId,
+                                                                @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(incidentService.findByEventId(eventId, userDetails.getUsername()));
     }
 
     @GetMapping("/{incidentId}")
     public ResponseEntity<IncidentResponse> findById(@PathVariable Integer eventId,
-                                                     @PathVariable Integer incidentId) {
-        return ResponseEntity.ok(incidentService.findById(eventId, incidentId));
+                                                     @PathVariable Integer incidentId,
+                                                     @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(incidentService.findById(eventId, incidentId, userDetails.getUsername()));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<IncidentResponse> create(@PathVariable Integer eventId,
-                                                   @Valid @RequestBody CreateIncidentRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(incidentService.create(eventId, request));
+                                                   @Valid @RequestBody CreateIncidentRequest request,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(incidentService.create(eventId, request, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{incidentId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<Void> delete(@PathVariable Integer eventId,
-                                       @PathVariable Integer incidentId) {
-        incidentService.delete(eventId, incidentId);
+                                       @PathVariable Integer incidentId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        incidentService.delete(eventId, incidentId, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 

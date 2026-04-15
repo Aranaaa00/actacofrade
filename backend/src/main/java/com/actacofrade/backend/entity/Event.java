@@ -62,6 +62,10 @@ public class Event {
     @JoinColumn(name = "responsible_id")
     private User responsible;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hermandad_id")
+    private Hermandad hermandad;
+
     @Column(name = "is_locked_for_closing")
     private Boolean isLockedForClosing = false;
 

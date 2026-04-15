@@ -14,6 +14,8 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
 
     Optional<Event> findByReference(String reference);
 
+    Optional<Event> findByIdAndHermandadId(Integer id, Integer hermandadId);
+
     @Query(value = "SELECT MAX(CAST(SUBSTRING(reference FROM 6) AS INTEGER)) FROM events WHERE reference LIKE :prefix",
             nativeQuery = true)
     Integer findMaxReferenceNumberByYearPrefix(@Param("prefix") String prefix);

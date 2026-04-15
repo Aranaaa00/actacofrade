@@ -2,6 +2,6 @@
   <button class="topbar__toggle" type="button" (click)="toggledSidebar.emit()" aria-label="Abrir menú de navegación" [attr.aria-expanded]="sidebarOpen">
     <lucide-icon name="menu" [size]="24" aria-hidden="true"></lucide-icon>
   </button>
-  <h1 class="topbar__title">Hermandad de la Sagrada Expiración</h1>
+  <h1 class="topbar__title">{{ user?.hermandadNombre ?? 'ActaCofrade' }}</h1>
   <time class="topbar__date" [attr.datetime]="todayIso">{{ formattedDate }}</time>
 </header>

@@ -5,7 +5,7 @@ export function passwordStrength(control: AbstractControl): ValidationErrors | n
   const errors: ValidationErrors = {};
 
   if (value.length < 8) {
-    errors['minlength'] = true;
+    errors['tooShort'] = true;
   }
   if (!/[A-Z]/.test(value)) {
     errors['noUppercase'] = true;

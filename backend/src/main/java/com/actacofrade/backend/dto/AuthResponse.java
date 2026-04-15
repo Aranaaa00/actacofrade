@@ -6,5 +6,6 @@ public record AuthResponse(
         String token,
         String email,
         String fullName,
-        List<String> roles
+        List<String> roles,
+        String hermandadNombre
 ) {}

@@ -1,5 +1,5 @@
 import { Component, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Banner } from '../../shared/components/banner/banner';
@@ -24,7 +24,8 @@ export class Register implements AfterViewInit {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],
-    roleCode: ['COLABORADOR', [Validators.required]]
+    roleCode: ['COLABORADOR', [Validators.required]],
+    hermandadNombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200), Validators.pattern(/^[\p{L}\p{M}0-9 .,'()\-]{3,200}$/u)]]
   });
 
   loading = false;
@@ -37,6 +38,18 @@ export class Register implements AfterViewInit {
     { code: 'ADMINISTRADOR', label: 'Administrador' },
     { code: 'CONSULTA', label: 'Consulta' }
   ];
+
+  get isAdmin(): boolean {
+    return this.form.get('roleCode')?.value === 'ADMINISTRADOR';
+  }
+
+  get hermandadLabel(): string {
+    return this.isAdmin ? 'Nombre de tu hermandad (nueva)' : 'Hermandad a la que perteneces';
+  }
+
+  get hermandadPlaceholder(): string {
+    return this.isAdmin ? 'Hermandad de la Macarena...' : 'Nombre exacto de tu hermandad';
+  }
 
   ngAfterViewInit(): void {
     const firstInput = this.registerModal.nativeElement.querySelector<HTMLInputElement>('#register-name');
@@ -51,7 +64,11 @@ export class Register implements AfterViewInit {
       this.loading = true;
       this.errorMessage = '';
 
-      const { confirmPassword, ...request } = this.form.value;
+      const { confirmPassword, ...rawRequest } = this.form.value;
+      const request = {
+        ...rawRequest,
+        hermandadNombre: rawRequest.hermandadNombre.trim()
+      };
 
       this.authService.register(request).subscribe({
         next: () => {
@@ -105,7 +122,7 @@ export class Register implements AfterViewInit {
 
   private getPasswordError(errors: ValidationErrors): string {
     const missing: string[] = [];
-    if (errors['minlength']) {
+    if (errors['tooShort']) {
       missing.push('mínimo 8 caracteres');
     }
     if (errors['noUppercase']) {

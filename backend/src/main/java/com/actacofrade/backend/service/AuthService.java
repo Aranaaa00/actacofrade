@@ -3,9 +3,11 @@ package com.actacofrade.backend.service;
 import com.actacofrade.backend.dto.AuthResponse;
 import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
+import com.actacofrade.backend.entity.Hermandad;
 import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import com.actacofrade.backend.repository.HermandadRepository;
 import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.security.JwtService;
@@ -29,17 +31,20 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final HermandadRepository hermandadRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
+                       HermandadRepository hermandadRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.hermandadRepository = hermandadRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -59,22 +64,39 @@ public class AuthService {
         Role role = roleRepository.findByCode(roleCode)
                 .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + request.roleCode()));
 
+        String hermandadNombreTrimmed = request.hermandadNombre().trim();
+        Hermandad hermandad;
+
+        if (roleCode == RoleCode.ADMINISTRADOR) {
+            if (hermandadRepository.existsByNombreIgnoreCase(hermandadNombreTrimmed)) {
+                throw new IllegalStateException("Ya existe una hermandad con ese nombre. Contacta con su administrador para unirte.");
+            }
+            hermandad = new Hermandad();
+            hermandad.setNombre(hermandadNombreTrimmed);
+            hermandadRepository.save(hermandad);
+            log.info("Nueva hermandad creada: {}", hermandadNombreTrimmed);
+        } else {
+            hermandad = hermandadRepository.findByNombreIgnoreCase(hermandadNombreTrimmed)
+                    .orElseThrow(() -> new IllegalStateException("La hermandad '" + hermandadNombreTrimmed + "' no existe. Contacta con tu administrador."));
+        }
+
         User user = new User();
         user.setFullName(request.fullName().trim());
         user.setEmail(email);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setActive(true);
         user.setRoles(new HashSet<>(Set.of(role)));
+        user.setHermandad(hermandad);
 
         userRepository.save(user);
-        log.info("Usuario registrado correctamente: id={}, email={}, rol={}", user.getId(), email, roleCode);
+        log.info("Usuario registrado correctamente: id={}, email={}, rol={}, hermandad={}", user.getId(), email, roleCode, hermandadNombreTrimmed);
 
         String token = jwtService.generateToken(user.getEmail());
         List<String> roles = user.getRoles().stream()
                 .map(r -> r.getCode().name())
                 .toList();
 
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles);
+        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre());
     }
 
     @Transactional
@@ -97,6 +119,7 @@ public class AuthService {
                 .map(r -> r.getCode().name())
                 .toList();
 
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles);
+        String hermandadNombre = user.getHermandad() != null ? user.getHermandad().getNombre() : null;
+        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles, hermandadNombre);
     }
 }

@@ -8,6 +8,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   roleCode: string;
+  hermandadNombre: string;
 }
 
 export interface AuthResponse {
@@ -15,4 +16,5 @@ export interface AuthResponse {
   email: string;
   fullName: string;
   roles: string[];
+  hermandadNombre?: string;
 }

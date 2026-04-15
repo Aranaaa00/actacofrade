@@ -4,12 +4,14 @@ import com.actacofrade.backend.dto.CreateTaskRequest;
 import com.actacofrade.backend.dto.TaskResponse;
 import com.actacofrade.backend.dto.UpdateTaskRequest;
 import com.actacofrade.backend.entity.Event;
+import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.Task;
 import com.actacofrade.backend.entity.TaskStatus;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.TaskRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,21 +33,21 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public List<TaskResponse> findByEventId(Integer eventId) {
-        findEventOrThrow(eventId);
+    public List<TaskResponse> findByEventId(Integer eventId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         return taskRepository.findByEventId(eventId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public TaskResponse findById(Integer eventId, Integer taskId) {
-        findEventOrThrow(eventId);
+    public TaskResponse findById(Integer eventId, Integer taskId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Task task = findTaskOrThrow(taskId, eventId);
         return toResponse(task);
     }
 
-    public TaskResponse create(Integer eventId, CreateTaskRequest request) {
-        Event event = findEventOrThrow(eventId);
+    public TaskResponse create(Integer eventId, CreateTaskRequest request, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         User assignedTo = resolveUser(request.assignedToId());
 
         Task task = new Task();
@@ -59,9 +61,18 @@ public class TaskService {
         return toResponse(task);
     }
 
-    public TaskResponse update(Integer eventId, Integer taskId, UpdateTaskRequest request) {
+    public TaskResponse update(Integer eventId, Integer taskId, UpdateTaskRequest request, String authenticatedEmail) {
         findEventOrThrow(eventId);
         Task task = findTaskOrThrow(taskId, eventId);
+
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        boolean isColaboradorOnly = currentUser.getRoles().stream()
+                .allMatch(r -> r.getCode() == RoleCode.COLABORADOR);
+        if (isColaboradorOnly) {
+            if (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Solo puedes editar las tareas que tienes asignadas");
+            }
+        }
 
         if (request.title() != null) {
             task.setTitle(request.title());
@@ -81,14 +92,14 @@ public class TaskService {
         return toResponse(task);
     }
 
-    public void delete(Integer eventId, Integer taskId) {
-        findEventOrThrow(eventId);
+    public void delete(Integer eventId, Integer taskId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Task task = findTaskOrThrow(taskId, eventId);
         taskRepository.delete(task);
     }
 
     public TaskResponse confirm(Integer eventId, Integer taskId, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Task task = findTaskOrThrow(taskId, eventId);
 
         if (task.getStatus() == TaskStatus.CONFIRMADA) {
@@ -107,7 +118,7 @@ public class TaskService {
     }
 
     public TaskResponse reject(Integer eventId, Integer taskId, String rejectionReason, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Task task = findTaskOrThrow(taskId, eventId);
 
         if (task.getStatus() == TaskStatus.RECHAZADA) {
@@ -129,7 +140,7 @@ public class TaskService {
     }
 
     public TaskResponse resetToPending(Integer eventId, Integer taskId, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Task task = findTaskOrThrow(taskId, eventId);
 
         if (task.getStatus() == TaskStatus.PENDIENTE) {
@@ -148,6 +159,19 @@ public class TaskService {
     private Event findEventOrThrow(Integer eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new IllegalArgumentException("Acto no encontrado con id: " + eventId));
+    }
+
+    private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
+        return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
+    }
+
+    private Integer resolveHermandadId(String authenticatedEmail) {
+        User user = findUserByEmailOrThrow(authenticatedEmail);
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        return user.getHermandad().getId();
     }
 
     private Task findTaskOrThrow(Integer taskId, Integer eventId) {

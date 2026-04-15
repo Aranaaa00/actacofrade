@@ -7,10 +7,12 @@ import com.actacofrade.backend.entity.Decision;
 import com.actacofrade.backend.entity.DecisionStatus;
 import com.actacofrade.backend.entity.Event;
 import com.actacofrade.backend.entity.HermandadArea;
+import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.DecisionRepository;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,21 +34,21 @@ public class DecisionService {
         this.userRepository = userRepository;
     }
 
-    public List<DecisionResponse> findByEventId(Integer eventId) {
-        findEventOrThrow(eventId);
+    public List<DecisionResponse> findByEventId(Integer eventId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         return decisionRepository.findByEventId(eventId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public DecisionResponse findById(Integer eventId, Integer decisionId) {
-        findEventOrThrow(eventId);
+    public DecisionResponse findById(Integer eventId, Integer decisionId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
         return toResponse(decision);
     }
 
-    public DecisionResponse create(Integer eventId, CreateDecisionRequest request) {
-        Event event = findEventOrThrow(eventId);
+    public DecisionResponse create(Integer eventId, CreateDecisionRequest request, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         HermandadArea area = HermandadArea.valueOf(request.area());
         User reviewedBy = resolveUser(request.reviewedById());
 
@@ -60,9 +62,18 @@ public class DecisionService {
         return toResponse(decision);
     }
 
-    public DecisionResponse update(Integer eventId, Integer decisionId, UpdateDecisionRequest request) {
-        findEventOrThrow(eventId);
+    public DecisionResponse update(Integer eventId, Integer decisionId, UpdateDecisionRequest request, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
+
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        boolean isColaboradorOnly = currentUser.getRoles().stream()
+                .allMatch(r -> r.getCode() == RoleCode.COLABORADOR);
+        if (isColaboradorOnly) {
+            if (decision.getReviewedBy() == null || !decision.getReviewedBy().getId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("Solo puedes editar las decisiones que tienes asignadas");
+            }
+        }
 
         if (request.area() != null) {
             decision.setArea(HermandadArea.valueOf(request.area()));
@@ -79,14 +90,14 @@ public class DecisionService {
         return toResponse(decision);
     }
 
-    public void delete(Integer eventId, Integer decisionId) {
-        findEventOrThrow(eventId);
+    public void delete(Integer eventId, Integer decisionId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
         decisionRepository.delete(decision);
     }
 
-    public DecisionResponse markAsReady(Integer eventId, Integer decisionId) {
-        findEventOrThrow(eventId);
+    public DecisionResponse markAsReady(Integer eventId, Integer decisionId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.LISTA) {
@@ -99,8 +110,8 @@ public class DecisionService {
         return toResponse(decision);
     }
 
-    public DecisionResponse reject(Integer eventId, Integer decisionId) {
-        findEventOrThrow(eventId);
+    public DecisionResponse reject(Integer eventId, Integer decisionId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.RECHAZADA) {
@@ -113,8 +124,8 @@ public class DecisionService {
         return toResponse(decision);
     }
 
-    public DecisionResponse resetToPending(Integer eventId, Integer decisionId) {
-        findEventOrThrow(eventId);
+    public DecisionResponse resetToPending(Integer eventId, Integer decisionId, String authenticatedEmail) {
+        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.PENDIENTE) {
@@ -127,9 +138,17 @@ public class DecisionService {
         return toResponse(decision);
     }
 
-    private Event findEventOrThrow(Integer eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Acto no encontrado con id: " + eventId));
+    private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
+        return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
+    }
+
+    private Integer resolveHermandadId(String authenticatedEmail) {
+        User user = findUserByEmailOrThrow(authenticatedEmail);
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        return user.getHermandad().getId();
     }
 
     private Decision findDecisionOrThrow(Integer decisionId, Integer eventId) {
@@ -145,6 +164,11 @@ public class DecisionService {
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con id: " + userId));
         }
         return user;
+    }
+
+    private User findUserByEmailOrThrow(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado: " + email));
     }
 
     private DecisionResponse toResponse(Decision decision) {

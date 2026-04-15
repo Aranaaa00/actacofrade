@@ -73,6 +73,16 @@
           </select>
         </app-form-field>
 
+        <app-form-field [label]="hermandadLabel" fieldId="register-hermandad" [hasError]="hasError('hermandadNombre')" [errorMessage]="hasError('hermandadNombre') ? getError('hermandadNombre') : ''">
+          <input id="register-hermandad"
+            type="text"
+            formControlName="hermandadNombre"
+            [placeholder]="hermandadPlaceholder"
+            autocomplete="organization"
+            [attr.aria-invalid]="hasError('hermandadNombre')"
+            [attr.aria-describedby]="hasError('hermandadNombre') ? 'register-hermandad-error' : null">
+        </app-form-field>
+
         <footer class="login__submit">
           <button type="submit"
             class="button register__submit-button button--full-width"

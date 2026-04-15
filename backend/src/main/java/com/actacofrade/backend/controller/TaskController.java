@@ -34,36 +34,41 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> findByEventId(@PathVariable Integer eventId) {
-        return ResponseEntity.ok(taskService.findByEventId(eventId));
+    public ResponseEntity<List<TaskResponse>> findByEventId(@PathVariable Integer eventId,
+                                                            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.findByEventId(eventId, userDetails.getUsername()));
     }
 
     @GetMapping("/{taskId}")
     public ResponseEntity<TaskResponse> findById(@PathVariable Integer eventId,
-                                                 @PathVariable Integer taskId) {
-        return ResponseEntity.ok(taskService.findById(eventId, taskId));
+                                                 @PathVariable Integer taskId,
+                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.findById(eventId, taskId, userDetails.getUsername()));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> create(@PathVariable Integer eventId,
-                                               @Valid @RequestBody CreateTaskRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(eventId, request));
+                                               @Valid @RequestBody CreateTaskRequest request,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(eventId, request, userDetails.getUsername()));
     }
 
     @PutMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> update(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
-                                               @Valid @RequestBody UpdateTaskRequest request) {
-        return ResponseEntity.ok(taskService.update(eventId, taskId, request));
+                                               @Valid @RequestBody UpdateTaskRequest request,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.update(eventId, taskId, request, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{taskId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<Void> delete(@PathVariable Integer eventId,
-                                       @PathVariable Integer taskId) {
-        taskService.delete(eventId, taskId);
+                                       @PathVariable Integer taskId,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        taskService.delete(eventId, taskId, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 

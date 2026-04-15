@@ -32,5 +32,13 @@ public record RegisterRequest(
                 regexp = "ADMINISTRADOR|RESPONSABLE|COLABORADOR|CONSULTA",
                 message = "Rol no válido. Valores permitidos: ADMINISTRADOR, RESPONSABLE, COLABORADOR, CONSULTA"
         )
-        String roleCode
+        String roleCode,
+
+        @NotBlank(message = "El nombre de la hermandad es obligatorio")
+        @Size(min = 3, max = 200, message = "El nombre de la hermandad debe tener entre 3 y 200 caracteres")
+        @Pattern(
+                regexp = "^[\\p{L}\\p{M}0-9 .,'\\'()\\-]{3,200}$",
+                message = "El nombre de la hermandad solo puede contener letras, números, espacios y puntuación básica"
+        )
+        String hermandadNombre
 ) {}

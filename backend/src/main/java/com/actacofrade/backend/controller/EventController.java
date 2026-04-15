@@ -12,6 +12,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,8 +39,8 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EventResponse>> findAll() {
-        return ResponseEntity.ok(eventService.findAll());
+    public ResponseEntity<List<EventResponse>> findAll(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.findAll(userDetails.getUsername()));
     }
 
     @GetMapping("/filter")
@@ -47,56 +49,65 @@ public class EventController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
             @RequestParam(required = false) String search,
-            @PageableDefault(size = 10, sort = "eventDate") Pageable pageable) {
-        return ResponseEntity.ok(eventService.findFiltered(eventType, status, eventDate, search, pageable));
+            @PageableDefault(size = 10, sort = "eventDate") Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.findFiltered(eventType, status, eventDate, search, pageable, userDetails.getUsername()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventResponse> findById(@PathVariable Integer id) {
-        return ResponseEntity.ok(eventService.findById(id));
+    public ResponseEntity<EventResponse> findById(@PathVariable Integer id,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.findById(id, userDetails.getUsername()));
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
-    public ResponseEntity<EventResponse> create(@Valid @RequestBody CreateEventRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(request));
+    public ResponseEntity<EventResponse> create(@Valid @RequestBody CreateEventRequest request,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(request, userDetails.getUsername()));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<EventResponse> update(@PathVariable Integer id,
-                                                @Valid @RequestBody UpdateEventRequest request) {
-        return ResponseEntity.ok(eventService.update(id, request));
+                                                @Valid @RequestBody UpdateEventRequest request,
+                                                @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.update(id, request, userDetails.getUsername()));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        eventService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Integer id,
+                                       @AuthenticationPrincipal UserDetails userDetails) {
+        eventService.delete(id, userDetails.getUsername());
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/advance-status")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<EventResponse> advanceStatus(@PathVariable Integer id) {
-        return ResponseEntity.ok(eventService.advanceStatus(id));
+    public ResponseEntity<EventResponse> advanceStatus(@PathVariable Integer id,
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.advanceStatus(id, userDetails.getUsername()));
     }
 
     @PatchMapping("/{id}/close")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<EventResponse> close(@PathVariable Integer id) {
-        return ResponseEntity.ok(eventService.close(id));
+    public ResponseEntity<EventResponse> close(@PathVariable Integer id,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.close(id, userDetails.getUsername()));
     }
 
     @PatchMapping("/{id}/toggle-lock")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<EventResponse> toggleLock(@PathVariable Integer id) {
-        return ResponseEntity.ok(eventService.toggleLockForClosing(id));
+    public ResponseEntity<EventResponse> toggleLock(@PathVariable Integer id,
+                                                    @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.toggleLockForClosing(id, userDetails.getUsername()));
     }
 
     @PostMapping("/{id}/clone")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
-    public ResponseEntity<EventResponse> cloneEvent(@PathVariable Integer id) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.clone(id));
+    public ResponseEntity<EventResponse> cloneEvent(@PathVariable Integer id,
+                                                    @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventService.clone(id, userDetails.getUsername()));
     }
 }
