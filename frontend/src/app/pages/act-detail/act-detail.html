@@ -19,7 +19,9 @@
         <app-badge [variant]="statusVariant" styleClass="act-detail__status-badge">[{{ statusLabel }}]</app-badge>
         <nav class="act-detail__header-links" aria-label="Acciones del acto">
           <a class="act-detail__header-link">Exportar acta →</a>
-          <a class="act-detail__header-link">Clonar →</a>
+          @if (auth.canWrite()) {
+            <button class="act-detail__header-link" type="button" (click)="cloneAct()">Clonar →</button>
+          }
         </nav>
       </aside>
     </section>
@@ -49,7 +51,9 @@
       @case ('Tareas') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Tareas">
           <header class="act-detail__panel-header">
-            <button class="act-detail__add-btn" type="button" (click)="addTask()">+ Añadir tarea</button>
+            @if (auth.canWrite()) {
+              <button class="act-detail__add-btn" type="button" (click)="addTask()">+ Añadir tarea</button>
+            }
           </header>
           <table class="table act-detail__table">
             <thead class="table__head">
@@ -67,7 +71,7 @@
                   <td>
                     <strong class="act-detail__task-title">{{ task.title }}</strong>
                     @if (task.description) {
-                      <small class="act-detail__task-desc">{{ task.description }}</small>
+                      <small class="act-detail__task-desc">@if (task.status === 'RECHAZADA') { Motivo: }{{ task.description }}</small>
                     }
                   </td>
                   <td>{{ task.assignedToName || '—' }}</td>
@@ -75,11 +79,15 @@
                   <td class="act-detail__date">{{ formatDate(task.deadline) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
-                      @if (task.status === 'PENDIENTE') {
+                      @if (task.status === 'PENDIENTE' && auth.canManage()) {
                         <a class="act-detail__row-link">Recordar →</a>
                       }
-                      <a class="act-detail__row-link" (click)="editTask(task)">Editar</a>
-                      <a class="act-detail__row-link" (click)="deleteTask(task.id)">Eliminar</a>
+                      @if (auth.canWrite()) {
+                        <a class="act-detail__row-link" (click)="editTask(task)">Editar</a>
+                      }
+                      @if (auth.canManage()) {
+                        <a class="act-detail__row-link" (click)="deleteTask(task.id)">Eliminar</a>
+                      }
                     </nav>
                   </td>
                 </tr>
@@ -91,7 +99,9 @@
       @case ('Decisiones') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Decisiones">
           <header class="act-detail__panel-header">
-            <button class="act-detail__add-btn" type="button" (click)="addDecision()">+ Añadir decisión</button>
+            @if (auth.canWrite()) {
+              <button class="act-detail__add-btn" type="button" (click)="addDecision()">+ Añadir decisión</button>
+            }
           </header>
           <table class="table act-detail__table">
             <thead class="table__head">
@@ -112,8 +122,12 @@
                   <td>{{ decision.area }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
-                      <a class="act-detail__row-link" (click)="editDecision(decision)">Editar</a>
-                      <a class="act-detail__row-link" (click)="deleteDecision(decision.id)">Eliminar</a>
+                      @if (auth.canWrite()) {
+                        <a class="act-detail__row-link" (click)="editDecision(decision)">Editar</a>
+                      }
+                      @if (auth.canManage()) {
+                        <a class="act-detail__row-link" (click)="deleteDecision(decision.id)">Eliminar</a>
+                      }
                     </nav>
                   </td>
                 </tr>
@@ -125,7 +139,9 @@
       @case ('Incidencias') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Incidencias">
           <header class="act-detail__panel-header">
-            <button class="act-detail__add-btn" type="button" (click)="addIncident()">+ Añadir incidencia</button>
+            @if (auth.canWrite()) {
+              <button class="act-detail__add-btn" type="button" (click)="addIncident()">+ Añadir incidencia</button>
+            }
           </header>
           <table class="table act-detail__table">
             <thead class="table__head">
@@ -146,8 +162,10 @@
                   <td>{{ incident.resolvedByName || '—' }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
-                      <a class="act-detail__row-link">Resolver</a>
-                      <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
+                      @if (auth.canManage()) {
+                        <a class="act-detail__row-link">Resolver</a>
+                        <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
+                      }
                     </nav>
                   </td>
                 </tr>
@@ -166,13 +184,15 @@
   <footer class="act-detail__footer">
     <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas pendientes · {{ openIncidentsCount }} incidencia abierta</p>
     <section class="act-detail__footer-actions">
-      <button class="button button--primary" type="button" (click)="openCloseEvent()">
+    @if (auth.canManage()) {
+      <button class="button button--primary" type="button" [disabled]="hasPendingItems" (click)="openCloseEvent()">
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Cerrar acto
       </button>
       @if (hasPendingItems) {
         <small class="act-detail__footer-warning">No es posible cerrar el acto. Quedan elementos sin resolver.</small>
       }
+    }
     </section>
   </footer>
   }

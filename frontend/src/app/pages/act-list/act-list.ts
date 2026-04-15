@@ -5,6 +5,7 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
+import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
 
 @Component({
@@ -14,6 +15,7 @@ import { EventResponse } from '../../models/event.model';
 })
 export class ActList implements OnInit {
   private readonly eventService = inject(EventService);
+  readonly auth = inject(AuthService);
 
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
   readonly pageSize = 5;
@@ -172,6 +174,14 @@ export class ActList implements OnInit {
 
   isStepDone(currentStep: number, stepIndex: number): boolean {
     return stepIndex < currentStep;
+  }
+
+  cloneAct(act: EventResponse): void {
+    this.eventService.clone(act.id).subscribe({
+      next: (cloned) => {
+        this.events = [cloned, ...this.events];
+      }
+    });
   }
 
   private loadEvents(): void {

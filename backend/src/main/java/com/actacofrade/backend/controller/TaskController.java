@@ -45,12 +45,14 @@ public class TaskController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> create(@PathVariable Integer eventId,
                                                @Valid @RequestBody CreateTaskRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(eventId, request));
     }
 
     @PutMapping("/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> update(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
                                                @Valid @RequestBody UpdateTaskRequest request) {
@@ -58,6 +60,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<Void> delete(@PathVariable Integer eventId,
                                        @PathVariable Integer taskId) {
         taskService.delete(eventId, taskId);

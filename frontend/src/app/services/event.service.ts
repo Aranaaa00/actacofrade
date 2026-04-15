@@ -35,4 +35,8 @@ export class EventService {
   advanceStatus(id: number): Observable<EventResponse> {
     return this.http.patch<EventResponse>(`${this.baseUrl}/${id}/advance-status`, {});
   }
+
+  clone(id: number): Observable<EventResponse> {
+    return this.http.post<EventResponse>(`${this.baseUrl}/${id}/clone`, {});
+  }
 }

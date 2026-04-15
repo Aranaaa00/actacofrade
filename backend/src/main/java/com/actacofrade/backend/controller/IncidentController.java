@@ -42,12 +42,14 @@ public class IncidentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<IncidentResponse> create(@PathVariable Integer eventId,
                                                    @Valid @RequestBody CreateIncidentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(incidentService.create(eventId, request));
     }
 
     @DeleteMapping("/{incidentId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<Void> delete(@PathVariable Integer eventId,
                                        @PathVariable Integer incidentId) {
         incidentService.delete(eventId, incidentId);

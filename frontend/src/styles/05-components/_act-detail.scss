@@ -96,22 +96,19 @@
 
 .act-detail__header-link {
   @include focus-visible;
-  @include transition(color, border-color);
+  @include transition(color);
   display: inline-flex;
   align-items: center;
-  padding: $space-4 $space-12;
   font-size: $text-label;
   font-weight: $weight-semibold;
   color: var(--text-on-dark-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  border: $border-1 solid var(--text-on-dark-muted);
   cursor: pointer;
 
   &:hover {
     color: var(--text-on-dark);
-    border-color: var(--text-on-dark);
   }
 }
 

@@ -7,6 +7,7 @@ import com.actacofrade.backend.service.DecisionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,12 +42,14 @@ public class DecisionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<DecisionResponse> create(@PathVariable Integer eventId,
                                                    @Valid @RequestBody CreateDecisionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(decisionService.create(eventId, request));
     }
 
     @PutMapping("/{decisionId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<DecisionResponse> update(@PathVariable Integer eventId,
                                                    @PathVariable Integer decisionId,
                                                    @Valid @RequestBody UpdateDecisionRequest request) {
@@ -54,6 +57,7 @@ public class DecisionController {
     }
 
     @DeleteMapping("/{decisionId}")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<Void> delete(@PathVariable Integer eventId,
                                        @PathVariable Integer decisionId) {
         decisionService.delete(eventId, decisionId);
@@ -61,18 +65,21 @@ public class DecisionController {
     }
 
     @PatchMapping("/{decisionId}/ready")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<DecisionResponse> markAsReady(@PathVariable Integer eventId,
                                                         @PathVariable Integer decisionId) {
         return ResponseEntity.ok(decisionService.markAsReady(eventId, decisionId));
     }
 
     @PatchMapping("/{decisionId}/reject")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<DecisionResponse> reject(@PathVariable Integer eventId,
                                                    @PathVariable Integer decisionId) {
         return ResponseEntity.ok(decisionService.reject(eventId, decisionId));
     }
 
     @PatchMapping("/{decisionId}/reset")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<DecisionResponse> resetToPending(@PathVariable Integer eventId,
                                                            @PathVariable Integer decisionId) {
         return ResponseEntity.ok(decisionService.resetToPending(eventId, decisionId));

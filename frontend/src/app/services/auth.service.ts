@@ -40,6 +40,26 @@ export class AuthService {
     return raw ? JSON.parse(raw) : null;
   }
 
+  hasRole(role: string): boolean {
+    return this.getUser()?.roles?.includes(role) ?? false;
+  }
+
+  hasAnyRole(...roles: string[]): boolean {
+    return roles.some(r => this.hasRole(r));
+  }
+
+  canWrite(): boolean {
+    return this.hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR');
+  }
+
+  canManage(): boolean {
+    return this.hasAnyRole('ADMINISTRADOR', 'RESPONSABLE');
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('ADMINISTRADOR');
+  }
+
   private storeSession(response: AuthResponse): void {
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.userKey, JSON.stringify(response));

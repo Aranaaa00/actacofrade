@@ -176,6 +176,7 @@
   display: flex;
   flex-direction: column;
   list-style: none;
+  border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
   overflow: hidden;
 }
@@ -391,6 +392,9 @@
   font-size: $text-paragraph;
   font-weight: $weight-bold;
   color: var(--text-primary);
+  background: none;
+  border: none;
+  padding: 0;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;

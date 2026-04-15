@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
@@ -11,6 +11,7 @@ import { EventService } from '../../services/event.service';
 import { TaskService } from '../../services/task.service';
 import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
+import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
@@ -42,10 +43,12 @@ interface StepInfo {
 })
 export class ActDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly eventService = inject(EventService);
   private readonly taskService = inject(TaskService);
   private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
+  readonly auth = inject(AuthService);
 
   eventId = 0;
   selectedTab = 'Tareas';
@@ -144,6 +147,14 @@ export class ActDetail implements OnInit {
       'RESUELTA': 'confirmed',
     };
     return variantMap[status] || 'neutral';
+  }
+
+  cloneAct(): void {
+    this.eventService.clone(this.eventId).subscribe({
+      next: (cloned) => {
+        this.router.navigate(['/events', cloned.id]);
+      }
+    });
   }
 
   addTask(): void {

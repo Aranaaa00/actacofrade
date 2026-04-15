@@ -170,7 +170,7 @@ public class EventService {
         cloned.setReference(reference);
         cloned.setTitle(original.getTitle());
         cloned.setEventType(original.getEventType());
-        cloned.setEventDate(original.getEventDate());
+        cloned.setEventDate(LocalDate.now());
         cloned.setLocation(original.getLocation());
         cloned.setObservations(original.getObservations());
         cloned.setResponsible(original.getResponsible());

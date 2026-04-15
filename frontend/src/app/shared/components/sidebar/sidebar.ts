@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, inject } from '@angular
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthResponse } from '../../../models/auth.model';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -10,6 +11,7 @@ import { AuthResponse } from '../../../models/auth.model';
 })
 export class Sidebar implements OnInit {
   private readonly router = inject(Router);
+  readonly auth = inject(AuthService);
 
   @Input() open = false;
   @Input() user: AuthResponse | null = null;
