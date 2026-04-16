@@ -24,6 +24,7 @@ export class Dashboard implements OnInit {
   events: EventResponse[] = [];
   alerts: Alert[] = [];
   loading = true;
+  errorMessage = '';
 
   get pendingTasksCount(): number {
     return this.events.reduce((sum, e) => sum + e.pendingTasks, 0);
@@ -52,6 +53,7 @@ export class Dashboard implements OnInit {
         this.loading = false;
       },
       error: () => {
+        this.errorMessage = 'No se pudieron cargar los datos. Inténtalo de nuevo más tarde.';
         this.loading = false;
       }
     });
