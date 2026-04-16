@@ -112,7 +112,7 @@
   color: var(--text-on-dark-muted);
   text-transform: uppercase;
   text-decoration: underline;
-  text-underline-offset: 0.25rem;
+  text-underline-offset: $space-4;
   letter-spacing: 0.04em;
   white-space: nowrap;
   cursor: pointer;
@@ -147,7 +147,7 @@
   font-weight: $weight-bold;
   color: var(--text-on-dark);
   text-decoration: underline;
-  text-underline-offset: 0.25rem;
+  text-underline-offset: $space-4;
   white-space: nowrap;
   cursor: pointer;
   margin-inline-start: auto;
@@ -179,8 +179,8 @@
     content: '';
     position: absolute;
     top: 0.375rem;
-    left: calc(50% + 0.75rem);
-    right: calc(-50% + 0.75rem);
+    left: calc(50% + #{$space-12});
+    right: calc(-50% + #{$space-12});
     height: $border-2;
     background-color: var(--border-default);
   }
@@ -226,12 +226,6 @@
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
   min-height: 16rem;
-}
-
-.act-detail__panel--empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .act-detail__panel-header {
