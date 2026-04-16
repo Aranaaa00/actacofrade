@@ -257,6 +257,15 @@
   <footer class="act-detail__footer">
     <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas sin completar · {{ openIncidentsCount }} incidencia abierta</p>
     <section class="act-detail__footer-actions">
+    @if (canAdvanceStatus) {
+      <button class="button button--secondary" type="button"
+        [disabled]="advancingStatus"
+        [attr.aria-busy]="advancingStatus"
+        (click)="advanceStatus()">
+        <lucide-icon name="chevron-right" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+        Avanzar fase
+      </button>
+    }
     @if (auth.canManage() && !isEventClosed) {
       <button class="button button--primary" type="button" (click)="openCloseEvent()">
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>

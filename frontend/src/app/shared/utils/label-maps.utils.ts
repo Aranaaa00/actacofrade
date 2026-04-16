@@ -18,6 +18,7 @@ const EVENT_STATUS_BADGE_VARIANTS: Record<string, string> = {
   'PLANIFICACION': 'neutral',
   'PREPARACION': 'pending',
   'CONFIRMACION': 'confirmed',
+  'CIERRE': 'wood',
   'CERRADO': 'neutral',
 };
 
@@ -112,6 +113,7 @@ const STEP_INDEX_MAP: Record<string, number> = {
   'PLANIFICACION': 1,
   'PREPARACION': 2,
   'CONFIRMACION': 3,
+  'CIERRE': 4,
   'CERRADO': 4,
 };
 

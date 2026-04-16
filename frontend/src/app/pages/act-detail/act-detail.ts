@@ -99,7 +99,10 @@ export class ActDetail implements OnInit {
   }
 
   get steps(): StepInfo[] {
-    const currentIndex = this.stepKeys.indexOf(this.event?.status || '');
+    const status = this.event?.status || '';
+    const currentIndex = status === 'CERRADO'
+      ? this.stepKeys.length - 1
+      : this.stepKeys.indexOf(status);
     return this.stepKeys.map((key, i) => ({
       key,
       label: getStepLabel(key),
@@ -123,6 +126,32 @@ export class ActDetail implements OnInit {
 
   get hasPendingItems(): boolean {
     return this.unconfirmedTasksCount > 0 || this.openIncidentsCount > 0;
+  }
+
+  private readonly advanceableStatuses = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION'];
+
+  get canAdvanceStatus(): boolean {
+    return this.auth.canManage()
+      && !!this.event
+      && this.advanceableStatuses.includes(this.event.status);
+  }
+
+  advancingStatus = false;
+
+  advanceStatus(): void {
+    if (!this.event || this.advancingStatus) {
+      return;
+    }
+    this.advancingStatus = true;
+    this.eventService.advanceStatus(this.eventId).subscribe({
+      next: () => {
+        this.advancingStatus = false;
+        this.loadData();
+      },
+      error: () => {
+        this.advancingStatus = false;
+      }
+    });
   }
 
   ngOnInit(): void {
