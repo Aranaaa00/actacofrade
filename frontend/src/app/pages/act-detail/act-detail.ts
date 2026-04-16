@@ -20,6 +20,15 @@ import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { AuditLogResponse } from '../../models/audit-log.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
+import {
+  getEventTypeLabel, getEventStatusLabel,
+  getTaskStatusLabel, getTaskBadgeVariant,
+  getDecisionStatusLabel, getDecisionBadgeVariant,
+  getIncidentStatusLabel, getIncidentBadgeVariant,
+  getAreaLabel, getActionLabel, getEntityTypeLabel,
+  getHistoryBadgeVariant, getStepLabel
+} from '../../shared/utils/label-maps.utils';
+import { formatDate, formatDateTime } from '../../shared/utils/date.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -83,44 +92,25 @@ export class ActDetail implements OnInit {
   private readonly historyPageSize = 5;
 
   private readonly stepKeys = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE'];
-  private readonly stepLabels: Record<string, string> = {
-    PLANIFICACION: 'Planificación',
-    PREPARACION: 'Preparación',
-    CONFIRMACION: 'Confirmación',
-    CIERRE: 'Cierre'
-  };
 
-  private readonly statusLabelMap: Record<string, string> = {
-    PLANIFICACION: 'En planificación',
-    PREPARACION: 'En proceso',
-    CONFIRMACION: 'En confirmación',
-    CIERRE: 'En cierre',
-    CERRADO: 'Cerrado'
-  };
 
   get statusLabel(): string {
-    return this.statusLabelMap[this.event?.status || ''] || this.event?.status || '';
+    return getEventStatusLabel(this.event?.status || '');
   }
 
   get steps(): StepInfo[] {
     const currentIndex = this.stepKeys.indexOf(this.event?.status || '');
     return this.stepKeys.map((key, i) => ({
       key,
-      label: this.stepLabels[key],
+      label: getStepLabel(key),
       done: i <= currentIndex,
       connectorDone: i < currentIndex
     }));
   }
 
   get statusVariant(): string {
-    const variantMap: Record<string, string> = {
-      'PLANIFICACION': 'pending',
-      'PREPARACION': 'pending',
-      'CONFIRMACION': 'pending',
-      'CIERRE': 'pending',
-      'CERRADO': 'confirmed',
-    };
-    return variantMap[this.event?.status || ''] || 'pending';
+    const status = this.event?.status || '';
+    return status === 'CERRADO' ? 'confirmed' : 'pending';
   }
 
   get unconfirmedTasksCount(): number {
@@ -140,85 +130,14 @@ export class ActDetail implements OnInit {
     this.loadData();
   }
 
-  getTaskBadgeVariant(status: string): string {
-    const variantMap: Record<string, string> = {
-      'PLANNED': 'pending',
-      'ACCEPTED': 'pending',
-      'IN_PREPARATION': 'pending',
-      'CONFIRMED': 'confirmed',
-      'COMPLETED': 'confirmed',
-      'REJECTED': 'rejected',
-    };
-    return variantMap[status] || 'neutral';
-  }
-
-  getTaskStatusLabel(status: string): string {
-    const labelMap: Record<string, string> = {
-      'PLANNED': 'Planificada',
-      'ACCEPTED': 'Aceptada',
-      'IN_PREPARATION': 'En preparación',
-      'CONFIRMED': 'Confirmada',
-      'COMPLETED': 'Completada',
-      'REJECTED': 'Rechazada',
-    };
-    return labelMap[status] || status;
-  }
-
-  getDecisionBadgeVariant(status: string): string {
-    const variantMap: Record<string, string> = {
-      'LISTA': 'confirmed',
-      'PENDIENTE': 'pending',
-      'RECHAZADA': 'rejected',
-    };
-    return variantMap[status] || 'neutral';
-  }
-
-  getDecisionStatusLabel(status: string): string {
-    const labelMap: Record<string, string> = {
-      'LISTA': 'Lista',
-      'PENDIENTE': 'Pendiente',
-      'RECHAZADA': 'Rechazada',
-    };
-    return labelMap[status] || status;
-  }
-
-  getIncidentBadgeVariant(status: string): string {
-    const variantMap: Record<string, string> = {
-      'ABIERTA': 'pending',
-      'RESUELTA': 'confirmed',
-    };
-    return variantMap[status] || 'neutral';
-  }
-
-  getIncidentStatusLabel(status: string): string {
-    const labelMap: Record<string, string> = {
-      'ABIERTA': 'Abierta',
-      'RESUELTA': 'Resuelta',
-    };
-    return labelMap[status] || status;
-  }
-
-  getEventTypeLabel(type: string): string {
-    const typeMap: Record<string, string> = {
-      'CABILDO': 'Cabildo',
-      'CULTOS': 'Cultos',
-      'PROCESION': 'Procesión',
-      'ENSAYO': 'Ensayo',
-      'OTRO': 'Otro',
-    };
-    return typeMap[type] || type;
-  }
-
-  getAreaLabel(area: string): string {
-    const areaMap: Record<string, string> = {
-      'MAYORDOMIA': 'Mayordomía',
-      'SECRETARIA': 'Secretaría',
-      'PRIOSTIA': 'Priostía',
-      'TESORERIA': 'Tesorería',
-      'DIPUTACION_MAYOR': 'Diputación Mayor',
-    };
-    return areaMap[area] || area;
-  }
+  getTaskBadgeVariant = getTaskBadgeVariant;
+  getTaskStatusLabel = getTaskStatusLabel;
+  getDecisionBadgeVariant = getDecisionBadgeVariant;
+  getDecisionStatusLabel = getDecisionStatusLabel;
+  getIncidentBadgeVariant = getIncidentBadgeVariant;
+  getIncidentStatusLabel = getIncidentStatusLabel;
+  getEventTypeLabel = getEventTypeLabel;
+  getAreaLabel = getAreaLabel;
 
   cloneAct(): void {
     this.eventService.clone(this.eventId).subscribe({
@@ -269,6 +188,13 @@ export class ActDetail implements OnInit {
   canActOnTask(task: TaskResponse): boolean {
     const userId = this.auth.getUserId();
     return task.assignedToId === userId || this.auth.canManage();
+  }
+
+  canActOnIncident(incident: IncidentResponse): boolean {
+    if (incident.status === 'RESUELTA') {
+      return this.auth.isAdmin();
+    }
+    return this.auth.canManage();
   }
 
   acceptTask(task: TaskResponse): void {
@@ -424,62 +350,11 @@ export class ActDetail implements OnInit {
     });
   }
 
-  formatDate(dateStr: string | null): string {
-    if (!dateStr) {
-      return '—';
-    }
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
-
-  formatDateTime(dateStr: string | null): string {
-    if (!dateStr) {
-      return '—';
-    }
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  getActionLabel(action: string): string {
-    const actionMap: Record<string, string> = {
-      'TASK_CREATED': 'Tarea creada',
-      'TASK_ACCEPTED': 'Tarea aceptada',
-      'TASK_IN_PREPARATION': 'Tarea en preparación',
-      'TASK_CONFIRMED': 'Tarea confirmada',
-      'TASK_COMPLETED': 'Tarea completada',
-      'TASK_REJECTED': 'Tarea rechazada',
-      'TASK_RESET': 'Tarea reiniciada',
-      'TASK_UPDATED': 'Tarea actualizada',
-      'TASK_DELETED': 'Tarea eliminada',
-      'DECISION_CREATED': 'Decisión creada',
-      'DECISION_READY': 'Decisión lista',
-      'DECISION_REJECTED': 'Decisión rechazada',
-      'INCIDENT_CREATED': 'Incidencia creada',
-      'INCIDENT_RESOLVED': 'Incidencia resuelta',
-      'EVENT_CLOSED': 'Acto cerrado',
-    };
-    return actionMap[action] || action;
-  }
-
-  getEntityTypeLabel(entityType: string): string {
-    const typeMap: Record<string, string> = {
-      'TASK': 'Tarea',
-      'DECISION': 'Decisión',
-      'INCIDENT': 'Incidencia',
-      'EVENT': 'Acto',
-    };
-    return typeMap[entityType] || entityType;
-  }
-
-  getHistoryBadgeVariant(entityType: string): string {
-    const variantMap: Record<string, string> = {
-      'TASK': 'pending',
-      'DECISION': 'confirmed',
-      'INCIDENT': 'rejected',
-      'EVENT': 'wood',
-    };
-    return variantMap[entityType] || 'neutral';
-  }
+  formatDate = formatDate;
+  formatDateTime = formatDateTime;
+  getActionLabel = getActionLabel;
+  getEntityTypeLabel = getEntityTypeLabel;
+  getHistoryBadgeVariant = getHistoryBadgeVariant;
 
   onTabChange(tab: string): void {
     this.selectedTab = tab;

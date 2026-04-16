@@ -8,6 +8,11 @@ import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
+import {
+  getEventTypeLabel, getEventStatusLabel,
+  getEventStatusBadgeVariant, getStepIndex
+} from '../../shared/utils/label-maps.utils';
+import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
@@ -30,20 +35,6 @@ export class ActList implements OnInit {
   loading = true;
 
   events: EventResponse[] = [];
-
-  private readonly statusLabelMap: Record<string, string> = {
-    'PLANIFICACION': 'Planificación',
-    'PREPARACION': 'En preparación',
-    'CONFIRMACION': 'Confirmación',
-    'CERRADO': 'Cerrado',
-  };
-
-  private readonly stepIndexMap: Record<string, number> = {
-    'PLANIFICACION': 1,
-    'PREPARACION': 2,
-    'CONFIRMACION': 3,
-    'CERRADO': 4,
-  };
 
   ngOnInit(): void {
     this.loadEvents();
@@ -81,46 +72,22 @@ export class ActList implements OnInit {
   }
 
   get activeTypeLabel(): string {
-    const map: Record<string, string> = {
-      'CABILDO': 'Cabildo',
-      'CULTOS': 'Cultos',
-      'PROCESION': 'Procesión',
-      'ENSAYO': 'Ensayo',
-      'OTRO': 'Otro',
-    };
-    return this.filterType ? (map[this.filterType] || this.filterType) : 'Tipo de acto';
+    return this.filterType ? getEventTypeLabel(this.filterType) : 'Tipo de acto';
   }
 
-  getEventTypeLabel(type: string): string {
-    const map: Record<string, string> = {
-      'CABILDO': 'Cabildo',
-      'CULTOS': 'Cultos',
-      'PROCESION': 'Procesión',
-      'ENSAYO': 'Ensayo',
-      'OTRO': 'Otro',
-    };
-    return map[type] || type;
-  }
+  getEventTypeLabel = getEventTypeLabel;
 
   get activeStatusLabel(): string {
-    return this.filterStatus ? (this.statusLabelMap[this.filterStatus] || this.filterStatus) : 'Estado';
+    return this.filterStatus ? getEventStatusLabel(this.filterStatus) : 'Estado';
   }
 
-  getStatusLabel(status: string): string {
-    return this.statusLabelMap[status] || status;
-  }
+  getStatusLabel = getEventStatusLabel;
 
   getCurrentStep(status: string): number {
-    return this.stepIndexMap[status] || 0;
+    return getStepIndex(status);
   }
 
-  formatDate(dateStr: string | null): string {
-    if (!dateStr) {
-      return '—';
-    }
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
+  formatDate = formatDate;
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
@@ -174,15 +141,7 @@ export class ActList implements OnInit {
     this.openDropdown = null;
   }
 
-  getStatusBadgeVariant(status: string): string {
-    const variantMap: Record<string, string> = {
-      'PLANIFICACION': 'neutral',
-      'PREPARACION': 'pending',
-      'CONFIRMACION': 'confirmed',
-      'CERRADO': 'neutral',
-    };
-    return variantMap[status] || 'neutral';
-  }
+  getStatusBadgeVariant = getEventStatusBadgeVariant;
 
   isStepDone(currentStep: number, stepIndex: number): boolean {
     return stepIndex < currentStep;

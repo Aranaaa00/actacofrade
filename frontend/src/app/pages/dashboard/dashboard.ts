@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { EventService } from '../../services/event.service';
 import { EventResponse } from '../../models/event.model';
 import { Badge } from '../../shared/components/badge/badge';
+import { getEventStatusLabel, getEventStatusBadgeVariant } from '../../shared/utils/label-maps.utils';
 
 interface Alert {
   type: 'TAREA' | 'INCIDENCIA' | 'CIERRE';
@@ -56,25 +57,8 @@ export class Dashboard implements OnInit {
     });
   }
 
-  getStatusLabel(status: string): string {
-    const map: Record<string, string> = {
-      'PLANIFICACION': 'Planificación',
-      'PREPARACION': 'En preparación',
-      'CONFIRMACION': 'Confirmación',
-      'CERRADO': 'Cerrado',
-    };
-    return map[status] || status;
-  }
-
-  getStatusBadgeVariant(status: string): string {
-    const variantMap: Record<string, string> = {
-      'PLANIFICACION': 'neutral',
-      'PREPARACION': 'pending',
-      'CONFIRMACION': 'confirmed',
-      'CERRADO': 'neutral',
-    };
-    return variantMap[status] || 'neutral';
-  }
+  getStatusLabel = getEventStatusLabel;
+  getStatusBadgeVariant = getEventStatusBadgeVariant;
 
   private buildAlerts(): void {
     const result: Alert[] = [];
