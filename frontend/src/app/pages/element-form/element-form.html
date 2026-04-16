@@ -43,7 +43,7 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal__body" aria-label="Formulario de elemento">
     <app-form-field [label]="titleLabel" fieldId="element-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
-      <input id="element-title" type="text" formControlName="title" [placeholder]="titlePlaceholder">
+      <input id="element-title" type="text" formControlName="title" [placeholder]="titlePlaceholder" maxlength="255">
     </app-form-field>
 
     @if (activeTab === 'decision') {
@@ -67,12 +67,17 @@
       </app-form-field>
 
       <app-form-field label="Fecha límite" fieldId="element-deadline" styleClass="element-form__field--half">
-        <input id="element-deadline" type="date" formControlName="deadline" placeholder="DD/MM/AAAA">
+        <app-datepicker
+          [selectedDate]="form.get('deadline')?.value || ''"
+          [allSelectable]="true"
+          placeholder="Fecha límite"
+          (dateSelected)="onDeadlineSelected($event)">
+        </app-datepicker>
       </app-form-field>
     </section>
 
-    <app-form-field label="Notas adicionales" fieldId="element-notes">
-      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones relevantes..."></textarea>
+    <app-form-field label="Notas adicionales" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
+      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones relevantes..." maxlength="1000"></textarea>
     </app-form-field>
 
     <aside class="element-form__status-box" aria-label="Estado inicial">

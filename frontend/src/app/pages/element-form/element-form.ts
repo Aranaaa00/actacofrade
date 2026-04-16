@@ -8,7 +8,9 @@ import { UserResponse } from '../../models/user.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
+import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
+import { noHtmlValidator, sanitizeText } from '../../shared/utils/sanitize.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -24,7 +26,7 @@ interface EditData {
 
 @Component({
   selector: 'app-element-form',
-  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField],
+  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker],
   templateUrl: './element-form.html',
 })
 export class ElementForm implements OnInit {
@@ -93,10 +95,10 @@ export class ElementForm implements OnInit {
     this.activeTab = this.editData?.type || this.initialTab;
 
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(255)]],
+      title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       assignedToId: [null],
       deadline: [''],
-      notes: [''],
+      notes: ['', [Validators.maxLength(1000), noHtmlValidator()]],
       area: ['MAYORDOMIA']
     });
 
@@ -134,6 +136,11 @@ export class ElementForm implements OnInit {
     }
   }
 
+  onDeadlineSelected(date: string): void {
+    this.form.patchValue({ deadline: date });
+    this.form.get('deadline')?.markAsTouched();
+  }
+
   hasError(field: string): boolean {
     return hasFieldError(this.form, field);
   }
@@ -160,8 +167,8 @@ export class ElementForm implements OnInit {
 
   private submitTask(val: Record<string, unknown>): void {
     const payload = {
-      title: val['title'] as string,
-      description: val['notes'] as string || '',
+      title: sanitizeText(val['title'] as string),
+      description: sanitizeText(val['notes'] as string || ''),
       assignedToId: val['assignedToId'] as number | null,
       deadline: val['deadline'] as string || null
     };
@@ -179,7 +186,7 @@ export class ElementForm implements OnInit {
   private submitDecision(val: Record<string, unknown>): void {
     const payload = {
       area: val['area'] as string,
-      title: val['title'] as string,
+      title: sanitizeText(val['title'] as string),
       reviewedById: val['assignedToId'] as number | null
     };
 
@@ -195,7 +202,7 @@ export class ElementForm implements OnInit {
 
   private submitIncident(val: Record<string, unknown>): void {
     const payload = {
-      description: val['title'] as string,
+      description: sanitizeText(val['title'] as string),
       reportedById: val['assignedToId'] as number | null
     };
 
