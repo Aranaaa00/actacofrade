@@ -9,6 +9,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.IncidentRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,14 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     public IncidentService(IncidentRepository incidentRepository, EventRepository eventRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, AuditLogService auditLogService) {
         this.incidentRepository = incidentRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<IncidentResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -50,10 +53,12 @@ public class IncidentService {
 
         Incident incident = new Incident();
         incident.setEvent(event);
-        incident.setDescription(request.description());
+        incident.setDescription(SanitizationUtils.sanitize(request.description()));
         incident.setReportedBy(reportedBy);
 
         incidentRepository.save(incident);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        auditLogService.log(event, "INCIDENT", incident.getId(), "INCIDENT_CREATED", currentUser, incident.getDescription());
         return toResponse(incident);
     }
 
@@ -64,7 +69,7 @@ public class IncidentService {
     }
 
     public IncidentResponse resolve(Integer eventId, Integer incidentId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
         if (incident.getStatus() == IncidentStatus.RESUELTA) {
@@ -77,6 +82,7 @@ public class IncidentService {
         incident.setResolvedAt(LocalDateTime.now());
         incident.setResolvedBy(resolver);
         incidentRepository.save(incident);
+        auditLogService.log(event, "INCIDENT", incident.getId(), "INCIDENT_RESOLVED", resolver, incident.getDescription());
         return toResponse(incident);
     }
 

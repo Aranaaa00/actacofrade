@@ -1,6 +1,7 @@
 package com.actacofrade.backend.controller;
 
 import com.actacofrade.backend.dto.CreateTaskRequest;
+import com.actacofrade.backend.dto.RejectTaskRequest;
 import com.actacofrade.backend.dto.TaskResponse;
 import com.actacofrade.backend.dto.UpdateTaskRequest;
 import com.actacofrade.backend.service.TaskService;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/events/{eventId}/tasks")
@@ -72,28 +72,44 @@ public class TaskController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{taskId}/accept")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    public ResponseEntity<TaskResponse> accept(@PathVariable Integer eventId,
+                                               @PathVariable Integer taskId,
+                                               @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.accept(eventId, taskId, userDetails.getUsername()));
+    }
+
     @PatchMapping("/{taskId}/confirm")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> confirm(@PathVariable Integer eventId,
                                                 @PathVariable Integer taskId,
                                                 @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(taskService.confirm(eventId, taskId, userDetails.getUsername()));
     }
 
+    @PatchMapping("/{taskId}/complete")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    public ResponseEntity<TaskResponse> complete(@PathVariable Integer eventId,
+                                                 @PathVariable Integer taskId,
+                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.complete(eventId, taskId, userDetails.getUsername()));
+    }
+
     @PatchMapping("/{taskId}/reject")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> reject(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
-                                               @RequestBody Map<String, String> body,
+                                               @Valid @RequestBody RejectTaskRequest body,
                                                @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(taskService.reject(eventId, taskId, body.get("rejectionReason"), userDetails.getUsername()));
+        return ResponseEntity.ok(taskService.reject(eventId, taskId, body.rejectionReason(), userDetails.getUsername()));
     }
 
     @PatchMapping("/{taskId}/reset")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<TaskResponse> resetToPending(@PathVariable Integer eventId,
+    public ResponseEntity<TaskResponse> resetToPlanned(@PathVariable Integer eventId,
                                                        @PathVariable Integer taskId,
                                                        @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(taskService.resetToPending(eventId, taskId, userDetails.getUsername()));
+        return ResponseEntity.ok(taskService.resetToPlanned(eventId, taskId, userDetails.getUsername()));
     }
 }

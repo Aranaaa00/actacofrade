@@ -12,6 +12,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.DecisionRepository;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +27,14 @@ public class DecisionService {
     private final DecisionRepository decisionRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     public DecisionService(DecisionRepository decisionRepository, EventRepository eventRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, AuditLogService auditLogService) {
         this.decisionRepository = decisionRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<DecisionResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -55,10 +58,12 @@ public class DecisionService {
         Decision decision = new Decision();
         decision.setEvent(event);
         decision.setArea(area);
-        decision.setTitle(request.title());
+        decision.setTitle(SanitizationUtils.sanitize(request.title()));
         decision.setReviewedBy(reviewedBy);
 
         decisionRepository.save(decision);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        auditLogService.log(event, "DECISION", decision.getId(), "DECISION_CREATED", currentUser, decision.getTitle());
         return toResponse(decision);
     }
 
@@ -79,7 +84,7 @@ public class DecisionService {
             decision.setArea(HermandadArea.valueOf(request.area()));
         }
         if (request.title() != null) {
-            decision.setTitle(request.title());
+            decision.setTitle(SanitizationUtils.sanitize(request.title()));
         }
         if (request.reviewedById() != null) {
             decision.setReviewedBy(resolveUser(request.reviewedById()));
@@ -97,30 +102,34 @@ public class DecisionService {
     }
 
     public DecisionResponse markAsReady(Integer eventId, Integer decisionId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.LISTA) {
             throw new IllegalStateException("La decision ya esta marcada como lista");
         }
 
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         decision.setStatus(DecisionStatus.LISTA);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
+        auditLogService.log(event, "DECISION", decision.getId(), "DECISION_READY", currentUser, decision.getTitle());
         return toResponse(decision);
     }
 
     public DecisionResponse reject(Integer eventId, Integer decisionId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.RECHAZADA) {
             throw new IllegalStateException("La decision ya esta rechazada");
         }
 
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         decision.setStatus(DecisionStatus.RECHAZADA);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
+        auditLogService.log(event, "DECISION", decision.getId(), "DECISION_REJECTED", currentUser, decision.getTitle());
         return toResponse(decision);
     }
 

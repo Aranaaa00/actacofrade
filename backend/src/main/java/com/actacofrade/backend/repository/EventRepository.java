@@ -20,17 +20,33 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
             nativeQuery = true)
     Integer findMaxReferenceNumberByYearPrefix(@Param("prefix") String prefix);
 
-    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status != 'CONFIRMADA'",
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status != 'COMPLETED'",
             nativeQuery = true)
     long countPendingTasksByEventId(@Param("eventId") Integer eventId);
 
-    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'PENDIENTE'",
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'PLANNED'",
             nativeQuery = true)
-    long countTasksWithPendingStatus(@Param("eventId") Integer eventId);
+    long countTasksWithPlannedStatus(@Param("eventId") Integer eventId);
 
-    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'RECHAZADA'",
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'REJECTED'",
             nativeQuery = true)
     long countTasksWithRejectedStatus(@Param("eventId") Integer eventId);
+
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'IN_PREPARATION'",
+            nativeQuery = true)
+    long countTasksWithInPreparationStatus(@Param("eventId") Integer eventId);
+
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'CONFIRMED'",
+            nativeQuery = true)
+    long countTasksWithConfirmedStatus(@Param("eventId") Integer eventId);
+
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'COMPLETED'",
+            nativeQuery = true)
+    long countTasksWithCompletedStatus(@Param("eventId") Integer eventId);
+
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId",
+            nativeQuery = true)
+    long countTotalTasksByEventId(@Param("eventId") Integer eventId);
 
     @Query(value = "SELECT COUNT(*) FROM incidents WHERE event_id = :eventId AND status = 'ABIERTA'",
             nativeQuery = true)

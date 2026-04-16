@@ -10,6 +10,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.EventSpecification;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,10 +28,13 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
-    public EventService(EventRepository eventRepository, UserRepository userRepository) {
+    public EventService(EventRepository eventRepository, UserRepository userRepository,
+                        AuditLogService auditLogService) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<EventResponse> findAll(String authenticatedEmail) {
@@ -75,11 +78,11 @@ public class EventService {
 
         Event event = new Event();
         event.setReference(reference);
-        event.setTitle(request.title());
+        event.setTitle(SanitizationUtils.sanitize(request.title()));
         event.setEventType(eventType);
         event.setEventDate(request.eventDate());
-        event.setLocation(request.location());
-        event.setObservations(request.observations());
+        event.setLocation(SanitizationUtils.sanitizeNullable(request.location()));
+        event.setObservations(SanitizationUtils.sanitizeNullable(request.observations()));
         event.setResponsible(responsible);
         event.setHermandad(currentUser.getHermandad());
 
@@ -92,7 +95,7 @@ public class EventService {
         Event event = findEventForHermandadOrThrow(id, hermandadId);
 
         if (request.title() != null) {
-            event.setTitle(request.title());
+            event.setTitle(SanitizationUtils.sanitize(request.title()));
         }
         if (request.eventType() != null) {
             event.setEventType(EventType.valueOf(request.eventType()));
@@ -101,10 +104,10 @@ public class EventService {
             event.setEventDate(request.eventDate());
         }
         if (request.location() != null) {
-            event.setLocation(request.location());
+            event.setLocation(SanitizationUtils.sanitize(request.location()));
         }
         if (request.observations() != null) {
-            event.setObservations(request.observations());
+            event.setObservations(SanitizationUtils.sanitize(request.observations()));
         }
         if (request.responsibleId() != null) {
             event.setResponsible(resolveResponsible(request.responsibleId()));
@@ -143,24 +146,17 @@ public class EventService {
     public EventResponse close(Integer id, String authenticatedEmail) {
         Integer hermandadId = resolveHermandadId(authenticatedEmail);
         Event event = findEventForHermandadOrThrow(id, hermandadId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
 
         if (event.getStatus() == EventStatus.CERRADO) {
             throw new IllegalStateException("El acto ya se encuentra cerrado");
-        }
-
-        long pendingTasks = eventRepository.countTasksWithPendingStatus(id);
-        long rejectedTasks = eventRepository.countTasksWithRejectedStatus(id);
-        long openIncidents = eventRepository.countOpenIncidentsByEventId(id);
-
-        String blockReason = buildClosureBlockReason(pendingTasks, rejectedTasks, openIncidents);
-        if (!blockReason.isEmpty()) {
-            throw new IllegalStateException(blockReason);
         }
 
         event.setStatus(EventStatus.CERRADO);
         event.setIsLockedForClosing(true);
         event.setUpdatedAt(LocalDateTime.now());
         eventRepository.save(event);
+        auditLogService.log(event, "EVENT", event.getId(), "EVENT_CLOSED", currentUser, event.getTitle());
         return toResponse(event);
     }
 
@@ -208,24 +204,6 @@ public class EventService {
         };
     }
 
-    private String buildClosureBlockReason(long pending, long rejected, long incidents) {
-        List<String> reasons = new ArrayList<>();
-        if (pending > 0) {
-            reasons.add(pending + " tarea(s) pendiente(s)");
-        }
-        if (rejected > 0) {
-            reasons.add(rejected + " tarea(s) rechazada(s)");
-        }
-        if (incidents > 0) {
-            reasons.add(incidents + " incidencia(s) abierta(s)");
-        }
-        String result = "";
-        if (!reasons.isEmpty()) {
-            result = "No es posible cerrar el acto. Quedan: " + String.join(", ", reasons);
-        }
-        return result;
-    }
-
     private Event findEventForHermandadOrThrow(Integer id, Integer hermandadId) {
         return eventRepository.findByIdAndHermandadId(id, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
@@ -271,6 +249,8 @@ public class EventService {
 
         long pendingTasks = eventRepository.countPendingTasksByEventId(event.getId());
         long openIncidents = eventRepository.countOpenIncidentsByEventId(event.getId());
+        long totalTasks = eventRepository.countTotalTasksByEventId(event.getId());
+        long completedTasks = eventRepository.countTasksWithCompletedStatus(event.getId());
 
         return new EventResponse(
                 event.getId(),
@@ -286,6 +266,8 @@ public class EventService {
                 event.getIsLockedForClosing(),
                 pendingTasks,
                 openIncidents,
+                totalTasks,
+                completedTasks,
                 event.getCreatedAt(),
                 event.getUpdatedAt()
         );

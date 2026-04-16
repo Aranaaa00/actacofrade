@@ -4,6 +4,7 @@ import com.actacofrade.backend.dto.CreateTaskRequest;
 import com.actacofrade.backend.dto.TaskResponse;
 import com.actacofrade.backend.dto.UpdateTaskRequest;
 import com.actacofrade.backend.entity.Event;
+import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.Task;
 import com.actacofrade.backend.entity.TaskStatus;
@@ -11,6 +12,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.TaskRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,12 +27,14 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final AuditLogService auditLogService;
 
     public TaskService(TaskRepository taskRepository, EventRepository eventRepository,
-                       UserRepository userRepository) {
+                       UserRepository userRepository, AuditLogService auditLogService) {
         this.taskRepository = taskRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.auditLogService = auditLogService;
     }
 
     public List<TaskResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -48,21 +52,27 @@ public class TaskService {
 
     public TaskResponse create(Integer eventId, CreateTaskRequest request, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
+
         User assignedTo = resolveUser(request.assignedToId());
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
 
         Task task = new Task();
         task.setEvent(event);
-        task.setTitle(request.title());
-        task.setDescription(request.description());
+        task.setTitle(SanitizationUtils.sanitize(request.title()));
+        task.setDescription(SanitizationUtils.sanitizeNullable(request.description()));
         task.setAssignedTo(assignedTo);
         task.setDeadline(request.deadline());
 
         taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_CREATED", currentUser, task.getTitle());
+        recalculateEventProgress(event);
         return toResponse(task);
     }
 
     public TaskResponse update(Integer eventId, Integer taskId, UpdateTaskRequest request, String authenticatedEmail) {
-        findEventOrThrow(eventId);
+        Event event = findEventOrThrow(eventId);
+        validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
@@ -75,10 +85,10 @@ public class TaskService {
         }
 
         if (request.title() != null) {
-            task.setTitle(request.title());
+            task.setTitle(SanitizationUtils.sanitize(request.title()));
         }
         if (request.description() != null) {
-            task.setDescription(request.description());
+            task.setDescription(SanitizationUtils.sanitize(request.description()));
         }
         if (request.assignedToId() != null) {
             task.setAssignedTo(resolveUser(request.assignedToId()));
@@ -89,71 +99,180 @@ public class TaskService {
 
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_UPDATED", currentUser, task.getTitle());
         return toResponse(task);
     }
 
     public void delete(Integer eventId, Integer taskId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        String taskTitle = task.getTitle();
         taskRepository.delete(task);
+        auditLogService.log(event, "TASK", taskId, "TASK_DELETED", currentUser, taskTitle);
+        recalculateEventProgress(event);
+    }
+
+    public TaskResponse accept(Integer eventId, Integer taskId, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
+        Task task = findTaskOrThrow(taskId, eventId);
+
+        if (task.getStatus() != TaskStatus.PLANNED) {
+            throw new IllegalStateException("Solo se pueden aceptar tareas en estado PLANNED");
+        }
+
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        validateOwnershipOrManager(task, currentUser);
+
+        task.setStatus(TaskStatus.IN_PREPARATION);
+        task.setRejectionReason(null);
+        task.setUpdatedAt(LocalDateTime.now());
+        taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_ACCEPTED", currentUser, task.getTitle());
+        recalculateEventProgress(event);
+        return toResponse(task);
     }
 
     public TaskResponse confirm(Integer eventId, Integer taskId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
 
-        if (task.getStatus() == TaskStatus.CONFIRMADA) {
-            throw new IllegalStateException("La tarea ya esta confirmada");
+        if (task.getStatus() != TaskStatus.IN_PREPARATION) {
+            throw new IllegalStateException("Solo se pueden confirmar tareas en estado IN_PREPARATION");
         }
 
         User confirmer = findUserByEmailOrThrow(authenticatedEmail);
+        validateOwnershipOrManager(task, confirmer);
 
-        task.setStatus(TaskStatus.CONFIRMADA);
-        task.setRejectionReason(null);
+        task.setStatus(TaskStatus.CONFIRMED);
         task.setConfirmedBy(confirmer);
         task.setConfirmedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_CONFIRMED", confirmer, task.getTitle());
+        recalculateEventProgress(event);
+        return toResponse(task);
+    }
+
+    public TaskResponse complete(Integer eventId, Integer taskId, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
+        Task task = findTaskOrThrow(taskId, eventId);
+
+        if (task.getStatus() != TaskStatus.CONFIRMED) {
+            throw new IllegalStateException("Solo se pueden completar tareas en estado CONFIRMED");
+        }
+
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        validateOwnershipOrManager(task, currentUser);
+
+        task.setStatus(TaskStatus.COMPLETED);
+        task.setCompletedAt(LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now());
+        taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_COMPLETED", currentUser, task.getTitle());
+        recalculateEventProgress(event);
         return toResponse(task);
     }
 
     public TaskResponse reject(Integer eventId, Integer taskId, String rejectionReason, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
 
-        if (task.getStatus() == TaskStatus.RECHAZADA) {
+        if (task.getStatus() == TaskStatus.REJECTED) {
             throw new IllegalStateException("La tarea ya esta rechazada");
+        }
+        if (task.getStatus() == TaskStatus.COMPLETED) {
+            throw new IllegalStateException("No se puede rechazar una tarea completada");
         }
         if (rejectionReason == null || rejectionReason.isBlank()) {
             throw new IllegalStateException("El motivo de rechazo es obligatorio");
         }
 
-        User confirmer = findUserByEmailOrThrow(authenticatedEmail);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        boolean isManager = currentUser.getRoles().stream()
+                .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR || r.getCode() == RoleCode.RESPONSABLE);
+        if (!isManager) {
+            boolean isAssigned = task.getAssignedTo() != null
+                    && task.getAssignedTo().getId().equals(currentUser.getId());
+            if (!isAssigned) {
+                throw new AccessDeniedException("Solo puedes rechazar tus propias tareas");
+            }
+        }
 
-        task.setStatus(TaskStatus.RECHAZADA);
-        task.setRejectionReason(rejectionReason);
-        task.setConfirmedBy(confirmer);
-        task.setConfirmedAt(LocalDateTime.now());
+        task.setStatus(TaskStatus.REJECTED);
+        task.setRejectionReason(SanitizationUtils.sanitize(rejectionReason));
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_REJECTED", currentUser, task.getTitle());
+        recalculateEventProgress(event);
         return toResponse(task);
     }
 
-    public TaskResponse resetToPending(Integer eventId, Integer taskId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+    public TaskResponse resetToPlanned(Integer eventId, Integer taskId, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
 
-        if (task.getStatus() == TaskStatus.PENDIENTE) {
-            throw new IllegalStateException("La tarea ya esta pendiente");
+        if (task.getStatus() == TaskStatus.PLANNED) {
+            throw new IllegalStateException("La tarea ya esta en estado PLANNED");
         }
 
-        task.setStatus(TaskStatus.PENDIENTE);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+
+        task.setStatus(TaskStatus.PLANNED);
         task.setRejectionReason(null);
         task.setConfirmedBy(null);
         task.setConfirmedAt(null);
+        task.setCompletedAt(null);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_RESET", currentUser, task.getTitle());
+        recalculateEventProgress(event);
         return toResponse(task);
+    }
+
+    private void recalculateEventProgress(Event event) {
+        if (event.getStatus() == EventStatus.CERRADO) {
+            return;
+        }
+
+        long total = eventRepository.countTotalTasksByEventId(event.getId());
+        if (total == 0) {
+            event.setStatus(EventStatus.PLANIFICACION);
+            event.setUpdatedAt(LocalDateTime.now());
+            eventRepository.save(event);
+            return;
+        }
+
+        long completed = eventRepository.countTasksWithCompletedStatus(event.getId());
+        long confirmed = eventRepository.countTasksWithConfirmedStatus(event.getId());
+        long inPreparation = eventRepository.countTasksWithInPreparationStatus(event.getId());
+
+        EventStatus newStatus;
+        if (completed == total) {
+            newStatus = EventStatus.CIERRE;
+        } else if (confirmed > 0) {
+            newStatus = EventStatus.CONFIRMACION;
+        } else if (inPreparation > 0) {
+            newStatus = EventStatus.PREPARACION;
+        } else {
+            newStatus = EventStatus.PLANIFICACION;
+        }
+
+        event.setStatus(newStatus);
+        event.setUpdatedAt(LocalDateTime.now());
+        eventRepository.save(event);
+    }
+
+    private void validateEventNotClosed(Event event) {
+        if (event.getStatus() == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
+        }
     }
 
     private Event findEventOrThrow(Integer eventId) {
@@ -194,6 +313,16 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado: " + email));
     }
 
+    private void validateOwnershipOrManager(Task task, User user) {
+        boolean isAssigned = task.getAssignedTo() != null
+                && task.getAssignedTo().getId().equals(user.getId());
+        boolean isManager = user.getRoles().stream()
+                .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR || r.getCode() == RoleCode.RESPONSABLE);
+        if (!isAssigned && !isManager) {
+            throw new AccessDeniedException("Solo el usuario asignado o un responsable puede actuar sobre esta tarea");
+        }
+    }
+
     private TaskResponse toResponse(Task task) {
         Integer assignedToId = null;
         String assignedToName = null;
@@ -222,8 +351,10 @@ public class TaskService {
                 confirmedById,
                 confirmedByName,
                 task.getConfirmedAt(),
+                task.getCompletedAt(),
                 task.getCreatedAt(),
                 task.getUpdatedAt()
         );
     }
 }
+
