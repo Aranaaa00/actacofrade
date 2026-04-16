@@ -12,6 +12,7 @@ export class Datepicker {
   @Input() availableDates: string[] = [];
   @Input() selectedDate = '';
   @Input() placeholder = 'Fecha';
+  @Input() allSelectable = false;
   @Output() dateSelected = new EventEmitter<string>();
 
   open = false;
@@ -58,7 +59,7 @@ export class Datepicker {
   }
 
   isAvailable(day: number): boolean {
-    return this.availableDates.includes(this.toIso(day));
+    return this.allSelectable || this.availableDates.includes(this.toIso(day));
   }
 
   isSelected(day: number): boolean {

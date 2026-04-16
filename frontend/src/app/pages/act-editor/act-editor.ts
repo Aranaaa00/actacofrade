@@ -8,11 +8,13 @@ import { EventResponse } from '../../models/event.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
+import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
+import { noHtmlValidator, sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-act-editor',
-  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField],
+  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker],
   templateUrl: './act-editor.html',
 })
 export class ActEditor implements OnInit, AfterViewInit {
@@ -38,12 +40,12 @@ export class ActEditor implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(255)]],
+      title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       eventType: ['', [Validators.required]],
       eventDate: ['', [Validators.required]],
-      location: ['', [Validators.maxLength(255)]],
+      location: ['', [Validators.maxLength(255), noHtmlValidator()]],
       responsibleId: [null],
-      observations: ['']
+      observations: ['', [Validators.maxLength(1000), noHtmlValidator()]]
     });
 
     this.userService.findAll().subscribe({
@@ -84,9 +86,10 @@ export class ActEditor implements OnInit, AfterViewInit {
       this.errorMessage = '';
       this.successMessage = '';
 
+      const sanitized = sanitizeFormValues(this.form.value);
       const request$ = this.isEditMode
-        ? this.eventService.update(this.eventId!, this.form.value)
-        : this.eventService.create(this.form.value);
+        ? this.eventService.update(this.eventId!, sanitized)
+        : this.eventService.create(sanitized);
 
       request$.subscribe({
         next: (event) => {
@@ -111,6 +114,11 @@ export class ActEditor implements OnInit, AfterViewInit {
     } else {
       this.router.navigate(['/events']);
     }
+  }
+
+  onDateSelected(date: string): void {
+    this.form.patchValue({ eventDate: date });
+    this.form.get('eventDate')?.markAsTouched();
   }
 
   hasError(field: string): boolean {

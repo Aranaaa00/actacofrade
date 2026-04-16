@@ -11,7 +11,7 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="act-editor__body" aria-label="Formulario de acto">
     <app-form-field label="Nombre del acto" fieldId="act-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
-      <input #titleInput id="act-title" type="text" formControlName="title" placeholder="Ej. Cabildo Extraordinario">
+      <input #titleInput id="act-title" type="text" formControlName="title" placeholder="Ej. Cabildo Extraordinario" maxlength="255">
     </app-form-field>
 
     <section class="act-editor__row">
@@ -27,12 +27,17 @@
       </app-form-field>
 
       <app-form-field label="Fecha" fieldId="act-date" styleClass="act-editor__field--bordered" [hasError]="hasError('eventDate')" [errorMessage]="hasError('eventDate') ? getError('eventDate') : ''">
-        <input id="act-date" type="date" formControlName="eventDate">
+        <app-datepicker
+          [selectedDate]="form.get('eventDate')?.value || ''"
+          [allSelectable]="true"
+          placeholder="Seleccionar fecha"
+          (dateSelected)="onDateSelected($event)">
+        </app-datepicker>
       </app-form-field>
     </section>
 
     <app-form-field label="Ubicación" fieldId="act-location" [hasError]="hasError('location')" [errorMessage]="hasError('location') ? getError('location') : ''">
-      <input id="act-location" type="text" formControlName="location" placeholder="Lugar donde se celebra">
+      <input id="act-location" type="text" formControlName="location" placeholder="Lugar donde se celebra" maxlength="255">
     </app-form-field>
 
     <app-form-field label="Responsable" fieldId="act-responsible" styleClass="act-editor__field--bordered">
@@ -44,8 +49,8 @@
       </select>
     </app-form-field>
 
-    <app-form-field label="Observaciones" fieldId="act-observations" styleClass="act-editor__field--bordered">
-      <textarea id="act-observations" formControlName="observations" rows="2" placeholder="Detalles adicionales..."></textarea>
+    <app-form-field label="Observaciones" fieldId="act-observations" styleClass="act-editor__field--bordered" [hasError]="hasError('observations')" [errorMessage]="hasError('observations') ? getError('observations') : ''">
+      <textarea id="act-observations" formControlName="observations" rows="2" placeholder="Detalles adicionales..." maxlength="1000"></textarea>
     </app-form-field>
 
     <footer class="act-editor__footer">
