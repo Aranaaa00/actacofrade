@@ -152,6 +152,15 @@ public class EventService {
             throw new IllegalStateException("El acto ya se encuentra cerrado");
         }
 
+        long pendingTasks = eventRepository.countPendingTasksByEventId(id);
+        long openIncidents = eventRepository.countOpenIncidentsByEventId(id);
+
+        if (pendingTasks > 0 || openIncidents > 0) {
+            throw new IllegalStateException(
+                    "No se puede cerrar el acto: quedan " + pendingTasks
+                            + " tareas sin completar y " + openIncidents + " incidencias abiertas");
+        }
+
         event.setStatus(EventStatus.CERRADO);
         event.setIsLockedForClosing(true);
         event.setUpdatedAt(LocalDateTime.now());
