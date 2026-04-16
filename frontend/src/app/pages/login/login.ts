@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
+import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-login',
@@ -19,8 +20,8 @@ export class Login implements AfterViewInit {
   @ViewChild('loginModal') loginModal!: ElementRef<HTMLElement>;
 
   form: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+    password: ['', [Validators.required, Validators.maxLength(100)]],
     rememberMe: [false]
   });
 
@@ -41,7 +42,8 @@ export class Login implements AfterViewInit {
       this.loading = true;
       this.errorMessage = '';
 
-      const { rememberMe, ...credentials } = this.form.value;
+      const { rememberMe, ...rawCredentials } = this.form.value;
+      const credentials = sanitizeFormValues(rawCredentials);
       this.authService.login(credentials).subscribe({
         next: () => {
           this.loading = false;

@@ -6,6 +6,7 @@ import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
+import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-register',
@@ -21,7 +22,7 @@ export class Register implements AfterViewInit {
 
   form: FormGroup = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'-]{3,150}$/u)]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],
     roleCode: ['COLABORADOR', [Validators.required]],
@@ -65,10 +66,10 @@ export class Register implements AfterViewInit {
       this.errorMessage = '';
 
       const { confirmPassword, ...rawRequest } = this.form.value;
-      const request = {
+      const request = sanitizeFormValues({
         ...rawRequest,
         hermandadNombre: rawRequest.hermandadNombre.trim()
-      };
+      });
 
       this.authService.register(request).subscribe({
         next: () => {

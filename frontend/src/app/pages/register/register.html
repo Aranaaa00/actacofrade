@@ -26,6 +26,7 @@
             type="text"
             formControlName="fullName"
             autocomplete="name"
+            maxlength="150"
             [attr.aria-invalid]="hasError('fullName')"
             [attr.aria-describedby]="hasError('fullName') ? 'register-name-error' : null">
         </app-form-field>
@@ -36,6 +37,7 @@
             formControlName="email"
             placeholder="ejemplo@hermandad.es"
             autocomplete="email"
+            maxlength="255"
             [attr.aria-invalid]="hasError('email')"
             [attr.aria-describedby]="hasError('email') ? 'register-email-error' : null">
         </app-form-field>
@@ -79,6 +81,7 @@
             formControlName="hermandadNombre"
             [placeholder]="hermandadPlaceholder"
             autocomplete="organization"
+            maxlength="200"
             [attr.aria-invalid]="hasError('hermandadNombre')"
             [attr.aria-describedby]="hasError('hermandadNombre') ? 'register-hermandad-error' : null">
         </app-form-field>
