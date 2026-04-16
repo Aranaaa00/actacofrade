@@ -3,6 +3,7 @@ package com.actacofrade.backend.service;
 import com.actacofrade.backend.dto.CreateIncidentRequest;
 import com.actacofrade.backend.dto.IncidentResponse;
 import com.actacofrade.backend.entity.Event;
+import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.Incident;
 import com.actacofrade.backend.entity.IncidentStatus;
 import com.actacofrade.backend.entity.User;
@@ -49,6 +50,7 @@ public class IncidentService {
 
     public IncidentResponse create(Integer eventId, CreateIncidentRequest request, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         User reportedBy = resolveUser(request.reportedById());
 
         Incident incident = new Incident();
@@ -63,13 +65,15 @@ public class IncidentService {
     }
 
     public void delete(Integer eventId, Integer incidentId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
         incidentRepository.delete(incident);
     }
 
     public IncidentResponse resolve(Integer eventId, Integer incidentId, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
         if (incident.getStatus() == IncidentStatus.RESUELTA) {
@@ -87,7 +91,8 @@ public class IncidentService {
     }
 
     public IncidentResponse reopen(Integer eventId, Integer incidentId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
         if (incident.getStatus() == IncidentStatus.ABIERTA) {
@@ -104,6 +109,12 @@ public class IncidentService {
     private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
         return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
+    }
+
+    private void validateEventNotClosed(Event event) {
+        if (event.getStatus() == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
+        }
     }
 
     private Integer resolveHermandadId(String authenticatedEmail) {

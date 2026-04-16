@@ -6,6 +6,7 @@ import com.actacofrade.backend.dto.UpdateDecisionRequest;
 import com.actacofrade.backend.entity.Decision;
 import com.actacofrade.backend.entity.DecisionStatus;
 import com.actacofrade.backend.entity.Event;
+import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.HermandadArea;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
@@ -52,6 +53,7 @@ public class DecisionService {
 
     public DecisionResponse create(Integer eventId, CreateDecisionRequest request, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         HermandadArea area = HermandadArea.valueOf(request.area());
         User reviewedBy = resolveUser(request.reviewedById());
 
@@ -68,7 +70,8 @@ public class DecisionService {
     }
 
     public DecisionResponse update(Integer eventId, Integer decisionId, UpdateDecisionRequest request, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
@@ -96,13 +99,15 @@ public class DecisionService {
     }
 
     public void delete(Integer eventId, Integer decisionId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
         decisionRepository.delete(decision);
     }
 
     public DecisionResponse markAsReady(Integer eventId, Integer decisionId, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.LISTA) {
@@ -119,6 +124,7 @@ public class DecisionService {
 
     public DecisionResponse reject(Integer eventId, Integer decisionId, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.RECHAZADA) {
@@ -134,7 +140,8 @@ public class DecisionService {
     }
 
     public DecisionResponse resetToPending(Integer eventId, Integer decisionId, String authenticatedEmail) {
-        findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         if (decision.getStatus() == DecisionStatus.PENDIENTE) {
@@ -150,6 +157,12 @@ public class DecisionService {
     private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
         return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
+    }
+
+    private void validateEventNotClosed(Event event) {
+        if (event.getStatus() == EventStatus.CERRADO) {
+            throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
+        }
     }
 
     private Integer resolveHermandadId(String authenticatedEmail) {
