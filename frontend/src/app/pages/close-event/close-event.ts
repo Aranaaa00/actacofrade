@@ -53,7 +53,7 @@ export class CloseEvent implements OnInit {
   }
 
   close(): void {
-    if (this.event && !this.isBlocked && !this.closing) {
+    if (this.event && !this.closing) {
       this.closing = true;
       this.errorMessage = '';
 
@@ -96,15 +96,23 @@ export class CloseEvent implements OnInit {
     });
   }
 
+  private readonly taskStatusLabelMap: Record<string, string> = {
+    'PLANNED': 'Planificada',
+    'IN_PREPARATION': 'En preparación',
+    'CONFIRMED': 'Confirmada',
+    'COMPLETED': 'Completada',
+    'REJECTED': 'Rechazada',
+  };
+
   private buildBlockingItems(tasks: TaskResponse[], incidents: IncidentResponse[]): BlockingItem[] {
     const items: BlockingItem[] = [];
 
     for (const task of tasks) {
-      if (task.status !== 'CONFIRMADA') {
+      if (task.status !== 'COMPLETED') {
         items.push({
           type: 'TAREA',
           label: task.title,
-          status: task.status === 'PENDIENTE' ? 'PENDIENTE' : 'RECHAZADA'
+          status: this.taskStatusLabelMap[task.status] || task.status
         });
       }
     }
@@ -114,7 +122,7 @@ export class CloseEvent implements OnInit {
         items.push({
           type: 'INCIDENCIA',
           label: incident.description,
-          status: 'ABIERTA'
+          status: 'Abierta'
         });
       }
     }

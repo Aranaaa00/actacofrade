@@ -20,25 +20,22 @@
           No es posible cerrar el acto — quedan elementos sin resolver
         </app-banner>
 
-        <ul class="close-event__list" aria-label="Elementos pendientes de resolución">
+        <ul class="close-event__list" aria-label="Elementos pendientes">
           @for (item of blockingItems; track item.label) {
             <li class="close-event__item">
               <app-badge styleClass="close-event__type-badge">{{ item.type }}</app-badge>
               <span class="close-event__item-text">{{ item.label }} — <strong>{{ item.status }}</strong></span>
-              <a class="close-event__item-action" aria-label="Resolver {{ item.label }}">Resolver →</a>
             </li>
           }
         </ul>
-
-        <p class="close-event__help">Resuelve todos los elementos pendientes para poder cerrar el acto.</p>
       } @else {
         <app-banner styleClass="close-event__banner close-event__banner--ready">
           <lucide-icon name="diamond" class="close-event__banner-icon" [size]="20" aria-hidden="true"></lucide-icon>
           Todos los elementos están resueltos
         </app-banner>
-
-        <p class="close-event__confirm-text">Este acto quedará registrado como cerrado de forma definitiva. Esta acción no se puede deshacer.</p>
       }
+
+      <p class="close-event__confirm-text">Este acto quedará registrado como cerrado de forma definitiva. Esta acción no se puede deshacer.</p>
 
       @if (errorMessage) {
         <app-banner type="critical">{{ errorMessage }}</app-banner>
@@ -46,32 +43,21 @@
     </section>
 
     <footer class="modal__footer close-event__footer">
-      @if (isBlocked) {
+      <section class="close-event__confirm-actions">
         <button type="button"
-          class="button button--primary button--full-width close-event__blocked-button"
-          disabled
-          aria-disabled="true">
-          <lucide-icon name="lock" class="close-event__lock-icon" [size]="20" aria-hidden="true"></lucide-icon>
-          Cerrar acto — no disponible
+          class="button button--secondary"
+          (click)="goBack()">
+          Cancelar
         </button>
-        <p class="close-event__footer-help">No es posible cerrar el acto. Quedan elementos sin resolver.</p>
-      } @else {
-        <section class="close-event__confirm-actions">
-          <button type="button"
-            class="button button--secondary"
-            (click)="goBack()">
-            Cancelar
-          </button>
-          <button type="button"
-            class="button button--primary"
-            (click)="close()"
-            [disabled]="closing"
-            [attr.aria-busy]="closing">
-            <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
-            Cerrar acto
-          </button>
-        </section>
-      }
+        <button type="button"
+          class="button button--primary"
+          (click)="close()"
+          [disabled]="closing"
+          [attr.aria-busy]="closing">
+          <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Cerrar acto
+        </button>
+      </section>
     </footer>
   }
 </app-modal-overlay>
