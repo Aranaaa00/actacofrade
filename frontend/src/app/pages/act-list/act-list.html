@@ -48,7 +48,7 @@
       (dateSelected)="onDateChange($event)" />
     <div class="act-list__search-wrapper">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
-      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global">
+      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global" maxlength="200">
     </div>
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
   </search>
@@ -57,7 +57,7 @@
     @for (act of paginatedActs; track act.id; let idx = $index) {
       <li class="act-card" [class.act-card--dark]="idx % 2 === 0">
         <aside class="act-card__type-band" aria-hidden="true">
-          <span class="act-card__type-label">{{ act.eventType }}</span>
+          <span class="act-card__type-label">{{ getEventTypeLabel(act.eventType) }}</span>
         </aside>
         <section class="act-card__body">
           <header class="act-card__info">

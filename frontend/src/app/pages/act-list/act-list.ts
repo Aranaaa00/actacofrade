@@ -7,6 +7,7 @@ import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
+import { sanitizeText } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-act-list',
@@ -90,6 +91,17 @@ export class ActList implements OnInit {
     return this.filterType ? (map[this.filterType] || this.filterType) : 'Tipo de acto';
   }
 
+  getEventTypeLabel(type: string): string {
+    const map: Record<string, string> = {
+      'CABILDO': 'Cabildo',
+      'CULTOS': 'Cultos',
+      'PROCESION': 'Procesión',
+      'ENSAYO': 'Ensayo',
+      'OTRO': 'Otro',
+    };
+    return map[type] || type;
+  }
+
   get activeStatusLabel(): string {
     return this.filterStatus ? (this.statusLabelMap[this.filterStatus] || this.filterStatus) : 'Estado';
   }
@@ -144,7 +156,7 @@ export class ActList implements OnInit {
   }
 
   onSearch(query: string): void {
-    this.searchQuery = query;
+    this.searchQuery = sanitizeText(query);
     this.currentPage = 1;
   }
 
