@@ -137,6 +137,7 @@
   width: $size-icon-20;
   height: $size-icon-20;
   flex-shrink: 0;
+  color: var(--nav-active);
 }
 
 .act-detail__alert-link {
@@ -369,4 +370,94 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+}
+
+// Historial del acto
+.act-detail__history-empty {
+  padding: $space-48;
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.act-detail__history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.act-detail__history-item {
+  @include transition(background-color);
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  padding: $space-16 $space-24;
+  border-bottom: $border-1 solid var(--border-default);
+  border-left: $border-2 solid var(--border-default);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+  }
+
+  &--task {
+    border-left-color: var(--badge-pending-border);
+  }
+
+  &--decision {
+    border-left-color: var(--nav-bg);
+  }
+
+  &--incident {
+    border-left-color: var(--badge-rejected-bg);
+  }
+
+  &--event {
+    border-left-color: var(--border-strong);
+  }
+}
+
+.act-detail__history-header {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  flex-wrap: wrap;
+}
+
+.act-detail__history-action {
+  font-family: $font-heading;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+}
+
+.act-detail__history-date {
+  font-size: $text-meta;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-inline-start: auto;
+}
+
+.act-detail__history-meta {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+}
+
+.act-detail__history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-16;
+  padding: $space-16 $space-24;
+  border-top: $border-1 solid var(--border-default);
+}
+
+.act-detail__history-page {
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-secondary);
 }
