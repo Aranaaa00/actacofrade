@@ -197,8 +197,10 @@
                   <td>{{ incident.resolvedByName || '—' }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
-                      @if (auth.canManage()) {
-                        <a class="act-detail__row-link" (click)="resolveIncident(incident.id)">Resolver</a>
+                      @if (canActOnIncident(incident)) {
+                        @if (incident.status === 'ABIERTA') {
+                          <a class="act-detail__row-link" (click)="resolveIncident(incident.id)">Resolver</a>
+                        }
                         <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
                       }
                     </nav>
