@@ -32,6 +32,10 @@ export class TaskService {
     return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/accept`, {});
   }
 
+  startPreparation(eventId: number, taskId: number): Observable<TaskResponse> {
+    return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/start-preparation`, {});
+  }
+
   confirm(eventId: number, taskId: number): Observable<TaskResponse> {
     return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/confirm`, {});
   }

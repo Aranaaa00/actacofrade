@@ -143,6 +143,7 @@ export class ActDetail implements OnInit {
   getTaskBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
       'PLANNED': 'pending',
+      'ACCEPTED': 'pending',
       'IN_PREPARATION': 'pending',
       'CONFIRMED': 'confirmed',
       'COMPLETED': 'confirmed',
@@ -154,6 +155,7 @@ export class ActDetail implements OnInit {
   getTaskStatusLabel(status: string): string {
     const labelMap: Record<string, string> = {
       'PLANNED': 'Planificada',
+      'ACCEPTED': 'Aceptada',
       'IN_PREPARATION': 'En preparación',
       'CONFIRMED': 'Confirmada',
       'COMPLETED': 'Completada',
@@ -272,6 +274,19 @@ export class ActDetail implements OnInit {
   acceptTask(task: TaskResponse): void {
     this.processingTaskId = task.id;
     this.taskService.accept(this.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  startPreparation(task: TaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.startPreparation(this.eventId, task.id).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -429,6 +444,7 @@ export class ActDetail implements OnInit {
     const actionMap: Record<string, string> = {
       'TASK_CREATED': 'Tarea creada',
       'TASK_ACCEPTED': 'Tarea aceptada',
+      'TASK_IN_PREPARATION': 'Tarea en preparación',
       'TASK_CONFIRMED': 'Tarea confirmada',
       'TASK_COMPLETED': 'Tarea completada',
       'TASK_REJECTED': 'Tarea rechazada',

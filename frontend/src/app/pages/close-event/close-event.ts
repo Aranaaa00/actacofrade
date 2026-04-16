@@ -98,6 +98,7 @@ export class CloseEvent implements OnInit {
 
   private readonly taskStatusLabelMap: Record<string, string> = {
     'PLANNED': 'Planificada',
+    'ACCEPTED': 'Aceptada',
     'IN_PREPARATION': 'En preparación',
     'CONFIRMED': 'Confirmada',
     'COMPLETED': 'Completada',

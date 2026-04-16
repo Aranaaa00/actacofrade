@@ -90,6 +90,14 @@
                           [disabled]="processingTaskId === task.id"
                           (click)="openRejectModal(task)">Rechazar</button>
                       }
+                      @if (task.status === 'ACCEPTED' && canActOnTask(task)) {
+                        <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="startPreparation(task)">Preparar</button>
+                        <button class="act-detail__row-link act-detail__row-link--reject" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="openRejectModal(task)">Rechazar</button>
+                      }
                       @if (task.status === 'IN_PREPARATION' && canActOnTask(task)) {
                         <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
                           [disabled]="processingTaskId === task.id"
