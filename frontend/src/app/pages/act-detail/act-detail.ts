@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Banner } from '../../shared/components/banner/banner';
+import { Pagination } from '../../shared/components/pagination/pagination';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
@@ -51,7 +52,7 @@ interface StepInfo {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -86,28 +87,75 @@ export class ActDetail implements OnInit {
   incidents: IncidentResponse[] = [];
 
   historyEntries: AuditLogResponse[] = [];
-  historyPage = 0;
-  historyTotalPages = 0;
+  historyPage = 1;
+  historyTotalPages = 1;
   historyLoading = false;
   private readonly historyPageSize = 5;
 
   private readonly stepKeys = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE'];
 
+  private readonly taskWeights: Record<string, number> = {
+    'PLANNED': 0,
+    'ACCEPTED': 0.25,
+    'IN_PREPARATION': 0.5,
+    'CONFIRMED': 0.75,
+    'COMPLETED': 1,
+    'REJECTED': 0
+  };
+
+  private readonly decisionWeights: Record<string, number> = {
+    'PENDIENTE': 0,
+    'LISTA': 1,
+    'RECHAZADA': 0
+  };
+
+  private readonly incidentWeights: Record<string, number> = {
+    'ABIERTA': 0,
+    'RESUELTA': 1
+  };
 
   get statusLabel(): string {
     return getEventStatusLabel(this.event?.status || '');
   }
 
+  get progressPercent(): number {
+    if (this.event?.status === 'CERRADO') {
+      return 100;
+    }
+
+    let totalElements = 0;
+    let weightedSum = 0;
+
+    for (const task of this.tasks) {
+      totalElements++;
+      weightedSum += this.taskWeights[task.status] ?? 0;
+    }
+
+    for (const decision of this.decisions) {
+      totalElements++;
+      weightedSum += this.decisionWeights[decision.status] ?? 0;
+    }
+
+    for (const incident of this.incidents) {
+      totalElements++;
+      weightedSum += this.incidentWeights[incident.status] ?? 0;
+    }
+
+    if (totalElements === 0) {
+      return 0;
+    }
+
+    return Math.round((weightedSum / totalElements) * 100);
+  }
+
   get steps(): StepInfo[] {
-    const status = this.event?.status || '';
-    const currentIndex = status === 'CERRADO'
-      ? this.stepKeys.length - 1
-      : this.stepKeys.indexOf(status);
+    const progress = this.progressPercent;
+    const thresholds = [0, 25, 50, 75];
     return this.stepKeys.map((key, i) => ({
       key,
       label: getStepLabel(key),
-      done: i <= currentIndex,
-      connectorDone: i < currentIndex
+      done: progress >= thresholds[i],
+      connectorDone: i < this.stepKeys.length - 1 && progress >= thresholds[i + 1]
     }));
   }
 
@@ -128,31 +176,6 @@ export class ActDetail implements OnInit {
     return this.unconfirmedTasksCount > 0 || this.openIncidentsCount > 0;
   }
 
-  private readonly advanceableStatuses = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION'];
-
-  get canAdvanceStatus(): boolean {
-    return this.auth.canManage()
-      && !!this.event
-      && this.advanceableStatuses.includes(this.event.status);
-  }
-
-  advancingStatus = false;
-
-  advanceStatus(): void {
-    if (!this.event || this.advancingStatus) {
-      return;
-    }
-    this.advancingStatus = true;
-    this.eventService.advanceStatus(this.eventId).subscribe({
-      next: () => {
-        this.advancingStatus = false;
-        this.loadData();
-      },
-      error: () => {
-        this.advancingStatus = false;
-      }
-    });
-  }
 
   ngOnInit(): void {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
@@ -388,17 +411,17 @@ export class ActDetail implements OnInit {
   onTabChange(tab: string): void {
     this.selectedTab = tab;
     if (tab === 'Historial del acto' && this.historyEntries.length === 0) {
-      this.loadHistory(0);
+      this.loadHistory(1);
     }
   }
 
   loadHistory(page: number): void {
+    this.historyPage = page;
     this.historyLoading = true;
-    this.auditLogService.findByEventId(this.eventId, page, this.historyPageSize).subscribe({
+    this.auditLogService.findByEventId(this.eventId, page - 1, this.historyPageSize).subscribe({
       next: (data) => {
         this.historyEntries = data.content;
-        this.historyPage = data.number;
-        this.historyTotalPages = data.totalPages;
+        this.historyTotalPages = Math.max(1, data.totalPages);
         this.historyLoading = false;
       },
       error: () => {

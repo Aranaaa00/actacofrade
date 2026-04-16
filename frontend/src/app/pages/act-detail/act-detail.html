@@ -35,13 +35,14 @@
     </app-banner>
   }
 
-  <nav class="act-detail__stepper" aria-label="Progreso del acto">
+  <nav class="act-detail__stepper" aria-label="Progreso del acto: {{ progressPercent }}%">
     @for (step of steps; track step.key) {
       <section class="act-detail__step" [class.act-detail__step--done]="step.done" [class.act-detail__step--connector-done]="step.connectorDone">
         <span class="act-detail__step-dot" aria-hidden="true"></span>
         <span class="act-detail__step-label">{{ step.label }}</span>
       </section>
     }
+    <span class="act-detail__stepper-percent" aria-hidden="true">{{ progressPercent }}%</span>
   </nav>
 
   <app-tabs [tabs]="tabLabels" [activeTab]="selectedTab" (tabChanged)="onTabChange($event)" />
@@ -237,17 +238,7 @@
                 </li>
               }
             </ol>
-            @if (historyTotalPages > 1) {
-              <nav class="act-detail__history-pagination" aria-label="Paginación del historial">
-                <button class="button button--secondary button--sm" type="button"
-                  [disabled]="historyPage === 0"
-                  (click)="loadHistory(historyPage - 1)">Anterior</button>
-                <span class="act-detail__history-page">{{ historyPage + 1 }} / {{ historyTotalPages }}</span>
-                <button class="button button--secondary button--sm" type="button"
-                  [disabled]="historyPage >= historyTotalPages - 1"
-                  (click)="loadHistory(historyPage + 1)">Siguiente</button>
-              </nav>
-            }
+            <app-pagination [currentPage]="historyPage" [totalPages]="historyTotalPages" (pageChanged)="loadHistory($event)" />
           }
         </section>
       }
@@ -257,15 +248,6 @@
   <footer class="act-detail__footer">
     <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas sin completar · {{ openIncidentsCount }} incidencia abierta</p>
     <section class="act-detail__footer-actions">
-    @if (canAdvanceStatus) {
-      <button class="button button--secondary" type="button"
-        [disabled]="advancingStatus"
-        [attr.aria-busy]="advancingStatus"
-        (click)="advanceStatus()">
-        <lucide-icon name="chevron-right" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
-        Avanzar fase
-      </button>
-    }
     @if (auth.canManage() && !isEventClosed) {
       <button class="button button--primary" type="button" (click)="openCloseEvent()">
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
