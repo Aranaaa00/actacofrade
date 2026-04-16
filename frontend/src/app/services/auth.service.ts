@@ -60,6 +60,10 @@ export class AuthService {
     return this.hasRole('ADMINISTRADOR');
   }
 
+  getUserId(): number | null {
+    return this.getUser()?.userId ?? null;
+  }
+
   private storeSession(response: AuthResponse): void {
     localStorage.setItem(this.tokenKey, response.token);
     localStorage.setItem(this.userKey, JSON.stringify(response));

@@ -28,8 +28,16 @@ export class TaskService {
     return this.http.delete<void>(`${this.baseUrl}/${eventId}/tasks/${taskId}`);
   }
 
+  accept(eventId: number, taskId: number): Observable<TaskResponse> {
+    return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/accept`, {});
+  }
+
   confirm(eventId: number, taskId: number): Observable<TaskResponse> {
     return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/confirm`, {});
+  }
+
+  complete(eventId: number, taskId: number): Observable<TaskResponse> {
+    return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/complete`, {});
   }
 
   reject(eventId: number, taskId: number, rejectionReason: string): Observable<TaskResponse> {

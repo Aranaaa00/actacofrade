@@ -11,6 +11,7 @@ export interface TaskResponse {
   confirmedById: number | null;
   confirmedByName: string | null;
   confirmedAt: string | null;
+  completedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

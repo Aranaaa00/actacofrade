@@ -12,6 +12,8 @@ export interface EventResponse {
   isLockedForClosing: boolean;
   pendingTasks: number;
   openIncidents: number;
+  totalTasks: number;
+  completedTasks: number;
   createdAt: string;
   updatedAt: string;
 }

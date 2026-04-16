@@ -23,4 +23,8 @@ export class IncidentService {
   delete(eventId: number, incidentId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${eventId}/incidents/${incidentId}`);
   }
+
+  resolve(eventId: number, incidentId: number): Observable<IncidentResponse> {
+    return this.http.patch<IncidentResponse>(`${this.baseUrl}/${eventId}/incidents/${incidentId}/resolve`, {});
+  }
 }
