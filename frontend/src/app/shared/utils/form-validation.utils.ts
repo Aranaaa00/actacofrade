@@ -26,6 +26,8 @@ export function getFieldError(form: FormGroup, field: string): string {
       message = `Mínimo ${control.errors['minlength'].requiredLength} caracteres.`;
     } else if (control.errors['maxlength']) {
       message = `Máximo ${control.errors['maxlength'].requiredLength} caracteres.`;
+    } else if (control.errors['noHtml']) {
+      message = 'No se permiten caracteres < o > en este campo.';
     } else if (control.errors['pattern']) {
       message = 'El valor introducido no tiene un formato válido.';
     }
