@@ -101,13 +101,7 @@
     }
   </ul>
 
-  <nav class="act-list__pagination" aria-label="Navegación de páginas">
-    <button class="act-list__page-link" type="button" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">← Anterior</button>
-    @for (page of pages; track page) {
-      <button class="act-list__page-link" [class.act-list__page-link--active]="page === currentPage" type="button" [attr.aria-current]="page === currentPage ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
-    }
-    <button class="act-list__page-link" type="button" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Siguiente →</button>
-  </nav>
+  <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChanged)="goToPage($event)" />
 </section>
 
 @if (showNewActModal) {

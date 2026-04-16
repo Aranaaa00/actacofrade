@@ -4,6 +4,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs'
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
+import { Pagination } from '../../shared/components/pagination/pagination';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
@@ -17,7 +18,7 @@ import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination],
   templateUrl: './act-list.html',
 })
 export class ActList implements OnInit, OnDestroy {
@@ -55,10 +56,6 @@ export class ActList implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe();
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   get activeTypeLabel(): string {
