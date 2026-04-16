@@ -96,7 +96,7 @@ public class AuthService {
                 .map(r -> r.getCode().name())
                 .toList();
 
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre());
+        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre());
     }
 
     @Transactional
@@ -120,6 +120,6 @@ public class AuthService {
                 .toList();
 
         String hermandadNombre = user.getHermandad() != null ? user.getHermandad().getNombre() : null;
-        return new AuthResponse(token, user.getEmail(), user.getFullName(), roles, hermandadNombre);
+        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre);
     }
 }

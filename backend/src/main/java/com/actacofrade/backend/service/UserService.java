@@ -8,6 +8,7 @@ import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,10 +61,10 @@ public class UserService {
                 .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
 
         if (request.fullName() != null) {
-            user.setFullName(request.fullName());
+            user.setFullName(SanitizationUtils.sanitize(request.fullName()));
         }
         if (request.email() != null) {
-            user.setEmail(request.email());
+            user.setEmail(SanitizationUtils.sanitize(request.email()).toLowerCase());
         }
         if (request.roleCode() != null) {
             RoleCode roleCode = RoleCode.valueOf(request.roleCode());
