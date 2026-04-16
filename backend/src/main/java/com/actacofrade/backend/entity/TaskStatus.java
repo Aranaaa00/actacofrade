@@ -1,7 +1,9 @@
 package com.actacofrade.backend.entity;
 
 public enum TaskStatus {
-    PENDIENTE,
-    CONFIRMADA,
-    RECHAZADA
+    PLANNED,
+    IN_PREPARATION,
+    CONFIRMED,
+    COMPLETED,
+    REJECTED
 }

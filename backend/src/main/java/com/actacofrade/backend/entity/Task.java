@@ -50,7 +50,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status")
-    private TaskStatus status = TaskStatus.PENDIENTE;
+    private TaskStatus status = TaskStatus.PLANNED;
 
     @Column(name = "deadline")
     private LocalDate deadline;
@@ -64,6 +64,9 @@ public class Task {
 
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
