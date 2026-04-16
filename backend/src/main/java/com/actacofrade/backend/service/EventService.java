@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -42,6 +43,9 @@ public class EventService {
         Specification<Event> spec = Specification.where(EventSpecification.hasHermandad(hermandadId));
         return eventRepository.findAll(spec).stream()
                 .map(this::toResponse)
+                .sorted(Comparator
+                        .comparing((EventResponse e) -> "CERRADO".equals(e.status()) ? 1 : 0)
+                        .thenComparing(EventResponse::eventDate))
                 .toList();
     }
 
