@@ -16,6 +16,7 @@ public record TaskResponse(
         Integer confirmedById,
         String confirmedByName,
         LocalDateTime confirmedAt,
+        LocalDateTime completedAt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

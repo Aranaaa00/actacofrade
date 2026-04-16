@@ -12,6 +12,7 @@ public record CreateDecisionRequest(
 
         @NotBlank(message = "El titulo de la decision es obligatorio")
         @Size(max = 255, message = "El titulo de la decision no puede superar los 255 caracteres")
+        @Pattern(regexp = "^[^<>]*$", message = "El título contiene caracteres no permitidos")
         String title,
 
         Integer reviewedById

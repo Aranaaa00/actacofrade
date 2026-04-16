@@ -17,6 +17,8 @@ public record EventResponse(
         Boolean isLockedForClosing,
         long pendingTasks,
         long openIncidents,
+        long totalTasks,
+        long completedTasks,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

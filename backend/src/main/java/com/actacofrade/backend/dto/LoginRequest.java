@@ -8,6 +8,7 @@ public record LoginRequest(
 
         @NotBlank(message = "El correo es obligatorio")
         @Email(message = "Introduce un correo electrónico válido")
+        @Size(max = 255, message = "El correo no puede superar los 255 caracteres")
         String email,
 
         @NotBlank(message = "La contraseña es obligatoria")
