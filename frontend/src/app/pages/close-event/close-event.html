@@ -52,7 +52,7 @@
         <button type="button"
           class="button button--primary"
           (click)="close()"
-          [disabled]="closing"
+          [disabled]="closing || isBlocked"
           [attr.aria-busy]="closing">
           <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Cerrar acto
