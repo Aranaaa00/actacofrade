@@ -35,3 +35,11 @@ export interface UpdateEventRequest {
   responsibleId?: number | null;
   observations?: string;
 }
+
+export interface EventPage {
+  content: EventResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}

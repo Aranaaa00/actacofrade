@@ -1,5 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
@@ -19,13 +20,14 @@ import { formatDate } from '../../shared/utils/date.utils';
   imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor],
   templateUrl: './act-list.html',
 })
-export class ActList implements OnInit {
+export class ActList implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
   readonly auth = inject(AuthService);
 
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
   readonly pageSize = 5;
   currentPage = 1;
+  totalPages = 1;
   showNewActModal = false;
   openDropdown: string | null = null;
   filterType = '';
@@ -36,35 +38,23 @@ export class ActList implements OnInit {
 
   events: EventResponse[] = [];
 
+  private readonly searchSubject = new Subject<string>();
+  private searchSubscription: Subscription | null = null;
+
   ngOnInit(): void {
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe((query) => {
+      this.searchQuery = sanitizeText(query);
+      this.currentPage = 1;
+      this.loadEvents();
+    });
     this.loadEvents();
   }
 
-  get eventDates(): string[] {
-    return this.events.map(e => e.eventDate);
-  }
-
-  get filteredActs(): EventResponse[] {
-    return this.events.filter(event => {
-      const matchesType = !this.filterType || event.eventType === this.filterType;
-      const matchesStatus = !this.filterStatus || event.status === this.filterStatus;
-      const matchesDate = !this.filterDate || event.eventDate === this.filterDate;
-      const query = this.searchQuery.toLowerCase();
-      const matchesSearch = !query || event.title.toLowerCase().includes(query)
-        || event.reference.toLowerCase().includes(query)
-        || (event.responsibleName || '').toLowerCase().includes(query)
-        || event.eventType.toLowerCase().includes(query);
-      return matchesType && matchesStatus && matchesDate && matchesSearch;
-    });
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredActs.length / this.pageSize));
-  }
-
-  get paginatedActs(): EventResponse[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filteredActs.slice(start, start + this.pageSize);
+  ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe();
   }
 
   get pages(): number[] {
@@ -92,6 +82,7 @@ export class ActList implements OnInit {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      this.loadEvents();
     }
   }
 
@@ -105,7 +96,7 @@ export class ActList implements OnInit {
 
   onActCreated(event: EventResponse): void {
     this.showNewActModal = false;
-    this.events = [event, ...this.events];
+    this.loadEvents();
   }
 
   toggleDropdown(name: string): void {
@@ -120,16 +111,17 @@ export class ActList implements OnInit {
     }
     this.currentPage = 1;
     this.openDropdown = null;
+    this.loadEvents();
   }
 
   onSearch(query: string): void {
-    this.searchQuery = sanitizeText(query);
-    this.currentPage = 1;
+    this.searchSubject.next(query);
   }
 
   onDateChange(date: string): void {
     this.filterDate = date;
     this.currentPage = 1;
+    this.loadEvents();
   }
 
   clearFilters(): void {
@@ -139,6 +131,7 @@ export class ActList implements OnInit {
     this.searchQuery = '';
     this.currentPage = 1;
     this.openDropdown = null;
+    this.loadEvents();
   }
 
   getStatusBadgeVariant = getEventStatusBadgeVariant;
@@ -149,17 +142,25 @@ export class ActList implements OnInit {
 
   cloneAct(act: EventResponse): void {
     this.eventService.clone(act.id).subscribe({
-      next: (cloned) => {
-        this.events = [cloned, ...this.events];
+      next: () => {
+        this.loadEvents();
       }
     });
   }
 
   private loadEvents(): void {
     this.loading = true;
-    this.eventService.findAll().subscribe({
-      next: (events) => {
-        this.events = events;
+    this.eventService.filter({
+      eventType: this.filterType || undefined,
+      status: this.filterStatus || undefined,
+      eventDate: this.filterDate || undefined,
+      search: this.searchQuery || undefined,
+      page: this.currentPage - 1,
+      size: this.pageSize
+    }).subscribe({
+      next: (page) => {
+        this.events = page.content;
+        this.totalPages = Math.max(1, page.totalPages);
         this.loading = false;
       },
       error: () => {

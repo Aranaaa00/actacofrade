@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { EventResponse, CreateEventRequest, UpdateEventRequest } from '../models/event.model';
+import { EventResponse, EventPage, CreateEventRequest, UpdateEventRequest } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class EventService {
@@ -10,6 +10,17 @@ export class EventService {
 
   findAll(): Observable<EventResponse[]> {
     return this.http.get<EventResponse[]>(this.baseUrl);
+  }
+
+  filter(params: { eventType?: string; status?: string; eventDate?: string; search?: string; page?: number; size?: number }): Observable<EventPage> {
+    let httpParams = new HttpParams();
+    if (params.eventType) { httpParams = httpParams.set('eventType', params.eventType); }
+    if (params.status) { httpParams = httpParams.set('status', params.status); }
+    if (params.eventDate) { httpParams = httpParams.set('eventDate', params.eventDate); }
+    if (params.search) { httpParams = httpParams.set('search', params.search); }
+    if (params.page !== undefined) { httpParams = httpParams.set('page', params.page.toString()); }
+    if (params.size !== undefined) { httpParams = httpParams.set('size', params.size.toString()); }
+    return this.http.get<EventPage>(`${this.baseUrl}/filter`, { params: httpParams });
   }
 
   findById(id: number): Observable<EventResponse> {
