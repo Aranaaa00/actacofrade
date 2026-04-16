@@ -252,9 +252,6 @@
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Cerrar acto
       </button>
-      @if (hasPendingItems) {
-        <small class="act-detail__footer-warning">Quedan elementos sin completar. Podrás cerrar igualmente al confirmarlo.</small>
-      }
     }
     @if (isEventClosed) {
       <app-badge variant="confirmed">Acto cerrado</app-badge>
