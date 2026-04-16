@@ -6,13 +6,13 @@
   @if (event) {
   <header class="act-detail__header">
     <aside class="act-detail__type-band" aria-hidden="true">
-      <span class="act-detail__type-label">{{ event.eventType }}</span>
+      <span class="act-detail__type-label">{{ getEventTypeLabel(event.eventType) }}</span>
     </aside>
     <section class="act-detail__header-content">
       <section class="act-detail__header-main">
         <h1 class="act-detail__title">{{ event.title }}</h1>
         <p class="act-detail__meta">
-          Ref: {{ event.reference }} · {{ event.eventType }} · {{ formatDate(event.eventDate) }} · {{ event.location }} · {{ event.responsibleName || '—' }}
+          Ref: {{ event.reference }} · {{ getEventTypeLabel(event.eventType) }} · {{ formatDate(event.eventDate) }} · {{ event.location }} · {{ event.responsibleName || '—' }}
         </p>
       </section>
       <aside class="act-detail__header-side">
@@ -44,14 +44,14 @@
     }
   </nav>
 
-  <app-tabs [tabs]="tabLabels" [activeTab]="selectedTab" (tabChanged)="selectedTab = $event" />
+  <app-tabs [tabs]="tabLabels" [activeTab]="selectedTab" (tabChanged)="onTabChange($event)" />
 
   <section class="act-detail__tab-content">
     @switch (selectedTab) {
       @case ('Tareas') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Tareas">
           <header class="act-detail__panel-header">
-            @if (auth.canWrite()) {
+            @if (auth.canWrite() && !isEventClosed) {
               <button class="act-detail__add-btn" type="button" (click)="addTask()">+ Añadir tarea</button>
             }
           </header>
@@ -67,28 +67,55 @@
             </thead>
             <tbody class="table__body">
               @for (task of tasks; track task.id) {
-                <tr [class.act-detail__row--rejected]="task.status === 'RECHAZADA'">
+                <tr [class.act-detail__row--rejected]="task.status === 'REJECTED'">
                   <td>
                     <strong class="act-detail__task-title">{{ task.title }}</strong>
-                    @if (task.description) {
-                      <small class="act-detail__task-desc">@if (task.status === 'RECHAZADA') { Motivo: }{{ task.description }}</small>
+                    @if (task.status === 'REJECTED' && task.rejectionReason) {
+                      <small class="act-detail__task-desc">Motivo: {{ task.rejectionReason }}</small>
+                    } @else if (task.description) {
+                      <small class="act-detail__task-desc">{{ task.description }}</small>
                     }
                   </td>
                   <td>{{ task.assignedToName || '—' }}</td>
-                  <td><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ task.status }}</app-badge></td>
+                  <td><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
                   <td class="act-detail__date">{{ formatDate(task.deadline) }}</td>
                   <td>
+                    @if (!isEventClosed) {
                     <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
-                      @if (task.status === 'PENDIENTE' && auth.canManage()) {
-                        <a class="act-detail__row-link">Recordar →</a>
+                      @if (task.status === 'PLANNED' && canActOnTask(task)) {
+                        <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="acceptTask(task)">Aceptar</button>
+                        <button class="act-detail__row-link act-detail__row-link--reject" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="openRejectModal(task)">Rechazar</button>
+                      }
+                      @if (task.status === 'IN_PREPARATION' && canActOnTask(task)) {
+                        <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="confirmTask(task)">Confirmar</button>
+                        <button class="act-detail__row-link act-detail__row-link--reject" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="openRejectModal(task)">Rechazar</button>
+                      }
+                      @if (task.status === 'CONFIRMED' && canActOnTask(task)) {
+                        <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="completeTask(task)">Completar</button>
+                      }
+                      @if (task.status !== 'PLANNED' && auth.canManage()) {
+                        <button class="act-detail__row-link" type="button"
+                          [disabled]="processingTaskId === task.id"
+                          (click)="resetTask(task)">Revertir</button>
                       }
                       @if (auth.canWrite()) {
-                        <a class="act-detail__row-link" (click)="editTask(task)">Editar</a>
+                        <button class="act-detail__row-link" type="button" (click)="editTask(task)">Editar</button>
                       }
                       @if (auth.canManage()) {
-                        <a class="act-detail__row-link" (click)="deleteTask(task.id)">Eliminar</a>
+                        <button class="act-detail__row-link" type="button" (click)="deleteTask(task.id)">Eliminar</button>
                       }
                     </nav>
+                    }
                   </td>
                 </tr>
               }
@@ -118,8 +145,8 @@
                 <tr>
                   <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
                   <td>{{ decision.reviewedByName || '—' }}</td>
-                  <td><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ decision.status }}</app-badge></td>
-                  <td>{{ decision.area }}</td>
+                  <td><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
+                  <td>{{ getAreaLabel(decision.area) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
                       @if (auth.canWrite()) {
@@ -158,12 +185,12 @@
                 <tr>
                   <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
                   <td>{{ incident.reportedByName || '—' }}</td>
-                  <td><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ incident.status }}</app-badge></td>
+                  <td><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
                   <td>{{ incident.resolvedByName || '—' }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
                       @if (auth.canManage()) {
-                        <a class="act-detail__row-link">Resolver</a>
+                        <a class="act-detail__row-link" (click)="resolveIncident(incident.id)">Resolver</a>
                         <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
                       }
                     </nav>
@@ -175,23 +202,62 @@
         </section>
       }
       @case ('Historial del acto') {
-        <section class="act-detail__panel act-detail__panel--empty" role="tabpanel" aria-label="Historial del acto">
+        <section class="act-detail__panel" role="tabpanel" aria-label="Historial del acto">
+          @if (historyEntries.length === 0 && !historyLoading) {
+            <p class="act-detail__history-empty">No hay registros en el historial</p>
+          }
+          @if (historyLoading) {
+            <p class="act-detail__loading" role="status">Cargando historial...</p>
+          }
+          @if (historyEntries.length > 0) {
+            <ol class="act-detail__history-list" aria-label="Historial de cambios">
+              @for (entry of historyEntries; track entry.id) {
+                <li class="act-detail__history-item">
+                  <header class="act-detail__history-header">
+                    <app-badge [variant]="entry.entityType === 'TASK' ? 'pending' : entry.entityType === 'DECISION' ? 'confirmed' : 'rejected'">{{ getEntityTypeLabel(entry.entityType) }}</app-badge>
+                    <strong class="act-detail__history-action">{{ getActionLabel(entry.action) }}</strong>
+                    <time class="act-detail__history-date">{{ formatDateTime(entry.performedAt) }}</time>
+                  </header>
+                  <p class="act-detail__history-meta">
+                    {{ entry.performedByName || '—' }}
+                    @if (entry.details) {
+                      — {{ entry.details }}
+                    }
+                  </p>
+                </li>
+              }
+            </ol>
+            @if (historyTotalPages > 1) {
+              <nav class="act-detail__history-pagination" aria-label="Paginación del historial">
+                <button class="button button--secondary button--sm" type="button"
+                  [disabled]="historyPage === 0"
+                  (click)="loadHistory(historyPage - 1)">Anterior</button>
+                <span class="act-detail__history-page">{{ historyPage + 1 }} / {{ historyTotalPages }}</span>
+                <button class="button button--secondary button--sm" type="button"
+                  [disabled]="historyPage >= historyTotalPages - 1"
+                  (click)="loadHistory(historyPage + 1)">Siguiente</button>
+              </nav>
+            }
+          }
         </section>
       }
     }
   </section>
 
   <footer class="act-detail__footer">
-    <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas pendientes · {{ openIncidentsCount }} incidencia abierta</p>
+    <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas sin completar · {{ openIncidentsCount }} incidencia abierta</p>
     <section class="act-detail__footer-actions">
-    @if (auth.canManage()) {
-      <button class="button button--primary" type="button" [disabled]="hasPendingItems" (click)="openCloseEvent()">
+    @if (auth.canManage() && !isEventClosed) {
+      <button class="button button--primary" type="button" (click)="openCloseEvent()">
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Cerrar acto
       </button>
       @if (hasPendingItems) {
-        <small class="act-detail__footer-warning">No es posible cerrar el acto. Quedan elementos sin resolver.</small>
+        <small class="act-detail__footer-warning">Quedan elementos sin completar. Podrás cerrar igualmente al confirmarlo.</small>
       }
+    }
+    @if (isEventClosed) {
+      <app-badge variant="confirmed">Acto cerrado</app-badge>
     }
     </section>
   </footer>
@@ -211,5 +277,33 @@
       [embedded]="true"
       [inputEventId]="eventId"
       (closed)="onCloseEventClosed()" />
+  }
+
+  @if (showRejectModal) {
+    <aside class="modal-overlay" (click)="cancelReject()">
+      <article class="modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Rechazar tarea">
+        <header class="modal__header">
+          <h2 class="modal__title">Rechazar tarea</h2>
+          <button class="modal__close" type="button" (click)="cancelReject()" aria-label="Cerrar">
+            <lucide-icon name="x" [size]="20"></lucide-icon>
+          </button>
+        </header>
+        <section class="modal__body">
+          <fieldset class="form-field">
+            <label class="form-field__label" for="rejectionReason">Motivo del rechazo</label>
+            <textarea id="rejectionReason" class="input" rows="3"
+              [(ngModel)]="rejectionReason"
+              maxlength="500"
+              placeholder="Indica el motivo por el que rechazas esta tarea..."></textarea>
+          </fieldset>
+        </section>
+        <footer class="modal__footer">
+          <button class="button button--secondary" type="button" (click)="cancelReject()">Cancelar</button>
+          <button class="button button--danger" type="button"
+            [disabled]="!rejectionReason.trim() || processingTaskId !== null"
+            (click)="submitReject()">Rechazar</button>
+        </footer>
+      </article>
+    </aside>
   }
 </section>

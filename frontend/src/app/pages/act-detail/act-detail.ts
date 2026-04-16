@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
@@ -11,11 +12,13 @@ import { EventService } from '../../services/event.service';
 import { TaskService } from '../../services/task.service';
 import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
+import { AuditLogService } from '../../services/audit-log.service';
 import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
+import { AuditLogResponse } from '../../models/audit-log.model';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -38,7 +41,7 @@ interface StepInfo {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Tabs, LucideAngularModule, ElementForm, CloseEvent],
+  imports: [Badge, Banner, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -48,6 +51,7 @@ export class ActDetail implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
+  private readonly auditLogService = inject(AuditLogService);
   readonly auth = inject(AuthService);
 
   eventId = 0;
@@ -60,10 +64,21 @@ export class ActDetail implements OnInit {
   showCloseEvent = false;
   loading = true;
 
+  showRejectModal = false;
+  rejectingTaskId: number | null = null;
+  rejectionReason = '';
+  processingTaskId: number | null = null;
+
   event: EventResponse | null = null;
   tasks: TaskResponse[] = [];
   decisions: DecisionResponse[] = [];
   incidents: IncidentResponse[] = [];
+
+  historyEntries: AuditLogResponse[] = [];
+  historyPage = 0;
+  historyTotalPages = 0;
+  historyLoading = false;
+  private readonly historyPageSize = 5;
 
   private readonly stepKeys = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE'];
   private readonly stepLabels: Record<string, string> = {
@@ -107,7 +122,7 @@ export class ActDetail implements OnInit {
   }
 
   get unconfirmedTasksCount(): number {
-    return this.tasks.filter(t => t.status !== 'CONFIRMADA').length;
+    return this.tasks.filter(t => t.status !== 'COMPLETED').length;
   }
 
   get openIncidentsCount(): number {
@@ -125,11 +140,24 @@ export class ActDetail implements OnInit {
 
   getTaskBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
-      'PENDIENTE': 'pending',
-      'CONFIRMADA': 'confirmed',
-      'RECHAZADA': 'rejected',
+      'PLANNED': 'pending',
+      'IN_PREPARATION': 'pending',
+      'CONFIRMED': 'confirmed',
+      'COMPLETED': 'confirmed',
+      'REJECTED': 'rejected',
     };
     return variantMap[status] || 'neutral';
+  }
+
+  getTaskStatusLabel(status: string): string {
+    const labelMap: Record<string, string> = {
+      'PLANNED': 'Planificada',
+      'IN_PREPARATION': 'En preparación',
+      'CONFIRMED': 'Confirmada',
+      'COMPLETED': 'Completada',
+      'REJECTED': 'Rechazada',
+    };
+    return labelMap[status] || status;
   }
 
   getDecisionBadgeVariant(status: string): string {
@@ -141,12 +169,51 @@ export class ActDetail implements OnInit {
     return variantMap[status] || 'neutral';
   }
 
+  getDecisionStatusLabel(status: string): string {
+    const labelMap: Record<string, string> = {
+      'LISTA': 'Lista',
+      'PENDIENTE': 'Pendiente',
+      'RECHAZADA': 'Rechazada',
+    };
+    return labelMap[status] || status;
+  }
+
   getIncidentBadgeVariant(status: string): string {
     const variantMap: Record<string, string> = {
       'ABIERTA': 'pending',
       'RESUELTA': 'confirmed',
     };
     return variantMap[status] || 'neutral';
+  }
+
+  getIncidentStatusLabel(status: string): string {
+    const labelMap: Record<string, string> = {
+      'ABIERTA': 'Abierta',
+      'RESUELTA': 'Resuelta',
+    };
+    return labelMap[status] || status;
+  }
+
+  getEventTypeLabel(type: string): string {
+    const typeMap: Record<string, string> = {
+      'CABILDO': 'Cabildo',
+      'CULTOS': 'Cultos',
+      'PROCESION': 'Procesión',
+      'ENSAYO': 'Ensayo',
+      'OTRO': 'Otro',
+    };
+    return typeMap[type] || type;
+  }
+
+  getAreaLabel(area: string): string {
+    const areaMap: Record<string, string> = {
+      'MAYORDOMIA': 'Mayordomía',
+      'SECRETARIA': 'Secretaría',
+      'PRIOSTIA': 'Priostía',
+      'TESORERIA': 'Tesorería',
+      'DIPUTACION_MAYOR': 'Diputación Mayor',
+    };
+    return areaMap[area] || area;
   }
 
   cloneAct(): void {
@@ -195,6 +262,94 @@ export class ActDetail implements OnInit {
     this.loadData();
   }
 
+  canActOnTask(task: TaskResponse): boolean {
+    const userId = this.auth.getUserId();
+    return task.assignedToId === userId || this.auth.canManage();
+  }
+
+  acceptTask(task: TaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.accept(this.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  confirmTask(task: TaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.confirm(this.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  completeTask(task: TaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.complete(this.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  openRejectModal(task: TaskResponse): void {
+    this.rejectingTaskId = task.id;
+    this.rejectionReason = '';
+    this.showRejectModal = true;
+  }
+
+  cancelReject(): void {
+    this.showRejectModal = false;
+    this.rejectingTaskId = null;
+    this.rejectionReason = '';
+  }
+
+  submitReject(): void {
+    if (!this.rejectingTaskId || !this.rejectionReason.trim()) {
+      return;
+    }
+    this.processingTaskId = this.rejectingTaskId;
+    this.taskService.reject(this.eventId, this.rejectingTaskId, this.rejectionReason.trim()).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.showRejectModal = false;
+        this.rejectingTaskId = null;
+        this.rejectionReason = '';
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  resetTask(task: TaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.reset(this.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
   editTask(task: TaskResponse): void {
     this.elementFormTab = 'task';
     this.elementEditData = {
@@ -241,12 +396,82 @@ export class ActDetail implements OnInit {
     });
   }
 
+  resolveIncident(incidentId: number): void {
+    this.incidentService.resolve(this.eventId, incidentId).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
   formatDate(dateStr: string | null): string {
     if (!dateStr) {
       return '—';
     }
     const date = new Date(dateStr);
     return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  formatDateTime(dateStr: string | null): string {
+    if (!dateStr) {
+      return '—';
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  getActionLabel(action: string): string {
+    const actionMap: Record<string, string> = {
+      'TASK_CREATED': 'Tarea creada',
+      'TASK_ACCEPTED': 'Tarea aceptada',
+      'TASK_CONFIRMED': 'Tarea confirmada',
+      'TASK_COMPLETED': 'Tarea completada',
+      'TASK_REJECTED': 'Tarea rechazada',
+      'TASK_RESET': 'Tarea reiniciada',
+      'TASK_UPDATED': 'Tarea actualizada',
+      'TASK_DELETED': 'Tarea eliminada',
+      'DECISION_CREATED': 'Decisión creada',
+      'DECISION_READY': 'Decisión lista',
+      'DECISION_REJECTED': 'Decisión rechazada',
+      'INCIDENT_CREATED': 'Incidencia creada',
+      'INCIDENT_RESOLVED': 'Incidencia resuelta',
+      'EVENT_CLOSED': 'Acto cerrado',
+    };
+    return actionMap[action] || action;
+  }
+
+  getEntityTypeLabel(entityType: string): string {
+    const typeMap: Record<string, string> = {
+      'TASK': 'Tarea',
+      'DECISION': 'Decisión',
+      'INCIDENT': 'Incidencia',
+      'EVENT': 'Acto',
+    };
+    return typeMap[entityType] || entityType;
+  }
+
+  onTabChange(tab: string): void {
+    this.selectedTab = tab;
+    if (tab === 'Historial del acto' && this.historyEntries.length === 0) {
+      this.loadHistory(0);
+    }
+  }
+
+  loadHistory(page: number): void {
+    this.historyLoading = true;
+    this.auditLogService.findByEventId(this.eventId, page, this.historyPageSize).subscribe({
+      next: (data) => {
+        this.historyEntries = data.content;
+        this.historyPage = data.number;
+        this.historyTotalPages = data.totalPages;
+        this.historyLoading = false;
+      },
+      error: () => {
+        this.historyLoading = false;
+      }
+    });
+  }
+
+  get isEventClosed(): boolean {
+    return this.event?.status === 'CERRADO';
   }
 
   private loadData(): void {
