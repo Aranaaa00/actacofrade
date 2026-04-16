@@ -220,9 +220,9 @@
           @if (historyEntries.length > 0) {
             <ol class="act-detail__history-list" aria-label="Historial de cambios">
               @for (entry of historyEntries; track entry.id) {
-                <li class="act-detail__history-item">
+                <li [class]="'act-detail__history-item act-detail__history-item--' + entry.entityType.toLowerCase()">
                   <header class="act-detail__history-header">
-                    <app-badge [variant]="entry.entityType === 'TASK' ? 'pending' : entry.entityType === 'DECISION' ? 'confirmed' : 'rejected'">{{ getEntityTypeLabel(entry.entityType) }}</app-badge>
+                    <app-badge [variant]="getHistoryBadgeVariant(entry.entityType)">{{ getEntityTypeLabel(entry.entityType) }}</app-badge>
                     <strong class="act-detail__history-action">{{ getActionLabel(entry.action) }}</strong>
                     <time class="act-detail__history-date">{{ formatDateTime(entry.performedAt) }}</time>
                   </header>

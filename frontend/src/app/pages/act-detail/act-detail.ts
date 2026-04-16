@@ -471,6 +471,16 @@ export class ActDetail implements OnInit {
     return typeMap[entityType] || entityType;
   }
 
+  getHistoryBadgeVariant(entityType: string): string {
+    const variantMap: Record<string, string> = {
+      'TASK': 'pending',
+      'DECISION': 'confirmed',
+      'INCIDENT': 'rejected',
+      'EVENT': 'wood',
+    };
+    return variantMap[entityType] || 'neutral';
+  }
+
   onTabChange(tab: string): void {
     this.selectedTab = tab;
     if (tab === 'Historial del acto' && this.historyEntries.length === 0) {
