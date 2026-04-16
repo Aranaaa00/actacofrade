@@ -126,11 +126,31 @@ public class TaskService {
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         validateOwnershipOrManager(task, currentUser);
 
-        task.setStatus(TaskStatus.IN_PREPARATION);
+        task.setStatus(TaskStatus.ACCEPTED);
         task.setRejectionReason(null);
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
         auditLogService.log(event, "TASK", task.getId(), "TASK_ACCEPTED", currentUser, task.getTitle());
+        recalculateEventProgress(event);
+        return toResponse(task);
+    }
+
+    public TaskResponse startPreparation(Integer eventId, Integer taskId, String authenticatedEmail) {
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
+        validateEventNotClosed(event);
+        Task task = findTaskOrThrow(taskId, eventId);
+
+        if (task.getStatus() != TaskStatus.ACCEPTED) {
+            throw new IllegalStateException("Solo se pueden preparar tareas en estado ACCEPTED");
+        }
+
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        validateOwnershipOrManager(task, currentUser);
+
+        task.setStatus(TaskStatus.IN_PREPARATION);
+        task.setUpdatedAt(LocalDateTime.now());
+        taskRepository.save(task);
+        auditLogService.log(event, "TASK", task.getId(), "TASK_IN_PREPARATION", currentUser, task.getTitle());
         recalculateEventProgress(event);
         return toResponse(task);
     }
@@ -252,13 +272,14 @@ public class TaskService {
         long completed = eventRepository.countTasksWithCompletedStatus(event.getId());
         long confirmed = eventRepository.countTasksWithConfirmedStatus(event.getId());
         long inPreparation = eventRepository.countTasksWithInPreparationStatus(event.getId());
+        long accepted = eventRepository.countTasksWithAcceptedStatus(event.getId());
 
         EventStatus newStatus;
         if (completed == total) {
             newStatus = EventStatus.CIERRE;
         } else if (confirmed > 0) {
             newStatus = EventStatus.CONFIRMACION;
-        } else if (inPreparation > 0) {
+        } else if (inPreparation > 0 || accepted > 0) {
             newStatus = EventStatus.PREPARACION;
         } else {
             newStatus = EventStatus.PLANIFICACION;

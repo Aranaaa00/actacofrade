@@ -36,6 +36,10 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
             nativeQuery = true)
     long countTasksWithInPreparationStatus(@Param("eventId") Integer eventId);
 
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'ACCEPTED'",
+            nativeQuery = true)
+    long countTasksWithAcceptedStatus(@Param("eventId") Integer eventId);
+
     @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status = 'CONFIRMED'",
             nativeQuery = true)
     long countTasksWithConfirmedStatus(@Param("eventId") Integer eventId);

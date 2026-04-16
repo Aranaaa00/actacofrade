@@ -80,6 +80,14 @@ public class TaskController {
         return ResponseEntity.ok(taskService.accept(eventId, taskId, userDetails.getUsername()));
     }
 
+    @PatchMapping("/{taskId}/start-preparation")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    public ResponseEntity<TaskResponse> startPreparation(@PathVariable Integer eventId,
+                                                          @PathVariable Integer taskId,
+                                                          @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.startPreparation(eventId, taskId, userDetails.getUsername()));
+    }
+
     @PatchMapping("/{taskId}/confirm")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
     public ResponseEntity<TaskResponse> confirm(@PathVariable Integer eventId,
