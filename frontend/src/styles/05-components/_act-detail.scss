@@ -293,6 +293,27 @@
   &:hover {
     color: var(--text-primary);
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--confirm {
+    color: var(--badge-confirmed-bg);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
+
+  &--reject {
+    color: var(--badge-rejected-bg);
+
+    &:hover {
+      color: var(--text-primary);
+    }
+  }
 }
 
 .act-detail__loading {
