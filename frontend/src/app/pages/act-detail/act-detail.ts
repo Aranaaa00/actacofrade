@@ -19,6 +19,7 @@ import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { AuditLogResponse } from '../../models/audit-log.model';
+import { sanitizeText } from '../../shared/utils/sanitize.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -67,6 +68,7 @@ export class ActDetail implements OnInit {
   showRejectModal = false;
   rejectingTaskId: number | null = null;
   rejectionReason = '';
+  rejectSubmitted = false;
   processingTaskId: number | null = null;
 
   event: EventResponse | null = null;
@@ -309,6 +311,7 @@ export class ActDetail implements OnInit {
   openRejectModal(task: TaskResponse): void {
     this.rejectingTaskId = task.id;
     this.rejectionReason = '';
+    this.rejectSubmitted = false;
     this.showRejectModal = true;
   }
 
@@ -316,19 +319,23 @@ export class ActDetail implements OnInit {
     this.showRejectModal = false;
     this.rejectingTaskId = null;
     this.rejectionReason = '';
+    this.rejectSubmitted = false;
   }
 
   submitReject(): void {
-    if (!this.rejectingTaskId || !this.rejectionReason.trim()) {
+    this.rejectSubmitted = true;
+    const sanitizedReason = sanitizeText(this.rejectionReason);
+    if (!this.rejectingTaskId || !sanitizedReason) {
       return;
     }
     this.processingTaskId = this.rejectingTaskId;
-    this.taskService.reject(this.eventId, this.rejectingTaskId, this.rejectionReason.trim()).subscribe({
+    this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizedReason).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.showRejectModal = false;
         this.rejectingTaskId = null;
         this.rejectionReason = '';
+        this.rejectSubmitted = false;
         this.loadData();
       },
       error: () => {

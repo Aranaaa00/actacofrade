@@ -295,12 +295,15 @@
               [(ngModel)]="rejectionReason"
               maxlength="500"
               placeholder="Indica el motivo por el que rechazas esta tarea..."></textarea>
+            @if (rejectSubmitted && !rejectionReason.trim()) {
+              <small class="form-field__error" role="alert">El motivo de rechazo es obligatorio</small>
+            }
           </fieldset>
         </section>
         <footer class="modal__footer">
           <button class="button button--secondary" type="button" (click)="cancelReject()">Cancelar</button>
           <button class="button button--danger" type="button"
-            [disabled]="!rejectionReason.trim() || processingTaskId !== null"
+            [disabled]="processingTaskId !== null"
             (click)="submitReject()">Rechazar</button>
         </footer>
       </article>
