@@ -71,12 +71,12 @@ public class DecisionController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{decisionId}/ready")
+    @PatchMapping("/{decisionId}/accept")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<DecisionResponse> markAsReady(@PathVariable Integer eventId,
-                                                        @PathVariable Integer decisionId,
-                                                        @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(decisionService.markAsReady(eventId, decisionId, userDetails.getUsername()));
+    public ResponseEntity<DecisionResponse> accept(@PathVariable Integer eventId,
+                                                   @PathVariable Integer decisionId,
+                                                   @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(decisionService.accept(eventId, decisionId, userDetails.getUsername()));
     }
 
     @PatchMapping("/{decisionId}/reject")
@@ -85,13 +85,5 @@ public class DecisionController {
                                                    @PathVariable Integer decisionId,
                                                    @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(decisionService.reject(eventId, decisionId, userDetails.getUsername()));
-    }
-
-    @PatchMapping("/{decisionId}/reset")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
-    public ResponseEntity<DecisionResponse> resetToPending(@PathVariable Integer eventId,
-                                                           @PathVariable Integer decisionId,
-                                                           @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(decisionService.resetToPending(eventId, decisionId, userDetails.getUsername()));
     }
 }

@@ -41,15 +41,15 @@ const TASK_BADGE_VARIANTS: Record<string, string> = {
 };
 
 const DECISION_STATUS_LABELS: Record<string, string> = {
-  'LISTA': 'Lista',
-  'PENDIENTE': 'Pendiente',
-  'RECHAZADA': 'Rechazada',
+  'ACCEPTED': 'Aceptada',
+  'PENDING': 'Pendiente',
+  'REJECTED': 'Rechazada',
 };
 
 const DECISION_BADGE_VARIANTS: Record<string, string> = {
-  'LISTA': 'confirmed',
-  'PENDIENTE': 'pending',
-  'RECHAZADA': 'rejected',
+  'ACCEPTED': 'confirmed',
+  'PENDING': 'pending',
+  'REJECTED': 'rejected',
 };
 
 const INCIDENT_STATUS_LABELS: Record<string, string> = {
@@ -81,7 +81,7 @@ const HISTORY_ACTION_LABELS: Record<string, string> = {
   'TASK_UPDATED': 'Tarea actualizada',
   'TASK_DELETED': 'Tarea eliminada',
   'DECISION_CREATED': 'Decisión creada',
-  'DECISION_READY': 'Decisión lista',
+  'DECISION_ACCEPTED': 'Decisión aceptada',
   'DECISION_REJECTED': 'Decisión rechazada',
   'INCIDENT_CREATED': 'Incidencia creada',
   'INCIDENT_RESOLVED': 'Incidencia resuelta',

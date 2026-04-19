@@ -157,11 +157,15 @@
                   <td>{{ getAreaLabel(decision.area) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
-                      @if (auth.canWrite()) {
-                        <a class="act-detail__row-link" (click)="editDecision(decision)">Editar</a>
+                      @if (!isEventClosed && decision.status === 'PENDING' && auth.canManage()) {
+                        <button class="act-detail__row-link act-detail__row-link--confirm" type="button" (click)="acceptDecision(decision)">Aceptar</button>
+                        <button class="act-detail__row-link act-detail__row-link--reject" type="button" (click)="rejectDecision(decision)">Rechazar</button>
+                      }
+                      @if (auth.canWrite() && decision.status === 'PENDING') {
+                        <button class="act-detail__row-link" type="button" (click)="editDecision(decision)">Editar</button>
                       }
                       @if (auth.canManage()) {
-                        <a class="act-detail__row-link" (click)="deleteDecision(decision.id)">Eliminar</a>
+                        <button class="act-detail__row-link" type="button" (click)="deleteDecision(decision.id)">Eliminar</button>
                       }
                     </nav>
                   </td>

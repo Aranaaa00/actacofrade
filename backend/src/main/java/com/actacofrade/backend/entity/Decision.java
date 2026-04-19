@@ -47,7 +47,7 @@ public class Decision {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status")
-    private DecisionStatus status = DecisionStatus.PENDIENTE;
+    private DecisionStatus status = DecisionStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by")

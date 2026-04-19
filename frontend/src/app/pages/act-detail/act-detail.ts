@@ -394,6 +394,18 @@ export class ActDetail implements OnInit {
     });
   }
 
+  acceptDecision(decision: DecisionResponse): void {
+    this.decisionService.accept(this.eventId, decision.id).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
+  rejectDecision(decision: DecisionResponse): void {
+    this.decisionService.reject(this.eventId, decision.id).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
   deleteIncident(incidentId: number): void {
     this.incidentService.delete(this.eventId, incidentId).subscribe({
       next: () => this.loadData()

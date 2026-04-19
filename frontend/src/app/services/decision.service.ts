@@ -27,4 +27,12 @@ export class DecisionService {
   delete(eventId: number, decisionId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${eventId}/decisions/${decisionId}`);
   }
+
+  accept(eventId: number, decisionId: number): Observable<DecisionResponse> {
+    return this.http.patch<DecisionResponse>(`${this.baseUrl}/${eventId}/decisions/${decisionId}/accept`, {});
+  }
+
+  reject(eventId: number, decisionId: number): Observable<DecisionResponse> {
+    return this.http.patch<DecisionResponse>(`${this.baseUrl}/${eventId}/decisions/${decisionId}/reject`, {});
+  }
 }

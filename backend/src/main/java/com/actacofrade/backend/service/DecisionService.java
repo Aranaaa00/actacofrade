@@ -105,20 +105,20 @@ public class DecisionService {
         decisionRepository.delete(decision);
     }
 
-    public DecisionResponse markAsReady(Integer eventId, Integer decisionId, String authenticatedEmail) {
+    public DecisionResponse accept(Integer eventId, Integer decisionId, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
-        if (decision.getStatus() == DecisionStatus.LISTA) {
-            throw new IllegalStateException("La decision ya esta marcada como lista");
+        if (decision.getStatus() != DecisionStatus.PENDING) {
+            throw new IllegalStateException("Solo se pueden aceptar decisiones en estado PENDING");
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        decision.setStatus(DecisionStatus.LISTA);
+        decision.setStatus(DecisionStatus.ACCEPTED);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
-        auditLogService.log(event, "DECISION", decision.getId(), "DECISION_READY", currentUser, decision.getTitle());
+        auditLogService.log(event, "DECISION", decision.getId(), "DECISION_ACCEPTED", currentUser, decision.getTitle());
         return toResponse(decision);
     }
 
@@ -127,30 +127,15 @@ public class DecisionService {
         validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
-        if (decision.getStatus() == DecisionStatus.RECHAZADA) {
-            throw new IllegalStateException("La decision ya esta rechazada");
+        if (decision.getStatus() != DecisionStatus.PENDING) {
+            throw new IllegalStateException("Solo se pueden rechazar decisiones en estado PENDING");
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        decision.setStatus(DecisionStatus.RECHAZADA);
+        decision.setStatus(DecisionStatus.REJECTED);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
         auditLogService.log(event, "DECISION", decision.getId(), "DECISION_REJECTED", currentUser, decision.getTitle());
-        return toResponse(decision);
-    }
-
-    public DecisionResponse resetToPending(Integer eventId, Integer decisionId, String authenticatedEmail) {
-        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
-        validateEventNotClosed(event);
-        Decision decision = findDecisionOrThrow(decisionId, eventId);
-
-        if (decision.getStatus() == DecisionStatus.PENDIENTE) {
-            throw new IllegalStateException("La decision ya esta pendiente");
-        }
-
-        decision.setStatus(DecisionStatus.PENDIENTE);
-        decision.setUpdatedAt(LocalDateTime.now());
-        decisionRepository.save(decision);
         return toResponse(decision);
     }
 
