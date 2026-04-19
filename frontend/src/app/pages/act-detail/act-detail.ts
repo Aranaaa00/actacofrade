@@ -96,17 +96,17 @@ export class ActDetail implements OnInit {
 
   private readonly taskWeights: Record<string, number> = {
     'PLANNED': 0,
-    'ACCEPTED': 0.25,
-    'IN_PREPARATION': 0.5,
-    'CONFIRMED': 0.75,
+    'ACCEPTED': 0.2,
+    'IN_PREPARATION': 0.4,
+    'CONFIRMED': 0.6,
     'COMPLETED': 1,
-    'REJECTED': 0
+    'REJECTED': 1
   };
 
   private readonly decisionWeights: Record<string, number> = {
-    'PENDIENTE': 0,
-    'LISTA': 1,
-    'RECHAZADA': 0
+    'PENDING': 0,
+    'ACCEPTED': 1,
+    'REJECTED': 1
   };
 
   private readonly incidentWeights: Record<string, number> = {
@@ -145,18 +145,22 @@ export class ActDetail implements OnInit {
       return 0;
     }
 
-    return Math.round((weightedSum / totalElements) * 100);
+    return (weightedSum / totalElements) * 100;
   }
 
   get steps(): StepInfo[] {
     const progress = this.progressPercent;
-    const thresholds = [0, 25, 50, 75];
-    return this.stepKeys.map((key, i) => ({
-      key,
-      label: getStepLabel(key),
-      done: progress >= thresholds[i],
-      connectorDone: i < this.stepKeys.length - 1 && progress >= thresholds[i + 1]
-    }));
+    const stepCount = this.stepKeys.length;
+    return this.stepKeys.map((key, i) => {
+      const stepThreshold = (i / (stepCount - 1)) * 100;
+      const nextThreshold = ((i + 1) / (stepCount - 1)) * 100;
+      return {
+        key,
+        label: getStepLabel(key),
+        done: progress >= stepThreshold,
+        connectorDone: i < stepCount - 1 && progress >= nextThreshold
+      };
+    });
   }
 
   get statusVariant(): string {

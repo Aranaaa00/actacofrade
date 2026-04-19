@@ -183,6 +183,7 @@
     right: calc(-50% + #{$space-12});
     height: $border-2;
     background-color: var(--border-default);
+    transition: background-color 0.4s ease;
   }
 
   &--connector-done:not(:last-child)::after {
@@ -196,6 +197,7 @@
   height: 0.875rem;
   border: $border-2 solid var(--border-default);
   flex-shrink: 0;
+  transition: background-color 0.4s ease, border-color 0.4s ease;
 }
 
 .act-detail__step--done .act-detail__step-dot {
