@@ -35,14 +35,13 @@
     </app-banner>
   }
 
-  <nav class="act-detail__stepper" aria-label="Progreso del acto: {{ progressPercent }}%">
+  <nav class="act-detail__stepper" aria-label="Progreso del acto" [style.--stepper-progress]="progressPercent + '%'">
     @for (step of steps; track step.key) {
       <section class="act-detail__step" [class.act-detail__step--done]="step.done" [class.act-detail__step--connector-done]="step.connectorDone">
         <span class="act-detail__step-dot" aria-hidden="true"></span>
         <span class="act-detail__step-label">{{ step.label }}</span>
       </section>
     }
-    <span class="act-detail__stepper-percent" aria-hidden="true">{{ progressPercent }}%</span>
   </nav>
 
   <app-tabs [tabs]="tabLabels" [activeTab]="selectedTab" (tabChanged)="onTabChange($event)" />

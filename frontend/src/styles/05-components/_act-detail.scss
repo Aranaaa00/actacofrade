@@ -213,17 +213,6 @@
   text-align: center;
 }
 
-.act-detail__stepper-percent {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  font-size: $text-body;
-  font-weight: $weight-bold;
-  color: var(--text-primary);
-  letter-spacing: 0.04em;
-  margin-inline-start: $space-8;
-}
-
 // Contenido de pestanas
 .act-detail__tab-content {
   padding: $space-24 $space-16 0;
