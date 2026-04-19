@@ -270,12 +270,14 @@ public class TaskService {
         }
 
         long completed = eventRepository.countTasksWithCompletedStatus(event.getId());
+        long rejected = eventRepository.countTasksWithRejectedStatus(event.getId());
+        long finalized = completed + rejected;
         long confirmed = eventRepository.countTasksWithConfirmedStatus(event.getId());
         long inPreparation = eventRepository.countTasksWithInPreparationStatus(event.getId());
         long accepted = eventRepository.countTasksWithAcceptedStatus(event.getId());
 
         EventStatus newStatus;
-        if (completed == total) {
+        if (finalized == total) {
             newStatus = EventStatus.CIERRE;
         } else if (confirmed > 0) {
             newStatus = EventStatus.CONFIRMACION;

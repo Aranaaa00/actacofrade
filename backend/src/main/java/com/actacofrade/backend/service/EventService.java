@@ -158,11 +158,13 @@ public class EventService {
 
         long pendingTasks = eventRepository.countPendingTasksByEventId(id);
         long openIncidents = eventRepository.countOpenIncidentsByEventId(id);
+        long pendingDecisions = eventRepository.countPendingDecisionsByEventId(id);
 
-        if (pendingTasks > 0 || openIncidents > 0) {
+        if (pendingTasks > 0 || openIncidents > 0 || pendingDecisions > 0) {
             throw new IllegalStateException(
                     "No se puede cerrar el acto: quedan " + pendingTasks
-                            + " tareas sin completar y " + openIncidents + " incidencias abiertas");
+                            + " tareas sin completar, " + pendingDecisions
+                            + " decisiones pendientes y " + openIncidents + " incidencias abiertas");
         }
 
         event.setStatus(EventStatus.CERRADO);

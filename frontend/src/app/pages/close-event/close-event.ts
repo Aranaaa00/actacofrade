@@ -4,16 +4,18 @@ import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { EventService } from '../../services/event.service';
 import { TaskService } from '../../services/task.service';
+import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
+import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
 import { Badge } from '../../shared/components/badge/badge';
 
 interface BlockingItem {
-  type: 'TAREA' | 'INCIDENCIA';
+  type: 'TAREA' | 'INCIDENCIA' | 'DECISIÓN';
   label: string;
   status: string;
 }
@@ -28,6 +30,7 @@ export class CloseEvent implements OnInit {
   private readonly router = inject(Router);
   private readonly eventService = inject(EventService);
   private readonly taskService = inject(TaskService);
+  private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
 
   @Input() embedded = false;
@@ -82,11 +85,12 @@ export class CloseEvent implements OnInit {
     forkJoin({
       event: this.eventService.findById(eventId),
       tasks: this.taskService.findByEventId(eventId),
+      decisions: this.decisionService.findByEventId(eventId),
       incidents: this.incidentService.findByEventId(eventId)
     }).subscribe({
       next: (data) => {
         this.event = data.event;
-        this.blockingItems = this.buildBlockingItems(data.tasks, data.incidents);
+        this.blockingItems = this.buildBlockingItems(data.tasks, data.decisions, data.incidents);
         this.loading = false;
       },
       error: (err) => {
@@ -105,15 +109,25 @@ export class CloseEvent implements OnInit {
     'REJECTED': 'Rechazada',
   };
 
-  private buildBlockingItems(tasks: TaskResponse[], incidents: IncidentResponse[]): BlockingItem[] {
+  private buildBlockingItems(tasks: TaskResponse[], decisions: DecisionResponse[], incidents: IncidentResponse[]): BlockingItem[] {
     const items: BlockingItem[] = [];
 
     for (const task of tasks) {
-      if (task.status !== 'COMPLETED') {
+      if (task.status !== 'COMPLETED' && task.status !== 'REJECTED') {
         items.push({
           type: 'TAREA',
           label: task.title,
           status: this.taskStatusLabelMap[task.status] || task.status
+        });
+      }
+    }
+
+    for (const decision of decisions) {
+      if (decision.status === 'PENDING') {
+        items.push({
+          type: 'DECISIÓN',
+          label: decision.title,
+          status: 'Pendiente'
         });
       }
     }

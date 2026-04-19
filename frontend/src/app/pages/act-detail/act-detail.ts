@@ -169,7 +169,7 @@ export class ActDetail implements OnInit {
   }
 
   get unconfirmedTasksCount(): number {
-    return this.tasks.filter(t => t.status !== 'COMPLETED').length;
+    return this.tasks.filter(t => t.status !== 'COMPLETED' && t.status !== 'REJECTED').length;
   }
 
   get openIncidentsCount(): number {

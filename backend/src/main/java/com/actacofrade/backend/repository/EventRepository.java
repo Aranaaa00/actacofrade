@@ -20,7 +20,7 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
             nativeQuery = true)
     Integer findMaxReferenceNumberByYearPrefix(@Param("prefix") String prefix);
 
-    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status != 'COMPLETED'",
+    @Query(value = "SELECT COUNT(*) FROM tasks WHERE event_id = :eventId AND status NOT IN ('COMPLETED', 'REJECTED')",
             nativeQuery = true)
     long countPendingTasksByEventId(@Param("eventId") Integer eventId);
 
@@ -55,6 +55,10 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
     @Query(value = "SELECT COUNT(*) FROM incidents WHERE event_id = :eventId AND status = 'ABIERTA'",
             nativeQuery = true)
     long countOpenIncidentsByEventId(@Param("eventId") Integer eventId);
+
+    @Query(value = "SELECT COUNT(*) FROM decisions WHERE event_id = :eventId AND status = 'PENDING'",
+            nativeQuery = true)
+    long countPendingDecisionsByEventId(@Param("eventId") Integer eventId);
 
     @Modifying
     @Transactional
