@@ -1,0 +1,117 @@
+<section class="my-tasks" aria-label="Mis tareas asignadas">
+  @if (loading) {
+    <p class="my-tasks__loading" role="status">Cargando tareas…</p>
+  } @else {
+
+  <header class="my-tasks__header">
+    <h1 class="my-tasks__title">Mis Tareas Asignadas</h1>
+  </header>
+
+  <ul class="my-tasks__stats" role="list">
+    <li class="my-tasks__stat">
+      <strong class="my-tasks__stat-number">{{ stats.pendingCount }}</strong>
+      <p class="my-tasks__stat-label">Pendientes de confirmar</p>
+    </li>
+    <li class="my-tasks__stat">
+      <strong class="my-tasks__stat-number">{{ stats.confirmedCount }}</strong>
+      <p class="my-tasks__stat-label">Confirmadas</p>
+    </li>
+    <li class="my-tasks__stat">
+      <strong class="my-tasks__stat-number">{{ stats.rejectedCount }}</strong>
+      <p class="my-tasks__stat-label">Rechazadas</p>
+    </li>
+  </ul>
+
+  <search class="act-list__filters" aria-label="Filtros de búsqueda">
+    <div class="act-list__filter-dropdown">
+      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('eventType')">
+        {{ activeEventTypeLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'eventType') {
+        <ul class="act-list__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectFilter('eventType', '')">Todos</li>
+          <li role="option" (click)="selectFilter('eventType', 'CABILDO')">Cabildo</li>
+          <li role="option" (click)="selectFilter('eventType', 'CULTOS')">Cultos</li>
+          <li role="option" (click)="selectFilter('eventType', 'PROCESION')">Procesión</li>
+          <li role="option" (click)="selectFilter('eventType', 'ENSAYO')">Ensayo</li>
+          <li role="option" (click)="selectFilter('eventType', 'OTRO')">Otro</li>
+        </ul>
+      }
+    </div>
+    <div class="act-list__filter-dropdown">
+      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('status')">
+        {{ activeStatusLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'status') {
+        <ul class="act-list__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectFilter('status', '')">Todos</li>
+          <li role="option" (click)="selectFilter('status', 'PENDING')">Pendiente</li>
+          <li role="option" (click)="selectFilter('status', 'CONFIRMED')">Confirmada</li>
+          <li role="option" (click)="selectFilter('status', 'REJECTED')">Rechazada</li>
+        </ul>
+      }
+    </div>
+    <div class="act-list__search-wrapper">
+      <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
+      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar tarea..." aria-label="Buscar tarea" maxlength="200">
+    </div>
+    <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
+  </search>
+
+  <ul class="my-tasks__cards" role="list">
+    @for (task of tasks; track task.id; let idx = $index) {
+      <li class="my-tasks__card" [class.my-tasks__card--dark]="idx % 2 === 0">
+        <aside class="act-card__type-band" aria-hidden="true">
+          <span class="act-card__type-label">{{ getEventTypeLabel(task.eventType) }}</span>
+        </aside>
+        <section class="my-tasks__card-body">
+          <header class="my-tasks__card-header">
+            <h2 class="my-tasks__card-title">{{ task.title }}</h2>
+            <app-badge [variant]="getSimplifiedBadgeVariant(task.status)">{{ getSimplifiedStatusLabel(task.status) }}</app-badge>
+          </header>
+          @if (task.status === 'PLANNED' && auth.canWrite()) {
+            <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
+              <button class="my-tasks__action my-tasks__action--confirm" type="button"
+                [disabled]="processingTaskId === task.id"
+                (click)="confirmTask(task)">Confirmar →</button>
+              <button class="my-tasks__action my-tasks__action--reject" type="button"
+                [disabled]="processingTaskId === task.id"
+                (click)="openRejectModal(task)">Rechazar →</button>
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]">Pedir más info →</a>
+            </nav>
+          } @else if (task.status === 'REJECTED') {
+            <footer class="my-tasks__card-footer">
+              <p class="my-tasks__card-date">Rechazado el {{ formatDateTime(task.updatedAt) }}</p>
+              @if (task.rejectionReason) {
+                <p class="my-tasks__card-reason">"{{ task.rejectionReason }}"</p>
+              }
+            </footer>
+          } @else {
+            <footer class="my-tasks__card-footer">
+              <p class="my-tasks__card-date">Confirmado el {{ formatDateTime(task.confirmedAt || task.updatedAt) }}</p>
+            </footer>
+          }
+        </section>
+      </li>
+    }
+    @empty {
+      <li class="my-tasks__card">
+        <section class="my-tasks__card-body">
+          <p class="my-tasks__card-title">No tienes tareas asignadas.</p>
+        </section>
+      </li>
+    }
+  </ul>
+
+  <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChanged)="goToPage($event)" />
+
+  }
+
+  <app-reject-modal
+    [show]="showRejectModal"
+    [processing]="processingTaskId !== null"
+    (cancelled)="onRejectCancelled()"
+    (confirmed)="onRejectConfirmed($event)" />
+</section>

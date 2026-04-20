@@ -280,34 +280,9 @@
       (closed)="onCloseEventClosed()" />
   }
 
-  @if (showRejectModal) {
-    <aside class="modal-overlay" (click)="cancelReject()">
-      <article class="modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Rechazar tarea">
-        <header class="modal__header">
-          <h2 class="modal__title">Rechazar tarea</h2>
-          <button class="modal__close" type="button" (click)="cancelReject()" aria-label="Cerrar">
-            <lucide-icon name="x" [size]="20"></lucide-icon>
-          </button>
-        </header>
-        <section class="modal__body">
-          <fieldset class="form-field">
-            <label class="form-field__label" for="rejectionReason">Motivo del rechazo</label>
-            <textarea id="rejectionReason" class="input" rows="3"
-              [(ngModel)]="rejectionReason"
-              maxlength="500"
-              placeholder="Indica el motivo por el que rechazas esta tarea..."></textarea>
-            @if (rejectSubmitted && !rejectionReason.trim()) {
-              <small class="form-field__error" role="alert">El motivo de rechazo es obligatorio</small>
-            }
-          </fieldset>
-        </section>
-        <footer class="modal__footer">
-          <button class="button button--secondary" type="button" (click)="cancelReject()">Cancelar</button>
-          <button class="button button--danger" type="button"
-            [disabled]="processingTaskId !== null"
-            (click)="submitReject()">Rechazar</button>
-        </footer>
-      </article>
-    </aside>
-  }
+  <app-reject-modal
+    [show]="showRejectModal"
+    [processing]="processingTaskId !== null"
+    (cancelled)="onRejectCancelled()"
+    (confirmed)="onRejectConfirmed($event)" />
 </section>

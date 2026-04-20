@@ -7,6 +7,7 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Banner } from '../../shared/components/banner/banner';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { Tabs } from '../../shared/components/tabs/tabs';
+import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
 import { EventService } from '../../services/event.service';
@@ -52,7 +53,7 @@ interface StepInfo {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule, RejectModal],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -77,8 +78,6 @@ export class ActDetail implements OnInit {
 
   showRejectModal = false;
   rejectingTaskId: number | null = null;
-  rejectionReason = '';
-  rejectSubmitted = false;
   processingTaskId: number | null = null;
 
   event: EventResponse | null = null;
@@ -307,32 +306,24 @@ export class ActDetail implements OnInit {
 
   openRejectModal(task: TaskResponse): void {
     this.rejectingTaskId = task.id;
-    this.rejectionReason = '';
-    this.rejectSubmitted = false;
     this.showRejectModal = true;
   }
 
-  cancelReject(): void {
+  onRejectCancelled(): void {
     this.showRejectModal = false;
     this.rejectingTaskId = null;
-    this.rejectionReason = '';
-    this.rejectSubmitted = false;
   }
 
-  submitReject(): void {
-    this.rejectSubmitted = true;
-    const sanitizedReason = sanitizeText(this.rejectionReason);
-    if (!this.rejectingTaskId || !sanitizedReason) {
+  onRejectConfirmed(reason: string): void {
+    if (!this.rejectingTaskId) {
       return;
     }
     this.processingTaskId = this.rejectingTaskId;
-    this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizedReason).subscribe({
+    this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizeText(reason)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.showRejectModal = false;
         this.rejectingTaskId = null;
-        this.rejectionReason = '';
-        this.rejectSubmitted = false;
         this.loadData();
       },
       error: () => {

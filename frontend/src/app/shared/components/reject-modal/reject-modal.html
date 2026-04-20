@@ -1,0 +1,30 @@
+@if (show) {
+  <aside class="modal-overlay" (click)="onCancel()">
+    <article class="modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Rechazar tarea">
+      <header class="modal__header">
+        <h2 class="modal__title">Rechazar tarea</h2>
+        <button class="modal__close" type="button" (click)="onCancel()" aria-label="Cerrar">
+          <lucide-icon name="x" [size]="20"></lucide-icon>
+        </button>
+      </header>
+      <section class="modal__body">
+        <fieldset class="form-field">
+          <label class="form-field__label" for="rejectionReason">Motivo del rechazo</label>
+          <textarea id="rejectionReason" class="input" rows="3"
+            [(ngModel)]="reason"
+            maxlength="500"
+            placeholder="Indica el motivo por el que rechazas esta tarea..."></textarea>
+          @if (submitted && !reason.trim()) {
+            <small class="form-field__error" role="alert">El motivo de rechazo es obligatorio</small>
+          }
+        </fieldset>
+      </section>
+      <footer class="modal__footer">
+        <button class="button button--secondary" type="button" (click)="onCancel()">Cancelar</button>
+        <button class="button button--danger" type="button"
+          [disabled]="processing"
+          (click)="onConfirm()">Rechazar</button>
+      </footer>
+    </article>
+  </aside>
+}
