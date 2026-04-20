@@ -217,5 +217,5 @@ export const EVENT_STATUS_OPTIONS = [
   { value: 'PLANIFICACION', label: 'Planificación' },
   { value: 'PREPARACION', label: 'En preparación' },
   { value: 'CONFIRMACION', label: 'Confirmación' },
-  { value: 'CERRADO', label: 'Cerrado' },
+  { value: 'CIERRE', label: 'En cierre' },
 ];
