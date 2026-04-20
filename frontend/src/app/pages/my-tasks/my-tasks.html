@@ -23,36 +23,18 @@
   </ul>
 
   <search class="act-list__filters" aria-label="Filtros de búsqueda">
-    <div class="act-list__filter-dropdown">
-      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('eventType')">
-        {{ activeEventTypeLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'eventType') {
-        <ul class="act-list__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectFilter('eventType', '')">Todos</li>
-          <li role="option" (click)="selectFilter('eventType', 'CABILDO')">Cabildo</li>
-          <li role="option" (click)="selectFilter('eventType', 'CULTOS')">Cultos</li>
-          <li role="option" (click)="selectFilter('eventType', 'PROCESION')">Procesión</li>
-          <li role="option" (click)="selectFilter('eventType', 'ENSAYO')">Ensayo</li>
-          <li role="option" (click)="selectFilter('eventType', 'OTRO')">Otro</li>
-        </ul>
-      }
-    </div>
-    <div class="act-list__filter-dropdown">
-      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('status')">
-        {{ activeStatusLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'status') {
-        <ul class="act-list__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectFilter('status', '')">Todos</li>
-          <li role="option" (click)="selectFilter('status', 'PENDING')">Pendiente</li>
-          <li role="option" (click)="selectFilter('status', 'CONFIRMED')">Confirmada</li>
-          <li role="option" (click)="selectFilter('status', 'REJECTED')">Rechazada</li>
-        </ul>
-      }
-    </div>
+    <app-filter-dropdown
+      [label]="activeEventTypeLabel"
+      [options]="eventTypeOptions"
+      [isOpen]="openDropdown === 'eventType'"
+      (toggled)="toggleDropdown('eventType')"
+      (selected)="selectFilter('eventType', $event)" />
+    <app-filter-dropdown
+      [label]="activeStatusLabel"
+      [options]="taskStatusOptions"
+      [isOpen]="openDropdown === 'status'"
+      (toggled)="toggleDropdown('status')"
+      (selected)="selectFilter('status', $event)" />
     <div class="act-list__search-wrapper">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar tarea..." aria-label="Buscar tarea" maxlength="200">

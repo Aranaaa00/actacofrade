@@ -5,6 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { Pagination } from '../../shared/components/pagination/pagination';
+import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
@@ -12,13 +13,14 @@ import { EventResponse } from '../../models/event.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
 import {
   getEventTypeLabel, getEventStatusLabel,
-  getEventStatusBadgeVariant, getStepIndex
+  getEventStatusBadgeVariant, getStepIndex,
+  EVENT_TYPE_OPTIONS, EVENT_STATUS_OPTIONS
 } from '../../shared/utils/label-maps.utils';
 import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown],
   templateUrl: './act-list.html',
 })
 export class ActList implements OnInit, OnDestroy {
@@ -26,6 +28,8 @@ export class ActList implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
 
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
+  readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
+  readonly eventStatusOptions = EVENT_STATUS_OPTIONS;
   readonly pageSize = 5;
   currentPage = 1;
   totalPages = 1;

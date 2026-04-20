@@ -6,16 +6,17 @@ import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
+import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 import { MyTaskResponse, MyTaskStats } from '../../models/task.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-import { getEventTypeLabel, getSimplifiedTaskStatusLabel, getSimplifiedTaskBadgeVariant } from '../../shared/utils/label-maps.utils';
+import { getEventTypeLabel, getSimplifiedTaskStatusLabel, getSimplifiedTaskBadgeVariant, EVENT_TYPE_OPTIONS } from '../../shared/utils/label-maps.utils';
 import { formatDateTime } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-my-tasks',
-  imports: [RouterLink, FormsModule, LucideAngularModule, Badge, Pagination, RejectModal],
+  imports: [RouterLink, FormsModule, LucideAngularModule, Badge, Pagination, RejectModal, FilterDropdown],
   templateUrl: './my-tasks.html',
 })
 export class MyTasks implements OnInit, OnDestroy {
@@ -23,6 +24,13 @@ export class MyTasks implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
 
   readonly pageSize = 5;
+  readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
+  readonly taskStatusOptions = [
+    { value: '', label: 'Todos' },
+    { value: 'PENDING', label: 'Pendiente' },
+    { value: 'CONFIRMED', label: 'Confirmada' },
+    { value: 'REJECTED', label: 'Rechazada' },
+  ];
   currentPage = 1;
   totalPages = 1;
   loading = true;

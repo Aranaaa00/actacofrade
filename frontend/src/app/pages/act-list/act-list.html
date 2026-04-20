@@ -10,37 +10,18 @@
   </header>
 
   <search class="act-list__filters" aria-label="Filtros de búsqueda">
-    <div class="act-list__filter-dropdown">
-      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('type')">
-        {{ activeTypeLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'type') {
-        <ul class="act-list__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectFilter('type', '')">Todos</li>
-          <li role="option" (click)="selectFilter('type', 'CABILDO')">Cabildo</li>
-          <li role="option" (click)="selectFilter('type', 'CULTOS')">Cultos</li>
-          <li role="option" (click)="selectFilter('type', 'PROCESION')">Procesión</li>
-          <li role="option" (click)="selectFilter('type', 'ENSAYO')">Ensayo</li>
-          <li role="option" (click)="selectFilter('type', 'OTRO')">Otro</li>
-        </ul>
-      }
-    </div>
-    <div class="act-list__filter-dropdown">
-      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('status')">
-        {{ activeStatusLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'status') {
-        <ul class="act-list__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectFilter('status', '')">Todos</li>
-          <li role="option" (click)="selectFilter('status', 'PLANIFICACION')">Planificación</li>
-          <li role="option" (click)="selectFilter('status', 'PREPARACION')">En preparación</li>
-          <li role="option" (click)="selectFilter('status', 'CONFIRMACION')">Confirmación</li>
-          <li role="option" (click)="selectFilter('status', 'CERRADO')">Cerrado</li>
-        </ul>
-      }
-    </div>
+    <app-filter-dropdown
+      [label]="activeTypeLabel"
+      [options]="eventTypeOptions"
+      [isOpen]="openDropdown === 'type'"
+      (toggled)="toggleDropdown('type')"
+      (selected)="selectFilter('type', $event)" />
+    <app-filter-dropdown
+      [label]="activeStatusLabel"
+      [options]="eventStatusOptions"
+      [isOpen]="openDropdown === 'status'"
+      (toggled)="toggleDropdown('status')"
+      (selected)="selectFilter('status', $event)" />
     <app-datepicker
       [allSelectable]="true"
       [selectedDate]="filterDate"

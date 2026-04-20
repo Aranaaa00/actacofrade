@@ -1,0 +1,13 @@
+<div class="act-list__filter-dropdown">
+  <button class="act-list__filter-btn" type="button" (click)="toggled.emit()">
+    {{ label }}
+    <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+  </button>
+  @if (isOpen) {
+    <ul class="act-list__dropdown-menu" role="listbox">
+      @for (option of options; track option.value) {
+        <li role="option" (click)="selected.emit(option.value)">{{ option.label }}</li>
+      }
+    </ul>
+  }
+</div>

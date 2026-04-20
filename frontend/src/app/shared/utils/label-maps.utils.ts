@@ -202,3 +202,20 @@ export function getSimplifiedTaskStatusLabel(status: string): string {
 export function getSimplifiedTaskBadgeVariant(status: string): string {
   return SIMPLIFIED_TASK_BADGE_VARIANTS[status] || 'neutral';
 }
+
+export const EVENT_TYPE_OPTIONS = [
+  { value: '', label: 'Todos' },
+  { value: 'CABILDO', label: 'Cabildo' },
+  { value: 'CULTOS', label: 'Cultos' },
+  { value: 'PROCESION', label: 'Procesión' },
+  { value: 'ENSAYO', label: 'Ensayo' },
+  { value: 'OTRO', label: 'Otro' },
+];
+
+export const EVENT_STATUS_OPTIONS = [
+  { value: '', label: 'Todos' },
+  { value: 'PLANIFICACION', label: 'Planificación' },
+  { value: 'PREPARACION', label: 'En preparación' },
+  { value: 'CONFIRMACION', label: 'Confirmación' },
+  { value: 'CERRADO', label: 'Cerrado' },
+];
