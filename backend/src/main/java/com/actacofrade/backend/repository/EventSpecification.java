@@ -12,6 +12,24 @@ public final class EventSpecification {
     private EventSpecification() {
     }
 
+    public static Specification<Event> hasResponsible(Integer responsibleId) {
+        return (root, query, cb) -> responsibleId == null
+                ? cb.conjunction()
+                : cb.equal(root.get("responsible").get("id"), responsibleId);
+    }
+
+    public static Specification<Event> hasDateFrom(LocalDate dateFrom) {
+        return (root, query, cb) -> dateFrom == null
+                ? cb.conjunction()
+                : cb.greaterThanOrEqualTo(root.get("eventDate"), dateFrom);
+    }
+
+    public static Specification<Event> hasDateTo(LocalDate dateTo) {
+        return (root, query, cb) -> dateTo == null
+                ? cb.conjunction()
+                : cb.lessThanOrEqualTo(root.get("eventDate"), dateTo);
+    }
+
     public static Specification<Event> hasHermandad(Integer hermandadId) {
         return (root, query, cb) -> hermandadId == null
                 ? cb.conjunction()
@@ -48,5 +66,9 @@ public final class EventSpecification {
                     cb.like(cb.lower(root.get("location")), pattern)
             );
         };
+    }
+
+    public static Specification<Event> isNotClosed() {
+        return (root, query, cb) -> cb.notEqual(root.get("status"), EventStatus.CERRADO);
     }
 }

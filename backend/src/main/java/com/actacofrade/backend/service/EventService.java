@@ -12,6 +12,8 @@ import com.actacofrade.backend.repository.EventSpecification;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
@@ -57,12 +59,60 @@ public class EventService {
 
         Specification<Event> spec = Specification
                 .where(EventSpecification.hasHermandad(hermandadId))
+                .and(EventSpecification.isNotClosed())
                 .and(EventSpecification.hasEventType(typeFilter))
                 .and(EventSpecification.hasStatus(statusFilter))
                 .and(EventSpecification.hasEventDate(eventDate))
                 .and(EventSpecification.searchByText(search));
 
         return eventRepository.findAll(spec, pageable).map(this::toResponse);
+    }
+
+    public Page<EventResponse> findHistory(String eventType, Integer responsibleId,
+                                           LocalDate dateFrom, LocalDate dateTo,
+                                           String search, int page, int size, String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        EventType typeFilter = (eventType != null) ? EventType.valueOf(eventType) : null;
+
+        Specification<Event> spec = Specification
+                .where(EventSpecification.hasHermandad(hermandadId))
+                .and(EventSpecification.hasEventType(typeFilter))
+                .and(EventSpecification.hasResponsible(responsibleId))
+                .and(EventSpecification.hasDateFrom(dateFrom))
+                .and(EventSpecification.hasDateTo(dateTo))
+                .and(EventSpecification.searchByText(search));
+
+        List<EventResponse> sorted = eventRepository.findAll(spec).stream()
+                .map(this::toResponse)
+                .sorted(Comparator
+                        .comparingInt((EventResponse e) -> "CERRADO".equals(e.status()) ? 1 : 0)
+                        .thenComparing((a, b) -> {
+                            boolean aClosed = "CERRADO".equals(a.status());
+                            boolean bClosed = "CERRADO".equals(b.status());
+                            if (!aClosed && !bClosed) {
+                                return b.eventDate().compareTo(a.eventDate());
+                            }
+                            if (aClosed && bClosed) {
+                                return b.updatedAt().compareTo(a.updatedAt());
+                            }
+                            return 0;
+                        }))
+                .toList();
+
+        int total = sorted.size();
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, total);
+        List<EventResponse> content = fromIndex >= total ? List.of() : sorted.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(content, PageRequest.of(page, size), total);
+    }
+
+    public List<String> getAvailableDates(String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        return eventRepository.findDistinctEventDatesByHermandadId(hermandadId)
+                .stream()
+                .map(LocalDate::toString)
+                .toList();
     }
 
     public EventResponse findById(Integer id, String authenticatedEmail) {

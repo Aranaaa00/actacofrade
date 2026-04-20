@@ -8,7 +8,7 @@
   @if (open) {
     <article class="datepicker__panel" role="dialog" aria-label="Calendario">
       <header class="datepicker__header">
-        <button class="datepicker__arrow" type="button" (click)="prevMonth()" aria-label="Mes anterior">
+        <button class="datepicker__arrow" type="button" (click)="prevMonth()" [disabled]="!canGoPrev" aria-label="Mes anterior">
           <lucide-icon name="chevron-left" [size]="16" aria-hidden="true"></lucide-icon>
         </button>
         <span class="datepicker__month">{{ monthLabel }}</span>

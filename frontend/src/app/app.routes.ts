@@ -43,6 +43,14 @@ export const routes: Routes = [
       {
         path: 'events/:eventId/close',
         loadComponent: () => import('./pages/close-event/close-event').then(m => m.CloseEvent)
+      },
+      {
+        path: 'my-tasks',
+        loadComponent: () => import('./pages/my-tasks/my-tasks').then(m => m.MyTasks)
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./pages/act-history/act-history').then(m => m.ActHistory)
       }
     ]
   },

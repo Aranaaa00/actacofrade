@@ -13,6 +13,7 @@ export class Datepicker {
   @Input() selectedDate = '';
   @Input() placeholder = 'Fecha';
   @Input() allSelectable = false;
+  @Input() disablePast = false;
   @Output() dateSelected = new EventEmitter<string>();
 
   open = false;
@@ -33,6 +34,15 @@ export class Datepicker {
       result = d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
     }
     return result;
+  }
+
+  get canGoPrev(): boolean {
+    if (!this.disablePast) {
+      return true;
+    }
+    const now = new Date();
+    return this.viewYear > now.getFullYear() ||
+      (this.viewYear === now.getFullYear() && this.viewMonth > now.getMonth());
   }
 
   get weeks(): (number | null)[][] {
@@ -59,6 +69,14 @@ export class Datepicker {
   }
 
   isAvailable(day: number): boolean {
+    if (this.disablePast) {
+      const date = new Date(this.viewYear, this.viewMonth, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) {
+        return false;
+      }
+    }
     return this.allSelectable || this.availableDates.includes(this.toIso(day));
   }
 
