@@ -10,26 +10,8 @@ import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 import { MyTaskResponse, MyTaskStats } from '../../models/task.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-import { getEventTypeLabel } from '../../shared/utils/label-maps.utils';
+import { getEventTypeLabel, getSimplifiedTaskStatusLabel, getSimplifiedTaskBadgeVariant } from '../../shared/utils/label-maps.utils';
 import { formatDateTime } from '../../shared/utils/date.utils';
-
-const SIMPLIFIED_STATUS_LABELS: Record<string, string> = {
-  'PLANNED': 'Pendiente',
-  'ACCEPTED': 'Confirmada',
-  'IN_PREPARATION': 'Confirmada',
-  'CONFIRMED': 'Confirmada',
-  'COMPLETED': 'Confirmada',
-  'REJECTED': 'Rechazada',
-};
-
-const SIMPLIFIED_BADGE_VARIANTS: Record<string, string> = {
-  'PLANNED': 'pending',
-  'ACCEPTED': 'confirmed',
-  'IN_PREPARATION': 'confirmed',
-  'CONFIRMED': 'confirmed',
-  'COMPLETED': 'confirmed',
-  'REJECTED': 'rejected',
-};
 
 @Component({
   selector: 'app-my-tasks',
@@ -92,13 +74,8 @@ export class MyTasks implements OnInit, OnDestroy {
   getEventTypeLabel = getEventTypeLabel;
   formatDateTime = formatDateTime;
 
-  getSimplifiedStatusLabel(status: string): string {
-    return SIMPLIFIED_STATUS_LABELS[status] || status;
-  }
-
-  getSimplifiedBadgeVariant(status: string): string {
-    return SIMPLIFIED_BADGE_VARIANTS[status] || 'neutral';
-  }
+  getSimplifiedStatusLabel = getSimplifiedTaskStatusLabel;
+  getSimplifiedBadgeVariant = getSimplifiedTaskBadgeVariant;
 
   toggleDropdown(name: string): void {
     this.openDropdown = this.openDropdown === name ? null : name;

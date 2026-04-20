@@ -176,3 +176,29 @@ export function getStepLabel(key: string): string {
 export function getStepIndex(status: string): number {
   return STEP_INDEX_MAP[status] || 0;
 }
+
+const SIMPLIFIED_TASK_STATUS_LABELS: Record<string, string> = {
+  'PLANNED': 'Pendiente',
+  'ACCEPTED': 'Confirmada',
+  'IN_PREPARATION': 'Confirmada',
+  'CONFIRMED': 'Confirmada',
+  'COMPLETED': 'Confirmada',
+  'REJECTED': 'Rechazada',
+};
+
+const SIMPLIFIED_TASK_BADGE_VARIANTS: Record<string, string> = {
+  'PLANNED': 'pending',
+  'ACCEPTED': 'confirmed',
+  'IN_PREPARATION': 'confirmed',
+  'CONFIRMED': 'confirmed',
+  'COMPLETED': 'confirmed',
+  'REJECTED': 'rejected',
+};
+
+export function getSimplifiedTaskStatusLabel(status: string): string {
+  return SIMPLIFIED_TASK_STATUS_LABELS[status] || status;
+}
+
+export function getSimplifiedTaskBadgeVariant(status: string): string {
+  return SIMPLIFIED_TASK_BADGE_VARIANTS[status] || 'neutral';
+}
