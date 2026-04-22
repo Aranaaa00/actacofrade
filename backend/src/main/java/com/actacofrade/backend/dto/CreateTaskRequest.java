@@ -1,5 +1,6 @@
 package com.actacofrade.backend.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -19,5 +20,6 @@ public record CreateTaskRequest(
 
         Integer assignedToId,
 
+        @FutureOrPresent(message = "La fecha limite no puede ser anterior a hoy")
         LocalDate deadline
 ) {}
