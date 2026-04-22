@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpecificationExecutor<Event> {
@@ -65,4 +67,8 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
     @Query(value = "INSERT INTO event_clones (original_event_id, cloned_event_id) VALUES (:originalId, :clonedId)",
             nativeQuery = true)
     void insertCloneRelation(@Param("originalId") Integer originalId, @Param("clonedId") Integer clonedId);
+
+    @Query(value = "SELECT DISTINCT event_date FROM events WHERE hermandad_id = :hermandadId ORDER BY event_date",
+            nativeQuery = true)
+    List<LocalDate> findDistinctEventDatesByHermandadId(@Param("hermandadId") Integer hermandadId);
 }

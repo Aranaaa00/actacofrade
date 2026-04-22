@@ -54,6 +54,24 @@ public class EventController {
         return ResponseEntity.ok(eventService.findFiltered(eventType, status, eventDate, search, pageable, userDetails.getUsername()));
     }
 
+    @GetMapping("/history")
+    public ResponseEntity<Page<EventResponse>> findHistory(
+            @RequestParam(required = false) String eventType,
+            @RequestParam(required = false) Integer responsibleId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTo,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.findHistory(eventType, responsibleId, dateFrom, dateTo, search, page, size, userDetails.getUsername()));
+    }
+
+    @GetMapping("/available-dates")
+    public ResponseEntity<List<String>> getAvailableDates(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(eventService.getAvailableDates(userDetails.getUsername()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EventResponse> findById(@PathVariable Integer id,
                                                    @AuthenticationPrincipal UserDetails userDetails) {
