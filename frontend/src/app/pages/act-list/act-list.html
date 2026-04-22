@@ -23,7 +23,7 @@
       (toggled)="toggleDropdown('status')"
       (selected)="selectFilter('status', $event)" />
     <app-datepicker
-      [allSelectable]="true"
+      [availableDates]="availableDates"
       [selectedDate]="filterDate"
       placeholder="Fecha"
       (dateSelected)="onDateChange($event)" />

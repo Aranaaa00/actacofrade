@@ -40,6 +40,7 @@ export class ActList implements OnInit, OnDestroy {
   filterDate = '';
   searchQuery = '';
   loading = true;
+  availableDates: string[] = [];
 
   events: EventResponse[] = [];
 
@@ -54,6 +55,9 @@ export class ActList implements OnInit, OnDestroy {
       this.searchQuery = sanitizeText(query);
       this.currentPage = 1;
       this.loadEvents();
+    });
+    this.eventService.availableDates().subscribe({
+      next: (dates) => { this.availableDates = dates; }
     });
     this.loadEvents();
   }

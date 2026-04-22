@@ -1,5 +1,6 @@
 package com.actacofrade.backend.dto;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -19,6 +20,7 @@ public record CreateEventRequest(
         String eventType,
 
         @NotNull(message = "La fecha del acto es obligatoria")
+        @FutureOrPresent(message = "La fecha del acto no puede ser anterior a hoy")
         LocalDate eventDate,
 
         @Size(max = 255, message = "La ubicación no puede superar los 255 caracteres")

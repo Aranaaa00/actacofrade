@@ -4,6 +4,7 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged, forkJoin } f
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
+import { FilterDropdown, FilterOption } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
@@ -13,7 +14,8 @@ import { sanitizeText } from '../../shared/utils/sanitize.utils';
 import {
   getEventTypeLabel,
   getEventStatusLabel,
-  getEventStatusBadgeVariant
+  getEventStatusBadgeVariant,
+  EVENT_TYPE_OPTIONS
 } from '../../shared/utils/label-maps.utils';
 
 interface DateGroup {
@@ -23,7 +25,7 @@ interface DateGroup {
 
 @Component({
   selector: 'app-act-history',
-  imports: [RouterLink, LucideAngularModule, Badge, Datepicker, Pagination],
+  imports: [RouterLink, LucideAngularModule, Badge, Datepicker, FilterDropdown, Pagination],
   templateUrl: './act-history.html',
 })
 export class ActHistory implements OnInit, OnDestroy {
@@ -32,6 +34,7 @@ export class ActHistory implements OnInit, OnDestroy {
   private readonly el = inject(ElementRef);
 
   readonly pageSize = 5;
+  readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
   currentPage = 1;
   totalPages = 1;
 
@@ -107,6 +110,13 @@ export class ActHistory implements OnInit, OnDestroy {
     return parts.join(' – ');
   }
 
+  get responsibleOptions(): FilterOption[] {
+    return [
+      { value: '', label: 'Todos' },
+      ...this.users.map(u => ({ value: String(u.id), label: u.fullName }))
+    ];
+  }
+
   getEventTypeLabel = getEventTypeLabel;
   getStatusLabel = getEventStatusLabel;
   getStatusBadgeVariant = getEventStatusBadgeVariant;
@@ -139,15 +149,12 @@ export class ActHistory implements OnInit, OnDestroy {
     this.openDropdown = this.openDropdown === name ? null : name;
   }
 
-  selectType(value: string): void {
-    this.filterType = value;
-    this.currentPage = 1;
-    this.openDropdown = null;
-    this.loadEvents();
-  }
-
-  selectResponsible(id: number | null): void {
-    this.filterResponsibleId = id;
+  selectFilter(type: string, value: string): void {
+    if (type === 'type') {
+      this.filterType = value;
+    } else if (type === 'responsible') {
+      this.filterResponsibleId = value ? Number(value) : null;
+    }
     this.currentPage = 1;
     this.openDropdown = null;
     this.loadEvents();
@@ -155,14 +162,29 @@ export class ActHistory implements OnInit, OnDestroy {
 
   onDateFromChange(date: string): void {
     this.filterDateFrom = date;
+    if (this.filterDateTo && this.filterDateFrom > this.filterDateTo) {
+      this.filterDateTo = '';
+    }
     this.currentPage = 1;
     this.loadEvents();
   }
 
   onDateToChange(date: string): void {
     this.filterDateTo = date;
+    if (this.filterDateFrom && this.filterDateTo < this.filterDateFrom) {
+      this.filterDateTo = '';
+      return;
+    }
+    if (this.filterDateFrom && this.filterDateTo && !this.rangeContainsAvailableDate()) {
+      this.filterDateTo = '';
+      return;
+    }
     this.currentPage = 1;
     this.loadEvents();
+  }
+
+  private rangeContainsAvailableDate(): boolean {
+    return this.availableDates.some(d => d >= this.filterDateFrom && d <= this.filterDateTo);
   }
 
   onSearch(query: string): void {
