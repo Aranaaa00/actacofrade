@@ -1,0 +1,123 @@
+<section class="act-history" aria-label="Historial de actos">
+  <header class="act-history__header">
+    <h1 class="act-history__title">Historial</h1>
+  </header>
+
+  <search class="act-history__filters" aria-label="Filtros de historial">
+    <div class="act-history__filter-dropdown">
+      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('type')">
+        {{ activeTypeLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'type') {
+        <ul class="act-history__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectType('')">Todos</li>
+          <li role="option" (click)="selectType('CABILDO')">Cabildo</li>
+          <li role="option" (click)="selectType('CULTOS')">Cultos</li>
+          <li role="option" (click)="selectType('PROCESION')">Procesión</li>
+          <li role="option" (click)="selectType('ENSAYO')">Ensayo</li>
+          <li role="option" (click)="selectType('OTRO')">Otro</li>
+        </ul>
+      }
+    </div>
+
+    <div class="act-history__filter-dropdown">
+      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('responsible')">
+        {{ activeResponsibleLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'responsible') {
+        <ul class="act-history__dropdown-menu" role="listbox">
+          <li role="option" (click)="selectResponsible(null)">Todos</li>
+          @for (user of users; track user.id) {
+            <li role="option" (click)="selectResponsible(user.id)">{{ user.fullName }}</li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="act-history__filter-dropdown">
+      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('dateRange')">
+        {{ activeDateRangeLabel }}
+        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
+      </button>
+      @if (openDropdown === 'dateRange') {
+        <div class="act-history__date-range-panel" role="dialog" aria-label="Rango de fechas">
+          <div class="act-history__date-range-row">
+            <span class="act-history__date-range-label">Desde</span>
+            <app-datepicker
+              [availableDates]="availableDates"
+              [selectedDate]="filterDateFrom"
+              placeholder="Desde"
+              (dateSelected)="onDateFromChange($event)" />
+          </div>
+          <div class="act-history__date-range-row">
+            <span class="act-history__date-range-label">Hasta</span>
+            <app-datepicker
+              [availableDates]="availableDates"
+              [selectedDate]="filterDateTo"
+              placeholder="Hasta"
+              (dateSelected)="onDateToChange($event)" />
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="act-history__search-wrapper">
+      <lucide-icon name="search" class="act-history__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
+      <input
+        class="act-history__filter-search"
+        type="search"
+        [value]="searchQuery"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="Búsqueda global"
+        aria-label="Búsqueda global"
+        maxlength="200">
+    </div>
+
+    <button class="act-history__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
+  </search>
+
+  <section class="act-history__timeline" aria-label="Línea de tiempo">
+    @if (loading) {
+      <p class="act-history__empty">Cargando...</p>
+    } @else if (groupedEvents.length === 0) {
+      <p class="act-history__empty">No hay actos registrados.</p>
+    } @else {
+      @for (group of groupedEvents; track group.date) {
+        <div class="act-history__date-group">
+          <div class="act-history__date-header">
+            <span class="act-history__dot" aria-hidden="true"></span>
+            <time class="act-history__date-label" [attr.datetime]="group.date">{{ formatTimelineDate(group.date) }}</time>
+          </div>
+          <ul class="act-history__items" role="list">
+            @for (act of group.events; track act.id) {
+              <li class="act-history__item">
+                <aside class="act-history__type-band" aria-hidden="true">
+                  <span class="act-history__type-label">{{ getEventTypeLabel(act.eventType) }}</span>
+                </aside>
+                <div class="act-history__item-body">
+                  <div class="act-history__item-info">
+                    <h2 class="act-history__item-title">{{ act.title }}</h2>
+                    <p class="act-history__item-ref">Ref: {{ act.reference }}</p>
+                  </div>
+                  <div class="act-history__item-actions">
+                    <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ getStatusLabel(act.status) }}</app-badge>
+                    @if (!isClosed(act)) {
+                      <a class="act-history__manage-link" [routerLink]="['/events', act.id]" aria-label="Gestionar {{ act.title }}">Gestionar →</a>
+                    }
+                  </div>
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
+  </section>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [totalPages]="totalPages"
+    (pageChanged)="goToPage($event)" />
+</section>
