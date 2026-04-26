@@ -23,6 +23,22 @@ export class EventService {
     return this.http.get<EventPage>(`${this.baseUrl}/filter`, { params: httpParams });
   }
 
+  history(params: { eventType?: string; responsibleId?: number; dateFrom?: string; dateTo?: string; search?: string; page?: number; size?: number }): Observable<EventPage> {
+    let httpParams = new HttpParams();
+    if (params.eventType) { httpParams = httpParams.set('eventType', params.eventType); }
+    if (params.responsibleId) { httpParams = httpParams.set('responsibleId', params.responsibleId.toString()); }
+    if (params.dateFrom) { httpParams = httpParams.set('dateFrom', params.dateFrom); }
+    if (params.dateTo) { httpParams = httpParams.set('dateTo', params.dateTo); }
+    if (params.search) { httpParams = httpParams.set('search', params.search); }
+    if (params.page !== undefined) { httpParams = httpParams.set('page', params.page.toString()); }
+    if (params.size !== undefined) { httpParams = httpParams.set('size', params.size.toString()); }
+    return this.http.get<EventPage>(`${this.baseUrl}/history`, { params: httpParams });
+  }
+
+  availableDates(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/available-dates`);
+  }
+
   findById(id: number): Observable<EventResponse> {
     return this.http.get<EventResponse>(`${this.baseUrl}/${id}`);
   }
@@ -49,5 +65,9 @@ export class EventService {
 
   clone(id: number): Observable<EventResponse> {
     return this.http.post<EventResponse>(`${this.baseUrl}/${id}/clone`, {});
+  }
+
+  export(id: number, format: string, selectedSections: string[]): Observable<Blob> {
+    return this.http.post(`${this.baseUrl}/${id}/export`, { format, selectedSections }, { responseType: 'blob' });
   }
 }

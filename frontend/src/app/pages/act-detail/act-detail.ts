@@ -80,6 +80,20 @@ export class ActDetail implements OnInit {
   rejectingTaskId: number | null = null;
   processingTaskId: number | null = null;
 
+  showExportModal = false;
+  exportFormat: 'PDF' | 'CSV' = 'PDF';
+  exportSections: string[] = ['TASKS', 'DECISIONS', 'INCIDENTS'];
+  exportSubmitted = false;
+  exportLoading = false;
+
+  readonly exportSectionOptions = [
+    { value: 'OBSERVATIONS', label: 'Observaciones' },
+    { value: 'TASKS', label: 'Tareas' },
+    { value: 'DECISIONS', label: 'Decisiones' },
+    { value: 'INCIDENTS', label: 'Incidencias' },
+    { value: 'HISTORY', label: 'Historial' },
+  ];
+
   event: EventResponse | null = null;
   tasks: TaskResponse[] = [];
   decisions: DecisionResponse[] = [];
@@ -202,6 +216,51 @@ export class ActDetail implements OnInit {
     });
   }
 
+  openExportModal(): void {
+    this.exportSubmitted = false;
+    this.showExportModal = true;
+  }
+
+  closeExportModal(): void {
+    this.showExportModal = false;
+  }
+
+  isExportSectionSelected(value: string): boolean {
+    return this.exportSections.includes(value);
+  }
+
+  toggleExportSection(value: string): void {
+    const idx = this.exportSections.indexOf(value);
+    if (idx === -1) {
+      this.exportSections = [...this.exportSections, value];
+    } else {
+      this.exportSections = this.exportSections.filter(s => s !== value);
+    }
+  }
+
+  doExport(): void {
+    this.exportSubmitted = true;
+    if (this.exportSections.length === 0) {
+      return;
+    }
+    this.exportLoading = true;
+    this.eventService.export(this.eventId, this.exportFormat, this.exportSections).subscribe({
+      next: (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `acto-${this.eventId}.${this.exportFormat.toLowerCase()}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.exportLoading = false;
+        this.closeExportModal();
+      },
+      error: () => {
+        this.exportLoading = false;
+      }
+    });
+  }
+
   addTask(): void {
     this.elementFormTab = 'task';
     this.elementEditData = null;
@@ -242,14 +301,21 @@ export class ActDetail implements OnInit {
 
   canActOnTask(task: TaskResponse): boolean {
     const userId = this.auth.getUserId();
-    return task.assignedToId === userId || this.auth.canManage();
+    return task.assignedToId === userId;
   }
 
-  canActOnIncident(incident: IncidentResponse): boolean {
-    if (incident.status === 'RESUELTA') {
-      return this.auth.isAdmin();
-    }
-    return this.auth.canManage();
+  canManageTask(_task: TaskResponse): boolean {
+    return this.auth.canManageAct(this.event);
+  }
+
+  canEditTask(task: TaskResponse): boolean {
+    const userId = this.auth.getUserId();
+    if (this.auth.canManageAct(this.event)) return true;
+    return task.createdByUserId === userId;
+  }
+
+  canActOnIncident(_incident: IncidentResponse): boolean {
+    return this.auth.canManageAct(this.event);
   }
 
   acceptTask(task: TaskResponse): void {

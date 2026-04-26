@@ -18,8 +18,8 @@
       <aside class="act-detail__header-side">
         <app-badge [variant]="statusVariant" styleClass="act-detail__status-badge">[{{ statusLabel }}]</app-badge>
         <nav class="act-detail__header-links" aria-label="Acciones del acto">
-          <a class="act-detail__header-link">Exportar acta →</a>
-          @if (auth.canWrite()) {
+          <a class="act-detail__header-link" (click)="openExportModal()" role="button" tabindex="0" (keydown.enter)="openExportModal()">Exportar acta →</a>
+          @if (auth.canManageAct(event)) {
             <button class="act-detail__header-link" type="button" (click)="cloneAct()">Clonar →</button>
           }
         </nav>
@@ -82,7 +82,7 @@
                   <td>
                     @if (!isEventClosed) {
                     <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
-                      @if (task.status === 'PLANNED' && canActOnTask(task)) {
+                      @if (task.status === 'PLANNED' && canManageTask(task)) {
                         <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="acceptTask(task)">Aceptar</button>
@@ -94,6 +94,8 @@
                         <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="startPreparation(task)">Preparar</button>
+                      }
+                      @if (task.status === 'ACCEPTED' && canManageTask(task)) {
                         <button class="act-detail__row-link act-detail__row-link--reject" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="openRejectModal(task)">Rechazar</button>
@@ -102,6 +104,8 @@
                         <button class="act-detail__row-link act-detail__row-link--confirm" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="confirmTask(task)">Confirmar</button>
+                      }
+                      @if (task.status === 'IN_PREPARATION' && canManageTask(task)) {
                         <button class="act-detail__row-link act-detail__row-link--reject" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="openRejectModal(task)">Rechazar</button>
@@ -111,15 +115,15 @@
                           [disabled]="processingTaskId === task.id"
                           (click)="completeTask(task)">Completar</button>
                       }
-                      @if (task.status !== 'PLANNED' && auth.canManage()) {
+                      @if (task.status !== 'PLANNED' && auth.canManageAct(event)) {
                         <button class="act-detail__row-link" type="button"
                           [disabled]="processingTaskId === task.id"
                           (click)="resetTask(task)">Revertir</button>
                       }
-                      @if (auth.canWrite()) {
+                      @if (canEditTask(task)) {
                         <button class="act-detail__row-link" type="button" (click)="editTask(task)">Editar</button>
                       }
-                      @if (auth.canManage()) {
+                      @if (auth.canManageAct(event)) {
                         <button class="act-detail__row-link" type="button" (click)="deleteTask(task.id)">Eliminar</button>
                       }
                     </nav>
@@ -157,14 +161,14 @@
                   <td>{{ getAreaLabel(decision.area) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
-                      @if (!isEventClosed && decision.status === 'PENDING' && auth.canManage()) {
+                      @if (!isEventClosed && decision.status === 'PENDING' && auth.canManageAct(event)) {
                         <button class="act-detail__row-link act-detail__row-link--confirm" type="button" (click)="acceptDecision(decision)">Aceptar</button>
                         <button class="act-detail__row-link act-detail__row-link--reject" type="button" (click)="rejectDecision(decision)">Rechazar</button>
                       }
-                      @if (auth.canWrite() && decision.status === 'PENDING') {
+                      @if (auth.canManageAct(event) && decision.status === 'PENDING') {
                         <button class="act-detail__row-link" type="button" (click)="editDecision(decision)">Editar</button>
                       }
-                      @if (auth.canManage()) {
+                      @if (auth.canManageAct(event)) {
                         <button class="act-detail__row-link" type="button" (click)="deleteDecision(decision.id)">Eliminar</button>
                       }
                     </nav>
@@ -251,7 +255,7 @@
   <footer class="act-detail__footer">
     <p class="act-detail__footer-stats">{{ unconfirmedTasksCount }} tareas sin completar · {{ openIncidentsCount }} incidencia abierta</p>
     <section class="act-detail__footer-actions">
-    @if (auth.canManage() && !isEventClosed) {
+    @if (auth.canManageAct(event) && !isEventClosed) {
       <button class="button button--primary" type="button" (click)="openCloseEvent()">
         <lucide-icon name="lock" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Cerrar acto
@@ -286,3 +290,61 @@
     (cancelled)="onRejectCancelled()"
     (confirmed)="onRejectConfirmed($event)" />
 </section>
+
+@if (showExportModal) {
+  <aside class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="export-modal-title"
+    (click)="closeExportModal()">
+    <article class="modal" (click)="$event.stopPropagation()">
+      <header class="modal__header">
+        <h2 class="modal__title" id="export-modal-title">Exportar acta</h2>
+        <button class="modal__close" type="button" (click)="closeExportModal()" aria-label="Cerrar">
+          <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
+        </button>
+      </header>
+      <section class="modal__body">
+        <fieldset class="form-field">
+          <legend class="form-field__label">Formato</legend>
+          <section class="export-modal__formats">
+            <button type="button" class="button"
+              [class.button--primary]="exportFormat === 'PDF'"
+              [class.button--secondary]="exportFormat !== 'PDF'"
+              (click)="exportFormat = 'PDF'">PDF</button>
+            <button type="button" class="button"
+              [class.button--primary]="exportFormat === 'CSV'"
+              [class.button--secondary]="exportFormat !== 'CSV'"
+              (click)="exportFormat = 'CSV'">CSV</button>
+          </section>
+        </fieldset>
+        <fieldset class="form-field">
+          <legend class="form-field__label">Secciones</legend>
+          <ul class="export-modal__sections">
+            @for (opt of exportSectionOptions; track opt.value) {
+              <li>
+                <label class="export-modal__section-label">
+                  <input type="checkbox"
+                    [checked]="isExportSectionSelected(opt.value)"
+                    (change)="toggleExportSection(opt.value)" />
+                  {{ opt.label }}
+                </label>
+              </li>
+            }
+          </ul>
+          @if (exportSubmitted && exportSections.length === 0) {
+            <small class="form-field__error" role="alert">Selecciona al menos una sección</small>
+          }
+        </fieldset>
+      </section>
+      <footer class="modal__footer">
+        <button class="button button--secondary" type="button" (click)="closeExportModal()">Cancelar</button>
+        <button class="button button--primary" type="button"
+          [disabled]="exportLoading"
+          (click)="doExport()">
+          @if (exportLoading) { Exportando... } @else { Exportar }
+        </button>
+      </footer>
+    </article>
+  </aside>
+}
