@@ -173,11 +173,8 @@ export class ActHistory implements OnInit, OnDestroy {
     this.filterDateTo = date;
     if (this.filterDateFrom && this.filterDateTo < this.filterDateFrom) {
       this.filterDateTo = '';
-      return;
-    }
-    if (this.filterDateFrom && this.filterDateTo && !this.rangeContainsAvailableDate()) {
+    } else if (this.filterDateFrom && this.filterDateTo && !this.rangeContainsAvailableDate()) {
       this.filterDateTo = '';
-      return;
     }
     this.currentPage = 1;
     this.loadEvents();
