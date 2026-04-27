@@ -43,7 +43,7 @@
         Historial
       </a>
     </li>
-    @if (auth.canManage()) {
+    @if (auth.isAdmin()) {
       <li>
         <a class="sidebar__link" (click)="closed.emit()">
           <lucide-icon name="users" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
