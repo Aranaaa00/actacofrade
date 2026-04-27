@@ -3,41 +3,22 @@
     <h1 class="act-history__title">Historial</h1>
   </header>
 
-  <search class="act-history__filters" aria-label="Filtros de historial">
-    <div class="act-history__filter-dropdown">
-      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('type')">
-        {{ activeTypeLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'type') {
-        <ul class="act-history__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectType('')">Todos</li>
-          <li role="option" (click)="selectType('CABILDO')">Cabildo</li>
-          <li role="option" (click)="selectType('CULTOS')">Cultos</li>
-          <li role="option" (click)="selectType('PROCESION')">Procesión</li>
-          <li role="option" (click)="selectType('ENSAYO')">Ensayo</li>
-          <li role="option" (click)="selectType('OTRO')">Otro</li>
-        </ul>
-      }
-    </div>
+  <search class="act-list__filters" aria-label="Filtros de historial">
+    <app-filter-dropdown
+      [label]="activeTypeLabel"
+      [options]="eventTypeOptions"
+      [isOpen]="openDropdown === 'type'"
+      (toggled)="toggleDropdown('type')"
+      (selected)="selectFilter('type', $event)" />
+    <app-filter-dropdown
+      [label]="activeResponsibleLabel"
+      [options]="responsibleOptions"
+      [isOpen]="openDropdown === 'responsible'"
+      (toggled)="toggleDropdown('responsible')"
+      (selected)="selectFilter('responsible', $event)" />
 
-    <div class="act-history__filter-dropdown">
-      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('responsible')">
-        {{ activeResponsibleLabel }}
-        <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (openDropdown === 'responsible') {
-        <ul class="act-history__dropdown-menu" role="listbox">
-          <li role="option" (click)="selectResponsible(null)">Todos</li>
-          @for (user of users; track user.id) {
-            <li role="option" (click)="selectResponsible(user.id)">{{ user.fullName }}</li>
-          }
-        </ul>
-      }
-    </div>
-
-    <div class="act-history__filter-dropdown">
-      <button class="act-history__filter-btn" type="button" (click)="toggleDropdown('dateRange')">
+    <div class="act-list__filter-dropdown">
+      <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('dateRange')">
         {{ activeDateRangeLabel }}
         <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
       </button>
@@ -63,10 +44,10 @@
       }
     </div>
 
-    <div class="act-history__search-wrapper">
-      <lucide-icon name="search" class="act-history__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
+    <div class="act-list__search-wrapper">
+      <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input
-        class="act-history__filter-search"
+        class="act-list__filter-search"
         type="search"
         [value]="searchQuery"
         (input)="onSearch($any($event.target).value)"
@@ -75,7 +56,7 @@
         maxlength="200">
     </div>
 
-    <button class="act-history__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
+    <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
   </search>
 
   <section class="act-history__timeline" aria-label="Línea de tiempo">

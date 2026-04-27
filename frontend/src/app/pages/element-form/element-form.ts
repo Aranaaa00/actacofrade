@@ -4,6 +4,7 @@ import { TaskService } from '../../services/task.service';
 import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { UserResponse } from '../../models/user.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
@@ -35,6 +36,7 @@ export class ElementForm implements OnInit {
   private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
   private readonly userService = inject(UserService);
+  private readonly auth = inject(AuthService);
 
   @Input() eventId!: number;
   @Input() initialTab: ElementTab = 'task';
@@ -112,9 +114,30 @@ export class ElementForm implements OnInit {
       });
     }
 
-    this.userService.findAll().subscribe({
-      next: (users) => this.users = users
-    });
+    this.loadUsers();
+  }
+
+  private loadUsers(): void {
+    if (this.auth.hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')) {
+      this.userService.findAll().subscribe({
+        next: (users) => this.users = users
+      });
+    } else {
+      const authUser = this.auth.getUser();
+      if (authUser) {
+        this.users = [{
+          id: authUser.userId,
+          fullName: authUser.fullName,
+          email: authUser.email,
+          roles: authUser.roles,
+          active: true,
+          lastLogin: null
+        }];
+        if (!this.isEditMode) {
+          this.form.patchValue({ assignedToId: authUser.userId });
+        }
+      }
+    }
   }
 
   switchTab(tab: ElementTab): void {

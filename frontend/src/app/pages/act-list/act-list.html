@@ -1,7 +1,7 @@
 <section class="act-list" aria-label="Registro de actos">
   <header class="act-list__header">
     <h1 class="act-list__title">Registro de Actos</h1>
-    @if (auth.canWrite()) {
+    @if (auth.canManage()) {
       <button class="button button--secondary" type="button" (click)="openNewActModal()">
         <lucide-icon name="file-text" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Nuevo acto
@@ -66,7 +66,7 @@
           </section>
           <nav class="act-card__actions" aria-label="Acciones de {{ act.title }}">
             <a class="act-card__action" [routerLink]="['/events', act.id]">Gestionar</a>
-            @if (auth.canWrite()) {
+            @if (auth.canManage()) {
               <button class="act-card__action" type="button" (click)="cloneAct(act)">Clonar</button>
             }
           </nav>

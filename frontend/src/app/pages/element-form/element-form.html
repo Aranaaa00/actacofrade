@@ -70,6 +70,7 @@
         <app-datepicker
           [selectedDate]="form.get('deadline')?.value || ''"
           [allSelectable]="true"
+          [disablePast]="true"
           placeholder="Fecha límite"
           (dateSelected)="onDeadlineSelected($event)">
         </app-datepicker>

@@ -30,6 +30,7 @@
         <app-datepicker
           [selectedDate]="form.get('eventDate')?.value || ''"
           [allSelectable]="true"
+          [disablePast]="true"
           placeholder="Seleccionar fecha"
           (dateSelected)="onDateSelected($event)">
         </app-datepicker>
