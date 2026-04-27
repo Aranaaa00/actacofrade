@@ -60,7 +60,7 @@
         @for (alert of alerts; track alert.description) {
           <li class="dashboard__alert-item">
             <app-badge variant="wood">{{ alert.type }}</app-badge>
-            <p class="dashboard__alert-item-text">{{ alert.description }}</p>
+            <a class="dashboard__alert-item-text" [routerLink]="['/events', alert.eventId]">{{ alert.description }}</a>
           </li>
         }
         @empty {

@@ -13,7 +13,11 @@ import { getEventStatusLabel, getEventStatusBadgeVariant } from '../../shared/ut
 interface Alert {
   type: 'TAREA' | 'INCIDENCIA' | 'CIERRE';
   description: string;
+  eventId: number;
+  eventDate: string;
 }
+
+const MAX_ALERTS = 5;
 
 @Component({
   selector: 'app-dashboard',
@@ -77,22 +81,29 @@ export class Dashboard implements OnInit {
       if (event.pendingTasks > 0) {
         result.push({
           type: 'TAREA',
-          description: `${event.pendingTasks} tarea(s) pendiente(s) en «${event.title}».`
+          description: `${event.pendingTasks} tarea(s) pendiente(s) en «${event.title}».`,
+          eventId: event.id,
+          eventDate: event.eventDate
         });
       }
       if (event.openIncidents > 0) {
         result.push({
           type: 'INCIDENCIA',
-          description: `${event.openIncidents} incidencia(s) abierta(s) en «${event.title}».`
+          description: `${event.openIncidents} incidencia(s) abierta(s) en «${event.title}».`,
+          eventId: event.id,
+          eventDate: event.eventDate
         });
       }
       if (event.status === 'CONFIRMACION' && event.pendingTasks === 0 && event.openIncidents === 0) {
         result.push({
           type: 'CIERRE',
-          description: `«${event.title}» listo para cerrar.`
+          description: `«${event.title}» listo para cerrar.`,
+          eventId: event.id,
+          eventDate: event.eventDate
         });
       }
     }
-    this.alerts = result;
+    result.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
+    this.alerts = result.slice(0, MAX_ALERTS);
   }
 }
