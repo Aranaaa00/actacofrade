@@ -62,6 +62,7 @@ public class DecisionService {
         User reviewedBy = authorizationHelper.isColaboradorOnly(currentUser)
                 ? currentUser
                 : resolveUser(request.reviewedById());
+        authorizationHelper.requireAssignable(reviewedBy);
 
         Decision decision = new Decision();
         decision.setEvent(event);
@@ -89,7 +90,9 @@ public class DecisionService {
             decision.setTitle(SanitizationUtils.sanitize(request.title()));
         }
         if (request.reviewedById() != null) {
-            decision.setReviewedBy(resolveUser(request.reviewedById()));
+            User newReviewer = resolveUser(request.reviewedById());
+            authorizationHelper.requireAssignable(newReviewer);
+            decision.setReviewedBy(newReviewer);
         }
 
         decision.setUpdatedAt(LocalDateTime.now());

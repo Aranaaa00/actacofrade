@@ -70,6 +70,7 @@ public class TaskService {
         User assignedTo = authorizationHelper.isColaboradorOnly(currentUser)
                 ? currentUser
                 : resolveUser(request.assignedToId());
+        authorizationHelper.requireAssignable(assignedTo);
 
         Task task = new Task();
         task.setEvent(event);
@@ -110,7 +111,9 @@ public class TaskService {
             task.setDescription(SanitizationUtils.sanitize(request.description()));
         }
         if (request.assignedToId() != null) {
-            task.setAssignedTo(resolveUser(request.assignedToId()));
+            User newAssignee = resolveUser(request.assignedToId());
+            authorizationHelper.requireAssignable(newAssignee);
+            task.setAssignedTo(newAssignee);
         }
         if (request.deadline() != null) {
             task.setDeadline(request.deadline());

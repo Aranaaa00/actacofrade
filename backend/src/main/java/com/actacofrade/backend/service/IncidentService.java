@@ -59,6 +59,7 @@ public class IncidentService {
         User reportedBy = authorizationHelper.isColaboradorOnly(currentUser)
                 ? currentUser
                 : resolveUser(request.reportedById());
+        authorizationHelper.requireAssignable(reportedBy);
 
         Incident incident = new Incident();
         incident.setEvent(event);
