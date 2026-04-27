@@ -11,4 +11,8 @@ export class UserService {
   findAll(): Observable<UserResponse[]> {
     return this.http.get<UserResponse[]>(this.baseUrl);
   }
+
+  findAssignable(): Observable<UserResponse[]> {
+    return this.http.get<UserResponse[]>(`${this.baseUrl}/assignable`);
+  }
 }

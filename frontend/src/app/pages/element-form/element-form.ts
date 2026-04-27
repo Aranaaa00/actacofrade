@@ -119,7 +119,7 @@ export class ElementForm implements OnInit {
 
   private loadUsers(): void {
     if (this.auth.hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')) {
-      this.userService.findAll().subscribe({
+      this.userService.findAssignable().subscribe({
         next: (users) => this.users = users
       });
     } else {
