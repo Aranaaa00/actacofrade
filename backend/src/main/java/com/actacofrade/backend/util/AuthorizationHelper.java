@@ -26,6 +26,16 @@ public class AuthorizationHelper {
         return user.getRoles().stream().allMatch(r -> r.getCode() == RoleCode.COLABORADOR);
     }
 
+    public boolean isConsultor(User user) {
+        return user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.CONSULTA);
+    }
+
+    public void requireAssignable(User user) {
+        if (user != null && isConsultor(user)) {
+            throw new AccessDeniedException("No se puede asignar a un usuario con rol CONSULTA");
+        }
+    }
+
     public boolean canManageAct(User user, Event event) {
         return isAdmin(user) || isResponsible(user.getId(), event);
     }
