@@ -30,20 +30,26 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<List<UserResponse>> findAll(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.findAll(userDetails.getUsername()));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/assignable")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
+    public ResponseEntity<List<UserResponse>> findAssignable(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userService.findAssignable(userDetails.getUsername()));
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserResponse> findById(@PathVariable Integer id,
                                                  @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.findById(id, userDetails.getUsername()));
     }
 
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<RoleStatsResponse> getStats(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(userService.countByRole(userDetails.getUsername()));
     }

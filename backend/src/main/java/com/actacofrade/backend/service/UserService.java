@@ -36,6 +36,13 @@ public class UserService {
                 .toList();
     }
 
+    public List<UserResponse> findAssignable(String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        return userRepository.findAssignableByHermandadId(hermandadId, RoleCode.CONSULTA).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public UserResponse findById(Integer id, String authenticatedEmail) {
         Integer hermandadId = resolveHermandadId(authenticatedEmail);
         User user = userRepository.findByIdAndHermandadId(id, hermandadId)
