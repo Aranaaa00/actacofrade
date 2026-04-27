@@ -10,6 +10,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.EventSpecification;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.AuthorizationHelper;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,12 +33,14 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final AuthorizationHelper authorizationHelper;
 
     public EventService(EventRepository eventRepository, UserRepository userRepository,
-                        AuditLogService auditLogService) {
+                        AuditLogService auditLogService, AuthorizationHelper authorizationHelper) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.authorizationHelper = authorizationHelper;
     }
 
     public List<EventResponse> findAll(String authenticatedEmail) {
@@ -127,7 +130,9 @@ public class EventService {
             throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
         }
         EventType eventType = EventType.valueOf(request.eventType());
-        User responsible = resolveResponsible(request.responsibleId());
+        User responsible = request.responsibleId() != null
+                ? resolveResponsible(request.responsibleId())
+                : (!authorizationHelper.isAdmin(currentUser) ? currentUser : null);
         String reference = generateReference();
 
         Event event = new Event();
@@ -145,8 +150,12 @@ public class EventService {
     }
 
     public EventResponse update(Integer id, UpdateEventRequest request, String authenticatedEmail) {
-        Integer hermandadId = resolveHermandadId(authenticatedEmail);
-        Event event = findEventForHermandadOrThrow(id, hermandadId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        if (currentUser.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
+        authorizationHelper.requireEventManager(event, currentUser);
 
         if (request.title() != null) {
             event.setTitle(SanitizationUtils.sanitize(request.title()));
@@ -179,8 +188,12 @@ public class EventService {
     }
 
     public EventResponse advanceStatus(Integer id, String authenticatedEmail) {
-        Integer hermandadId = resolveHermandadId(authenticatedEmail);
-        Event event = findEventForHermandadOrThrow(id, hermandadId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        if (currentUser.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
+        authorizationHelper.requireEventManager(event, currentUser);
         EventStatus currentStatus = event.getStatus();
 
         if (currentStatus == EventStatus.CERRADO) {
@@ -198,9 +211,12 @@ public class EventService {
     }
 
     public EventResponse close(Integer id, String authenticatedEmail) {
-        Integer hermandadId = resolveHermandadId(authenticatedEmail);
-        Event event = findEventForHermandadOrThrow(id, hermandadId);
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        if (currentUser.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
+        authorizationHelper.requireEventManager(event, currentUser);
 
         if (event.getStatus() == EventStatus.CERRADO) {
             throw new IllegalStateException("El acto ya se encuentra cerrado");
@@ -226,8 +242,12 @@ public class EventService {
     }
 
     public EventResponse toggleLockForClosing(Integer id, String authenticatedEmail) {
-        Integer hermandadId = resolveHermandadId(authenticatedEmail);
-        Event event = findEventForHermandadOrThrow(id, hermandadId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        if (currentUser.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
+        authorizationHelper.requireEventManager(event, currentUser);
 
         if (event.getStatus() == EventStatus.CERRADO) {
             throw new IllegalStateException("El acto ya esta cerrado y no puede modificarse");
@@ -240,8 +260,12 @@ public class EventService {
     }
 
     public EventResponse clone(Integer id, String authenticatedEmail) {
-        Integer hermandadId = resolveHermandadId(authenticatedEmail);
-        Event original = findEventForHermandadOrThrow(id, hermandadId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        if (currentUser.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Event original = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
+        authorizationHelper.requireEventManager(original, currentUser);
         String reference = generateReference();
 
         Event cloned = new Event();
@@ -251,7 +275,7 @@ public class EventService {
         cloned.setEventDate(LocalDate.now());
         cloned.setLocation(original.getLocation());
         cloned.setObservations(original.getObservations());
-        cloned.setResponsible(original.getResponsible());
+        cloned.setResponsible(currentUser);
         cloned.setStatus(EventStatus.PLANIFICACION);
         cloned.setHermandad(original.getHermandad());
 
@@ -273,6 +297,7 @@ public class EventService {
         return eventRepository.findByIdAndHermandadId(id, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
     }
+
 
     private User findUserByEmailOrThrow(String email) {
         return userRepository.findByEmail(email)

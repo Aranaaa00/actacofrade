@@ -8,11 +8,11 @@ import com.actacofrade.backend.entity.DecisionStatus;
 import com.actacofrade.backend.entity.Event;
 import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.HermandadArea;
-import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.DecisionRepository;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.AuthorizationHelper;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -29,13 +29,16 @@ public class DecisionService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final AuthorizationHelper authorizationHelper;
 
     public DecisionService(DecisionRepository decisionRepository, EventRepository eventRepository,
-                           UserRepository userRepository, AuditLogService auditLogService) {
+                           UserRepository userRepository, AuditLogService auditLogService,
+                           AuthorizationHelper authorizationHelper) {
         this.decisionRepository = decisionRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.authorizationHelper = authorizationHelper;
     }
 
     public List<DecisionResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -54,8 +57,11 @@ public class DecisionService {
     public DecisionResponse create(Integer eventId, CreateDecisionRequest request, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         HermandadArea area = HermandadArea.valueOf(request.area());
-        User reviewedBy = resolveUser(request.reviewedById());
+        User reviewedBy = authorizationHelper.isColaboradorOnly(currentUser)
+                ? currentUser
+                : resolveUser(request.reviewedById());
 
         Decision decision = new Decision();
         decision.setEvent(event);
@@ -64,7 +70,6 @@ public class DecisionService {
         decision.setReviewedBy(reviewedBy);
 
         decisionRepository.save(decision);
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         auditLogService.log(event, "DECISION", decision.getId(), "DECISION_CREATED", currentUser, decision.getTitle());
         return toResponse(decision);
     }
@@ -75,13 +80,7 @@ public class DecisionService {
         Decision decision = findDecisionOrThrow(decisionId, eventId);
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        boolean isColaboradorOnly = currentUser.getRoles().stream()
-                .allMatch(r -> r.getCode() == RoleCode.COLABORADOR);
-        if (isColaboradorOnly) {
-            if (decision.getReviewedBy() == null || !decision.getReviewedBy().getId().equals(currentUser.getId())) {
-                throw new AccessDeniedException("Solo puedes editar las decisiones que tienes asignadas");
-            }
-        }
+        authorizationHelper.requireEventManager(event, currentUser);
 
         if (request.area() != null) {
             decision.setArea(HermandadArea.valueOf(request.area()));
@@ -102,6 +101,8 @@ public class DecisionService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Decision decision = findDecisionOrThrow(decisionId, eventId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         decisionRepository.delete(decision);
     }
 
@@ -115,6 +116,7 @@ public class DecisionService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         decision.setStatus(DecisionStatus.ACCEPTED);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
@@ -132,6 +134,7 @@ public class DecisionService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         decision.setStatus(DecisionStatus.REJECTED);
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);

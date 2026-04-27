@@ -10,6 +10,7 @@ import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.IncidentRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.AuthorizationHelper;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,16 @@ public class IncidentService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final AuthorizationHelper authorizationHelper;
 
     public IncidentService(IncidentRepository incidentRepository, EventRepository eventRepository,
-                           UserRepository userRepository, AuditLogService auditLogService) {
+                           UserRepository userRepository, AuditLogService auditLogService,
+                           AuthorizationHelper authorizationHelper) {
         this.incidentRepository = incidentRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.authorizationHelper = authorizationHelper;
     }
 
     public List<IncidentResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -51,7 +55,10 @@ public class IncidentService {
     public IncidentResponse create(Integer eventId, CreateIncidentRequest request, String authenticatedEmail) {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
-        User reportedBy = resolveUser(request.reportedById());
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        User reportedBy = authorizationHelper.isColaboradorOnly(currentUser)
+                ? currentUser
+                : resolveUser(request.reportedById());
 
         Incident incident = new Incident();
         incident.setEvent(event);
@@ -59,7 +66,6 @@ public class IncidentService {
         incident.setReportedBy(reportedBy);
 
         incidentRepository.save(incident);
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         auditLogService.log(event, "INCIDENT", incident.getId(), "INCIDENT_CREATED", currentUser, incident.getDescription());
         return toResponse(incident);
     }
@@ -68,6 +74,8 @@ public class IncidentService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         incidentRepository.delete(incident);
     }
 
@@ -81,6 +89,7 @@ public class IncidentService {
         }
 
         User resolver = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, resolver);
 
         incident.setStatus(IncidentStatus.RESUELTA);
         incident.setResolvedAt(LocalDateTime.now());
@@ -99,6 +108,8 @@ public class IncidentService {
             throw new IllegalStateException("La incidencia ya esta abierta");
         }
 
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         incident.setStatus(IncidentStatus.ABIERTA);
         incident.setResolvedAt(null);
         incident.setResolvedBy(null);

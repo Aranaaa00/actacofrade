@@ -54,7 +54,7 @@ public class DecisionController {
     }
 
     @PutMapping("/{decisionId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<DecisionResponse> update(@PathVariable Integer eventId,
                                                    @PathVariable Integer decisionId,
                                                    @Valid @RequestBody UpdateDecisionRequest request,

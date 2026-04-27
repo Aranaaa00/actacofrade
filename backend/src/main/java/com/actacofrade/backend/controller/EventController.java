@@ -79,7 +79,7 @@ public class EventController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<EventResponse> create(@Valid @RequestBody CreateEventRequest request,
                                                 @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.create(request, userDetails.getUsername()));
@@ -123,7 +123,7 @@ public class EventController {
     }
 
     @PostMapping("/{id}/clone")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<EventResponse> cloneEvent(@PathVariable Integer id,
                                                     @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED).body(eventService.clone(id, userDetails.getUsername()));

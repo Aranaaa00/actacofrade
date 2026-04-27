@@ -73,7 +73,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/accept")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<TaskResponse> accept(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
                                                @AuthenticationPrincipal UserDetails userDetails) {
@@ -105,7 +105,7 @@ public class TaskController {
     }
 
     @PatchMapping("/{taskId}/reject")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')")
     public ResponseEntity<TaskResponse> reject(@PathVariable Integer eventId,
                                                @PathVariable Integer taskId,
                                                @Valid @RequestBody RejectTaskRequest body,

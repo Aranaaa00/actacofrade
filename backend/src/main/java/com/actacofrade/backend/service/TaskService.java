@@ -1,23 +1,32 @@
 package com.actacofrade.backend.service;
 
 import com.actacofrade.backend.dto.CreateTaskRequest;
+import com.actacofrade.backend.dto.MyTaskResponse;
+import com.actacofrade.backend.dto.MyTaskStatsResponse;
 import com.actacofrade.backend.dto.TaskResponse;
 import com.actacofrade.backend.dto.UpdateTaskRequest;
 import com.actacofrade.backend.entity.Event;
 import com.actacofrade.backend.entity.EventStatus;
-import com.actacofrade.backend.entity.RoleCode;
+import com.actacofrade.backend.entity.EventType;
 import com.actacofrade.backend.entity.Task;
 import com.actacofrade.backend.entity.TaskStatus;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.TaskRepository;
 import com.actacofrade.backend.repository.UserRepository;
+import com.actacofrade.backend.util.AuthorizationHelper;
 import com.actacofrade.backend.util.SanitizationUtils;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,13 +37,16 @@ public class TaskService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final AuditLogService auditLogService;
+    private final AuthorizationHelper authorizationHelper;
 
     public TaskService(TaskRepository taskRepository, EventRepository eventRepository,
-                       UserRepository userRepository, AuditLogService auditLogService) {
+                       UserRepository userRepository, AuditLogService auditLogService,
+                       AuthorizationHelper authorizationHelper) {
         this.taskRepository = taskRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
         this.auditLogService = auditLogService;
+        this.authorizationHelper = authorizationHelper;
     }
 
     public List<TaskResponse> findByEventId(Integer eventId, String authenticatedEmail) {
@@ -51,17 +63,20 @@ public class TaskService {
     }
 
     public TaskResponse create(Integer eventId, CreateTaskRequest request, String authenticatedEmail) {
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
 
-        User assignedTo = resolveUser(request.assignedToId());
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        User assignedTo = authorizationHelper.isColaboradorOnly(currentUser)
+                ? currentUser
+                : resolveUser(request.assignedToId());
 
         Task task = new Task();
         task.setEvent(event);
         task.setTitle(SanitizationUtils.sanitize(request.title()));
         task.setDescription(SanitizationUtils.sanitizeNullable(request.description()));
         task.setAssignedTo(assignedTo);
+        task.setCreatedBy(currentUser);
         task.setDeadline(request.deadline());
 
         taskRepository.save(task);
@@ -71,17 +86,21 @@ public class TaskService {
     }
 
     public TaskResponse update(Integer eventId, Integer taskId, UpdateTaskRequest request, String authenticatedEmail) {
-        Event event = findEventOrThrow(eventId);
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
 
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        boolean isColaboradorOnly = currentUser.getRoles().stream()
-                .allMatch(r -> r.getCode() == RoleCode.COLABORADOR);
-        if (isColaboradorOnly) {
-            if (task.getAssignedTo() == null || !task.getAssignedTo().getId().equals(currentUser.getId())) {
-                throw new AccessDeniedException("Solo puedes editar las tareas que tienes asignadas");
+        if (authorizationHelper.isColaboradorOnly(currentUser)) {
+            Integer creatorId = task.getCreatedBy() != null ? task.getCreatedBy().getId() : null;
+            if (!authorizationHelper.isOwner(currentUser.getId(), creatorId)) {
+                throw new AccessDeniedException("Solo puedes editar las tareas que has creado");
             }
+            if (request.assignedToId() != null && !request.assignedToId().equals(currentUser.getId())) {
+                throw new AccessDeniedException("No puedes asignar esta tarea a otro usuario");
+            }
+        } else {
+            authorizationHelper.requireEventManager(event, currentUser);
         }
 
         if (request.title() != null) {
@@ -104,10 +123,11 @@ public class TaskService {
     }
 
     public void delete(Integer eventId, Integer taskId, String authenticatedEmail) {
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
         String taskTitle = task.getTitle();
         taskRepository.delete(task);
         auditLogService.log(event, "TASK", taskId, "TASK_DELETED", currentUser, taskTitle);
@@ -124,7 +144,7 @@ public class TaskService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        validateOwnershipOrManager(task, currentUser);
+        authorizationHelper.requireEventManager(event, currentUser);
 
         task.setStatus(TaskStatus.ACCEPTED);
         task.setRejectionReason(null);
@@ -145,7 +165,7 @@ public class TaskService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        validateOwnershipOrManager(task, currentUser);
+        authorizationHelper.requireTaskAssigned(task, currentUser);
 
         task.setStatus(TaskStatus.IN_PREPARATION);
         task.setUpdatedAt(LocalDateTime.now());
@@ -165,7 +185,7 @@ public class TaskService {
         }
 
         User confirmer = findUserByEmailOrThrow(authenticatedEmail);
-        validateOwnershipOrManager(task, confirmer);
+        authorizationHelper.requireTaskAssigned(task, confirmer);
 
         task.setStatus(TaskStatus.CONFIRMED);
         task.setConfirmedBy(confirmer);
@@ -187,7 +207,7 @@ public class TaskService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        validateOwnershipOrManager(task, currentUser);
+        authorizationHelper.requireTaskAssigned(task, currentUser);
 
         task.setStatus(TaskStatus.COMPLETED);
         task.setCompletedAt(LocalDateTime.now());
@@ -214,15 +234,7 @@ public class TaskService {
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        boolean isManager = currentUser.getRoles().stream()
-                .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR || r.getCode() == RoleCode.RESPONSABLE);
-        if (!isManager) {
-            boolean isAssigned = task.getAssignedTo() != null
-                    && task.getAssignedTo().getId().equals(currentUser.getId());
-            if (!isAssigned) {
-                throw new AccessDeniedException("Solo puedes rechazar tus propias tareas");
-            }
-        }
+        authorizationHelper.requireEventManager(event, currentUser);
 
         task.setStatus(TaskStatus.REJECTED);
         task.setRejectionReason(SanitizationUtils.sanitize(rejectionReason));
@@ -234,6 +246,7 @@ public class TaskService {
     }
 
     public TaskResponse resetToPlanned(Integer eventId, Integer taskId, String authenticatedEmail) {
+        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
@@ -242,7 +255,7 @@ public class TaskService {
             throw new IllegalStateException("La tarea ya esta en estado PLANNED");
         }
 
-        User currentUser = findUserByEmailOrThrow(authenticatedEmail);
+        authorizationHelper.requireEventManager(event, currentUser);
 
         task.setStatus(TaskStatus.PLANNED);
         task.setRejectionReason(null);
@@ -254,6 +267,79 @@ public class TaskService {
         auditLogService.log(event, "TASK", task.getId(), "TASK_RESET", currentUser, task.getTitle());
         recalculateEventProgress(event);
         return toResponse(task);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MyTaskResponse> findMyTasks(String authenticatedEmail, String eventType,
+                                            String statusGroup, String search, Pageable pageable) {
+        User user = findUserByEmailOrThrow(authenticatedEmail);
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Integer userId = user.getId();
+        Integer hermandadId = user.getHermandad().getId();
+
+        Specification<Task> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(cb.equal(root.get("assignedTo").get("id"), userId));
+            predicates.add(cb.equal(root.get("event").get("hermandad").get("id"), hermandadId));
+
+            if (eventType != null && !eventType.isBlank()) {
+                predicates.add(cb.equal(root.get("event").get("eventType"), EventType.valueOf(eventType)));
+            }
+
+            if (statusGroup != null && !statusGroup.isBlank()) {
+                List<TaskStatus> statuses = resolveStatusGroup(statusGroup);
+                predicates.add(root.get("status").in(statuses));
+            }
+
+            if (search != null && !search.isBlank()) {
+                String sanitized = SanitizationUtils.sanitize(search).toLowerCase();
+                predicates.add(cb.like(cb.lower(root.get("title")), "%" + sanitized + "%"));
+            }
+
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                query.orderBy(
+                        cb.asc(cb.selectCase()
+                                .when(cb.equal(root.get("status"), TaskStatus.REJECTED), 1)
+                                .otherwise(0)),
+                        cb.asc(cb.coalesce(root.get("deadline"), cb.literal(LocalDate.of(9999, 12, 31)))),
+                        cb.desc(root.get("createdAt"))
+                );
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return taskRepository.findAll(spec, pageable).map(this::toMyTaskResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public MyTaskStatsResponse getMyTaskStats(String authenticatedEmail) {
+        User user = findUserByEmailOrThrow(authenticatedEmail);
+        if (user.getHermandad() == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        Integer userId = user.getId();
+        Integer hermandadId = user.getHermandad().getId();
+
+        long pendingCount = taskRepository.countByAssignedToIdAndStatusAndEventHermandadId(
+                userId, TaskStatus.PLANNED, hermandadId);
+        long confirmedCount = taskRepository.countByAssignedToIdAndStatusInAndEventHermandadId(
+                userId, List.of(TaskStatus.ACCEPTED, TaskStatus.IN_PREPARATION, TaskStatus.CONFIRMED, TaskStatus.COMPLETED), hermandadId);
+        long rejectedCount = taskRepository.countByAssignedToIdAndStatusAndEventHermandadId(
+                userId, TaskStatus.REJECTED, hermandadId);
+
+        return new MyTaskStatsResponse(pendingCount, confirmedCount, rejectedCount);
+    }
+
+    private List<TaskStatus> resolveStatusGroup(String statusGroup) {
+        return switch (statusGroup) {
+            case "PENDING" -> List.of(TaskStatus.PLANNED);
+            case "CONFIRMED" -> List.of(TaskStatus.ACCEPTED, TaskStatus.IN_PREPARATION, TaskStatus.CONFIRMED, TaskStatus.COMPLETED);
+            case "REJECTED" -> List.of(TaskStatus.REJECTED);
+            default -> List.of(TaskStatus.values());
+        };
     }
 
     private void recalculateEventProgress(Event event) {
@@ -298,11 +384,6 @@ public class TaskService {
         }
     }
 
-    private Event findEventOrThrow(Integer eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Acto no encontrado con id: " + eventId));
-    }
-
     private Event findEventForHermandadOrThrow(Integer eventId, Integer hermandadId) {
         return eventRepository.findByIdAndHermandadId(eventId, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Acto no encontrado o no pertenece a tu hermandad"));
@@ -336,16 +417,6 @@ public class TaskService {
                 .orElseThrow(() -> new IllegalArgumentException("Usuario autenticado no encontrado: " + email));
     }
 
-    private void validateOwnershipOrManager(Task task, User user) {
-        boolean isAssigned = task.getAssignedTo() != null
-                && task.getAssignedTo().getId().equals(user.getId());
-        boolean isManager = user.getRoles().stream()
-                .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR || r.getCode() == RoleCode.RESPONSABLE);
-        if (!isAssigned && !isManager) {
-            throw new AccessDeniedException("Solo el usuario asignado o un responsable puede actuar sobre esta tarea");
-        }
-    }
-
     private TaskResponse toResponse(Task task) {
         Integer assignedToId = null;
         String assignedToName = null;
@@ -353,6 +424,8 @@ public class TaskService {
             assignedToId = task.getAssignedTo().getId();
             assignedToName = task.getAssignedTo().getFullName();
         }
+
+        Integer createdByUserId = task.getCreatedBy() != null ? task.getCreatedBy().getId() : null;
 
         Integer confirmedById = null;
         String confirmedByName = null;
@@ -368,6 +441,7 @@ public class TaskService {
                 task.getDescription(),
                 assignedToId,
                 assignedToName,
+                createdByUserId,
                 task.getStatus().name(),
                 task.getDeadline(),
                 task.getRejectionReason(),
@@ -376,6 +450,22 @@ public class TaskService {
                 task.getConfirmedAt(),
                 task.getCompletedAt(),
                 task.getCreatedAt(),
+                task.getUpdatedAt()
+        );
+    }
+
+    private MyTaskResponse toMyTaskResponse(Task task) {
+        return new MyTaskResponse(
+                task.getId(),
+                task.getEvent().getId(),
+                task.getEvent().getEventType().name(),
+                task.getEvent().getTitle(),
+                task.getTitle(),
+                task.getStatus().name(),
+                task.getDeadline(),
+                task.getRejectionReason(),
+                task.getConfirmedAt(),
+                task.getCompletedAt(),
                 task.getUpdatedAt()
         );
     }

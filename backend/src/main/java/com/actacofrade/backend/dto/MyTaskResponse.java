@@ -3,21 +3,16 @@ package com.actacofrade.backend.dto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public record TaskResponse(
+public record MyTaskResponse(
         Integer id,
         Integer eventId,
+        String eventType,
+        String eventTitle,
         String title,
-        String description,
-        Integer assignedToId,
-        String assignedToName,
-        Integer createdByUserId,
         String status,
         LocalDate deadline,
         String rejectionReason,
-        Integer confirmedById,
-        String confirmedByName,
         LocalDateTime confirmedAt,
         LocalDateTime completedAt,
-        LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}
