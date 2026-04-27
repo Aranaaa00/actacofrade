@@ -133,6 +133,49 @@ export class MyTasks implements OnInit, OnDestroy {
     });
   }
 
+  startPreparationTask(task: MyTaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.startPreparation(task.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  confirmProgressTask(task: MyTaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.confirm(task.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  completeTask(task: MyTaskResponse): void {
+    this.processingTaskId = task.id;
+    this.taskService.complete(task.eventId, task.id).subscribe({
+      next: () => {
+        this.processingTaskId = null;
+        this.loadData();
+      },
+      error: () => {
+        this.processingTaskId = null;
+      }
+    });
+  }
+
+  canManageFromMyTasks(_task: MyTaskResponse): boolean {
+    return this.auth.canManage();
+  }
+
   openRejectModal(task: MyTaskResponse): void {
     this.rejectingTask = task;
     this.showRejectModal = true;

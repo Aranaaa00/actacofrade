@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { EventResponse } from '../models/event.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -62,6 +63,10 @@ export class AuthService {
 
   getUserId(): number | null {
     return this.getUser()?.userId ?? null;
+  }
+
+  canManageAct(event: EventResponse | null): boolean {
+    return this.isAdmin() || (event !== null && event.responsibleId === this.getUserId());
   }
 
   private storeSession(response: AuthResponse): void {

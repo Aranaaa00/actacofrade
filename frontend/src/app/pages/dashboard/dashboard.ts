@@ -1,9 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { EventService } from '../../services/event.service';
+import { TaskService } from '../../services/task.service';
 import { EventResponse } from '../../models/event.model';
+import { MyTaskStats } from '../../models/task.model';
 import { Badge } from '../../shared/components/badge/badge';
 import { getEventStatusLabel, getEventStatusBadgeVariant } from '../../shared/utils/label-maps.utils';
 
@@ -20,14 +23,16 @@ interface Alert {
 export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly eventService = inject(EventService);
+  private readonly taskService = inject(TaskService);
 
   events: EventResponse[] = [];
   alerts: Alert[] = [];
+  myTaskStats: MyTaskStats = { pendingCount: 0, confirmedCount: 0, rejectedCount: 0 };
   loading = true;
   errorMessage = '';
 
   get pendingTasksCount(): number {
-    return this.events.reduce((sum, e) => sum + e.pendingTasks, 0);
+    return this.myTaskStats.pendingCount;
   }
 
   get readyToCloseCount(): number {
@@ -46,9 +51,13 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    this.eventService.findAll().subscribe({
-      next: (events) => {
+    forkJoin({
+      events: this.eventService.findAll(),
+      stats: this.taskService.getMyTaskStats()
+    }).subscribe({
+      next: ({ events, stats }) => {
         this.events = events;
+        this.myTaskStats = stats;
         this.buildAlerts();
         this.loading = false;
       },

@@ -22,7 +22,7 @@ export class Sidebar implements OnInit {
   actsMenuOpen = false;
 
   ngOnInit(): void {
-    this.actsMenuOpen = this.router.url.startsWith('/events');
+    this.actsMenuOpen = this.router.url.startsWith('/events') || this.router.url.startsWith('/my-tasks');
   }
 
   toggleActsMenu(): void {

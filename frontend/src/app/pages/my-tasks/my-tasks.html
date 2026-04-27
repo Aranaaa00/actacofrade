@@ -53,15 +53,45 @@
             <h2 class="my-tasks__card-title">{{ task.title }}</h2>
             <app-badge [variant]="getSimplifiedBadgeVariant(task.status)">{{ getSimplifiedStatusLabel(task.status) }}</app-badge>
           </header>
-          @if (task.status === 'PLANNED' && auth.canWrite()) {
+          @if (task.status === 'PLANNED') {
+            <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
+              @if (canManageFromMyTasks(task)) {
+                <button class="my-tasks__action my-tasks__action--confirm" type="button"
+                  [disabled]="processingTaskId === task.id"
+                  (click)="confirmTask(task)">Aceptar →</button>
+                <button class="my-tasks__action my-tasks__action--reject" type="button"
+                  [disabled]="processingTaskId === task.id"
+                  (click)="openRejectModal(task)">Rechazar →</button>
+              }
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]">Ver acto →</a>
+            </nav>
+          } @else if (task.status === 'ACCEPTED') {
             <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
               <button class="my-tasks__action my-tasks__action--confirm" type="button"
                 [disabled]="processingTaskId === task.id"
-                (click)="confirmTask(task)">Confirmar →</button>
-              <button class="my-tasks__action my-tasks__action--reject" type="button"
+                (click)="startPreparationTask(task)">Preparar →</button>
+              @if (canManageFromMyTasks(task)) {
+                <button class="my-tasks__action my-tasks__action--reject" type="button"
+                  [disabled]="processingTaskId === task.id"
+                  (click)="openRejectModal(task)">Rechazar →</button>
+              }
+            </nav>
+          } @else if (task.status === 'IN_PREPARATION') {
+            <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
+              <button class="my-tasks__action my-tasks__action--confirm" type="button"
                 [disabled]="processingTaskId === task.id"
-                (click)="openRejectModal(task)">Rechazar →</button>
-              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]">Pedir más info →</a>
+                (click)="confirmProgressTask(task)">Confirmar →</button>
+              @if (canManageFromMyTasks(task)) {
+                <button class="my-tasks__action my-tasks__action--reject" type="button"
+                  [disabled]="processingTaskId === task.id"
+                  (click)="openRejectModal(task)">Rechazar →</button>
+              }
+            </nav>
+          } @else if (task.status === 'CONFIRMED') {
+            <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
+              <button class="my-tasks__action my-tasks__action--confirm" type="button"
+                [disabled]="processingTaskId === task.id"
+                (click)="completeTask(task)">Completar →</button>
             </nav>
           } @else if (task.status === 'REJECTED') {
             <footer class="my-tasks__card-footer">
@@ -72,7 +102,7 @@
             </footer>
           } @else {
             <footer class="my-tasks__card-footer">
-              <p class="my-tasks__card-date">Confirmado el {{ formatDateTime(task.confirmedAt || task.updatedAt) }}</p>
+              <p class="my-tasks__card-date">Completado el {{ formatDateTime(task.completedAt || task.updatedAt) }}</p>
             </footer>
           }
         </section>

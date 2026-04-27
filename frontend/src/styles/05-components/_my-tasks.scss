@@ -1,0 +1,237 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.my-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: $space-24;
+  padding: $space-24 $space-16;
+
+  @include from-tablet {
+    padding: $space-32 $space-24;
+  }
+
+  @include from-desktop {
+    padding: $space-48 $space-32;
+  }
+}
+
+.my-tasks__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-16;
+}
+
+.my-tasks__title {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.my-tasks__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $space-12;
+  list-style: none;
+
+  @include from-tablet {
+    gap: $space-16;
+  }
+}
+
+.my-tasks__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $space-8;
+  padding: $space-24 $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-bg);
+  border-radius: $radius-2;
+}
+
+.my-tasks__stat-number {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  line-height: 1;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.my-tasks__stat-label {
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.my-tasks__cards {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+  overflow: hidden;
+}
+
+.my-tasks__card {
+  display: flex;
+  align-items: stretch;
+  background-color: var(--bg-surface);
+  border-bottom: $border-1 solid var(--border-default);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.my-tasks__card--dark {
+  background-color: var(--bg-inverse);
+
+  & .my-tasks__card-title {
+    color: var(--text-on-dark);
+  }
+
+  & .my-tasks__card-date {
+    color: var(--text-on-dark-muted);
+  }
+
+  & .my-tasks__card-reason {
+    color: var(--text-on-dark-muted);
+  }
+
+  & .my-tasks__action {
+    color: var(--text-on-dark-muted);
+
+    &:hover,
+    &:active {
+      color: var(--nav-active);
+    }
+  }
+
+  & .my-tasks__action--confirm {
+    color: var(--text-on-dark);
+  }
+
+  & .badge--pending {
+    border-color: var(--nav-active);
+    color: var(--nav-active);
+  }
+
+  & .badge--confirmed {
+    border-color: var(--nav-active);
+    color: var(--nav-active);
+  }
+
+  & .badge--rejected {
+    border-color: var(--text-on-dark-muted);
+    color: var(--text-on-dark-muted);
+  }
+}
+
+.my-tasks__card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $space-12;
+  padding: $space-16;
+  min-width: 0;
+
+  @include from-desktop {
+    padding: $space-24;
+  }
+}
+
+.my-tasks__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-12;
+  flex-wrap: wrap;
+}
+
+.my-tasks__card-title {
+  font-family: $font-heading;
+  font-size: $text-body;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.my-tasks__card-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-16;
+  flex-wrap: wrap;
+}
+
+.my-tasks__action {
+  @include focus-visible;
+  @include transition(color);
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    color: var(--nav-active);
+  }
+
+  &:disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.my-tasks__action--reject {
+  color: var(--text-secondary);
+}
+
+.my-tasks__action--info {
+  color: var(--text-secondary);
+}
+
+.my-tasks__card-footer {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+}
+
+.my-tasks__card-date {
+  font-size: $text-paragraph;
+  color: var(--text-secondary);
+}
+
+.my-tasks__card-reason {
+  font-size: $text-paragraph;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.my-tasks__loading {
+  font-size: $text-body;
+  color: var(--text-secondary);
+}

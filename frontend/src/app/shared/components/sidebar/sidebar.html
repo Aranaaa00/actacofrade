@@ -30,7 +30,7 @@
             </a>
           </li>
           <li>
-            <a class="sidebar__sublink" (click)="closed.emit()">
+            <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
               Mis Tareas
             </a>
           </li>
@@ -38,7 +38,7 @@
       }
     </li>
     <li>
-      <a class="sidebar__link" (click)="closed.emit()">
+      <a class="sidebar__link" routerLink="/history" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
         <lucide-icon name="clock" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
         Historial
       </a>

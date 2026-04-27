@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { TaskResponse, CreateTaskRequest, UpdateTaskRequest } from '../models/task.model';
+import { TaskResponse, CreateTaskRequest, UpdateTaskRequest, MyTaskPage, MyTaskStats } from '../models/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskService {
@@ -50,5 +50,25 @@ export class TaskService {
 
   reset(eventId: number, taskId: number): Observable<TaskResponse> {
     return this.http.patch<TaskResponse>(`${this.baseUrl}/${eventId}/tasks/${taskId}/reset`, {});
+  }
+
+  findMyTasks(params: {
+    eventType?: string;
+    statusGroup?: string;
+    search?: string;
+    page?: number;
+    size?: number;
+  }): Observable<MyTaskPage> {
+    const httpParams: Record<string, string> = {};
+    if (params.eventType) httpParams['eventType'] = params.eventType;
+    if (params.statusGroup) httpParams['statusGroup'] = params.statusGroup;
+    if (params.search) httpParams['search'] = params.search;
+    if (params.page !== undefined) httpParams['page'] = params.page.toString();
+    if (params.size !== undefined) httpParams['size'] = params.size.toString();
+    return this.http.get<MyTaskPage>('/api/my-tasks', { params: httpParams });
+  }
+
+  getMyTaskStats(): Observable<MyTaskStats> {
+    return this.http.get<MyTaskStats>('/api/my-tasks/stats');
   }
 }
