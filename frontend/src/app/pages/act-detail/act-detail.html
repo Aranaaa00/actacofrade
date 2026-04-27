@@ -18,7 +18,7 @@
       <aside class="act-detail__header-side">
         <app-badge [variant]="statusVariant" styleClass="act-detail__status-badge">[{{ statusLabel }}]</app-badge>
         <nav class="act-detail__header-links" aria-label="Acciones del acto">
-          <a class="act-detail__header-link" (click)="openExportModal()" role="button" tabindex="0" (keydown.enter)="openExportModal()">Exportar acta →</a>
+          <button class="act-detail__header-link" type="button" (click)="openExportModal()">Exportar acta →</button>
           @if (auth.canManageAct(event)) {
             <button class="act-detail__header-link" type="button" (click)="cloneAct()">Clonar →</button>
           }
@@ -292,59 +292,82 @@
 </section>
 
 @if (showExportModal) {
-  <aside class="modal-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="export-modal-title"
-    (click)="closeExportModal()">
-    <article class="modal" (click)="$event.stopPropagation()">
-      <header class="modal__header">
-        <h2 class="modal__title" id="export-modal-title">Exportar acta</h2>
-        <button class="modal__close" type="button" (click)="closeExportModal()" aria-label="Cerrar">
-          <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
-        </button>
-      </header>
-      <section class="modal__body">
-        <fieldset class="form-field">
-          <legend class="form-field__label">Formato</legend>
-          <section class="export-modal__formats">
-            <button type="button" class="button"
-              [class.button--primary]="exportFormat === 'PDF'"
-              [class.button--secondary]="exportFormat !== 'PDF'"
-              (click)="exportFormat = 'PDF'">PDF</button>
-            <button type="button" class="button"
-              [class.button--primary]="exportFormat === 'CSV'"
-              [class.button--secondary]="exportFormat !== 'CSV'"
-              (click)="exportFormat = 'CSV'">CSV</button>
+  <app-modal-overlay
+    modalClass="export-modal"
+    titleId="export-modal-title"
+    (closed)="closeExportModal()">
+
+    <h2 modalTitle class="modal__title" id="export-modal-title">Exportar resumen</h2>
+
+    <section class="modal__body export-modal__body">
+      @if (event) {
+        <article class="export-modal__act-card">
+          <aside class="export-modal__act-band" aria-hidden="true">
+            <span class="export-modal__act-band-label">{{ getEventTypeLabel(event.eventType) }}</span>
+          </aside>
+          <section class="export-modal__act-info">
+            <p class="export-modal__act-title">{{ event.title }}</p>
+            <p class="export-modal__act-meta">Ref: {{ event.reference }} · {{ formatDate(event.eventDate) }} · {{ event.responsibleName || '—' }}</p>
           </section>
-        </fieldset>
-        <fieldset class="form-field">
-          <legend class="form-field__label">Secciones</legend>
-          <ul class="export-modal__sections">
-            @for (opt of exportSectionOptions; track opt.value) {
-              <li>
-                <label class="export-modal__section-label">
-                  <input type="checkbox"
-                    [checked]="isExportSectionSelected(opt.value)"
-                    (change)="toggleExportSection(opt.value)" />
-                  {{ opt.label }}
-                </label>
-              </li>
-            }
-          </ul>
-          @if (exportSubmitted && exportSections.length === 0) {
-            <small class="form-field__error" role="alert">Selecciona al menos una sección</small>
+        </article>
+      }
+
+      <fieldset class="export-modal__fieldset export-modal__fieldset--format">
+        <legend class="export-modal__legend">Formato de exportación</legend>
+        <section class="export-modal__formats" role="radiogroup" aria-label="Formato de exportación">
+          @for (fmt of exportFormatOptions; track fmt.value) {
+            <button type="button"
+              class="export-modal__format-card"
+              role="radio"
+              [class.export-modal__format-card--selected]="exportFormat === fmt.value"
+              [attr.aria-checked]="exportFormat === fmt.value"
+              (click)="selectExportFormat(fmt.value)">
+              <span class="export-modal__format-radio"
+                [class.export-modal__format-radio--checked]="exportFormat === fmt.value"
+                aria-hidden="true"></span>
+              <span class="export-modal__format-body">
+                <span class="export-modal__format-name">{{ fmt.label }}</span>
+                <span class="export-modal__format-desc">{{ fmt.description }}</span>
+              </span>
+            </button>
           }
-        </fieldset>
-      </section>
-      <footer class="modal__footer">
-        <button class="button button--secondary" type="button" (click)="closeExportModal()">Cancelar</button>
-        <button class="button button--primary" type="button"
-          [disabled]="exportLoading"
-          (click)="doExport()">
-          @if (exportLoading) { Exportando... } @else { Exportar }
-        </button>
-      </footer>
-    </article>
-  </aside>
+        </section>
+      </fieldset>
+
+      <fieldset class="export-modal__fieldset export-modal__fieldset--sections">
+        <legend class="export-modal__legend">Incluir en el resumen</legend>
+        <ul class="export-modal__items" role="group" aria-label="Secciones a incluir">
+          @for (opt of exportSectionOptions; track opt.value) {
+            <li class="export-modal__item">
+              <button type="button"
+                class="export-modal__item-label"
+                role="checkbox"
+                [attr.aria-checked]="isExportSectionSelected(opt.value)"
+                (click)="toggleExportSection(opt.value)">
+                <span class="export-modal__item-name"
+                  [class.export-modal__item-name--unchecked]="!isExportSectionSelected(opt.value)">
+                  {{ opt.label }}
+                </span>
+                <span class="export-modal__item-check"
+                  [class.export-modal__item-check--checked]="isExportSectionSelected(opt.value)"
+                  aria-hidden="true"></span>
+              </button>
+            </li>
+          }
+        </ul>
+        @if (exportSubmitted && exportSections.length === 0) {
+          <small class="form-field__error" role="alert">Selecciona al menos una sección</small>
+        }
+      </fieldset>
+    </section>
+
+    <footer class="modal__footer">
+      <button class="button button--secondary" type="button" (click)="closeExportModal()">Cancelar</button>
+      <button class="button button--primary" type="button"
+        [disabled]="exportLoading"
+        (click)="doExport()">
+        @if (exportLoading) { Generando... } @else { Generar y descargar }
+      </button>
+    </footer>
+  </app-modal-overlay>
 }

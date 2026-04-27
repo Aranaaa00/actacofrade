@@ -5,9 +5,10 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  padding: $space-32 $space-16;
+  overflow-y: auto;
   background-color: var(--overlay-modal);
   z-index: 100;
 }
@@ -16,10 +17,7 @@
   background-color: var(--bg-surface);
   width: 100%;
   max-width: 32rem;
-  max-height: 90vh;
-  overflow-y: auto;
   padding: $space-32;
-  margin: $space-16;
 }
 
 .modal__header {

@@ -1,6 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
@@ -8,6 +7,7 @@ import { Banner } from '../../shared/components/banner/banner';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
+import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
 import { EventService } from '../../services/event.service';
@@ -53,7 +53,7 @@ interface StepInfo {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, FormsModule, RejectModal],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -87,11 +87,15 @@ export class ActDetail implements OnInit {
   exportLoading = false;
 
   readonly exportSectionOptions = [
-    { value: 'OBSERVATIONS', label: 'Observaciones' },
-    { value: 'TASKS', label: 'Tareas' },
-    { value: 'DECISIONS', label: 'Decisiones' },
-    { value: 'INCIDENTS', label: 'Incidencias' },
-    { value: 'HISTORY', label: 'Historial' },
+    { value: 'TASKS', label: 'Tareas y responsables' },
+    { value: 'DECISIONS', label: 'Decisiones tomadas' },
+    { value: 'INCIDENTS', label: 'Incidencias registradas' },
+    { value: 'OBSERVATIONS', label: 'Observaciones del acto' },
+  ];
+
+  readonly exportFormatOptions: ReadonlyArray<{ value: 'PDF' | 'CSV'; label: string; description: string }> = [
+    { value: 'PDF', label: 'PDF', description: 'Documento con membrete' },
+    { value: 'CSV', label: 'CSV', description: 'Tabla para Excel' },
   ];
 
   event: EventResponse | null = null;
@@ -217,12 +221,18 @@ export class ActDetail implements OnInit {
   }
 
   openExportModal(): void {
+    this.exportFormat = 'PDF';
+    this.exportSections = ['TASKS', 'DECISIONS', 'INCIDENTS'];
     this.exportSubmitted = false;
     this.showExportModal = true;
   }
 
   closeExportModal(): void {
     this.showExportModal = false;
+  }
+
+  selectExportFormat(format: 'PDF' | 'CSV'): void {
+    this.exportFormat = format;
   }
 
   isExportSectionSelected(value: string): boolean {
