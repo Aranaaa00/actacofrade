@@ -83,7 +83,8 @@ public class DashboardService {
     }
 
     private List<EventResponse> loadRecentEvents(Integer hermandadId) {
-        Specification<Event> spec = Specification.where(EventSpecification.hasHermandad(hermandadId));
+        Specification<Event> spec = Specification.where(EventSpecification.hasHermandad(hermandadId))
+                .and(EventSpecification.isNotClosed());
         return eventRepository.findAll(
                 spec,
                 PageRequest.of(0, RECENT_EVENTS_LIMIT, Sort.by(Sort.Direction.DESC, "eventDate"))
