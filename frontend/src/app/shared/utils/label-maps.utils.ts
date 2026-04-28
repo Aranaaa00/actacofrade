@@ -182,7 +182,7 @@ const SIMPLIFIED_TASK_STATUS_LABELS: Record<string, string> = {
   'ACCEPTED': 'Confirmada',
   'IN_PREPARATION': 'Confirmada',
   'CONFIRMED': 'Confirmada',
-  'COMPLETED': 'Confirmada',
+  'COMPLETED': 'Completada',
   'REJECTED': 'Rechazada',
 };
 
