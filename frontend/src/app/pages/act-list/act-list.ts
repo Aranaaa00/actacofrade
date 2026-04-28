@@ -97,7 +97,7 @@ export class ActList implements OnInit, OnDestroy {
     this.showNewActModal = false;
   }
 
-  onActCreated(event: EventResponse): void {
+  onActCreated(): void {
     this.showNewActModal = false;
     this.loadAvailableDates();
     this.loadEvents();

@@ -102,13 +102,6 @@ const HISTORY_BADGE_VARIANTS: Record<string, string> = {
   'EVENT': 'wood',
 };
 
-const STEP_LABELS: Record<string, string> = {
-  'PLANIFICACION': 'Planificación',
-  'PREPARACION': 'Preparación',
-  'CONFIRMACION': 'Confirmación',
-  'CIERRE': 'Cierre',
-};
-
 const STEP_INDEX_MAP: Record<string, number> = {
   'PLANIFICACION': 1,
   'PREPARACION': 2,
@@ -167,10 +160,6 @@ export function getEntityTypeLabel(entityType: string): string {
 
 export function getHistoryBadgeVariant(entityType: string): string {
   return HISTORY_BADGE_VARIANTS[entityType] || 'neutral';
-}
-
-export function getStepLabel(key: string): string {
-  return STEP_LABELS[key] || key;
 }
 
 export function getStepIndex(status: string): number {
