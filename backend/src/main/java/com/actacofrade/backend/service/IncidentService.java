@@ -56,7 +56,7 @@ public class IncidentService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
-        User reportedBy = authorizationHelper.isColaboradorOnly(currentUser)
+        User reportedBy = authorizationHelper.actsAsCollaboratorInEvent(currentUser, event)
                 ? currentUser
                 : resolveUser(request.reportedById());
         authorizationHelper.requireAssignable(reportedBy);

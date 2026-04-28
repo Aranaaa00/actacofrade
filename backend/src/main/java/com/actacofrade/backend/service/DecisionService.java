@@ -59,7 +59,7 @@ public class DecisionService {
         validateEventNotClosed(event);
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         HermandadArea area = HermandadArea.valueOf(request.area());
-        User reviewedBy = authorizationHelper.isColaboradorOnly(currentUser)
+        User reviewedBy = authorizationHelper.actsAsCollaboratorInEvent(currentUser, event)
                 ? currentUser
                 : resolveUser(request.reviewedById());
         authorizationHelper.requireAssignable(reviewedBy);

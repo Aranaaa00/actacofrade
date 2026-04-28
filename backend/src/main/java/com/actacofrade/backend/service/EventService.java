@@ -329,7 +329,7 @@ public class EventService {
         return String.format("%d/%04d", year, nextNumber);
     }
 
-    private EventResponse toResponse(Event event) {
+    public EventResponse toResponse(Event event) {
         Integer responsibleId = null;
         String responsibleName = null;
         if (event.getResponsible() != null) {

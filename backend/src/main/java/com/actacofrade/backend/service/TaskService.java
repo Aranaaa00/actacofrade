@@ -24,7 +24,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,7 @@ public class TaskService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
 
-        User assignedTo = authorizationHelper.isColaboradorOnly(currentUser)
+        User assignedTo = authorizationHelper.actsAsCollaboratorInEvent(currentUser, event)
                 ? currentUser
                 : resolveUser(request.assignedToId());
         authorizationHelper.requireAssignable(assignedTo);
@@ -91,8 +90,9 @@ public class TaskService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
+        authorizationHelper.requireTaskNotClosedOrAdmin(task, currentUser);
 
-        if (authorizationHelper.isColaboradorOnly(currentUser)) {
+        if (authorizationHelper.actsAsCollaboratorInEvent(currentUser, event)) {
             Integer creatorId = task.getCreatedBy() != null ? task.getCreatedBy().getId() : null;
             if (!authorizationHelper.isOwner(currentUser.getId(), creatorId)) {
                 throw new AccessDeniedException("Solo puedes editar las tareas que has creado");
@@ -100,8 +100,6 @@ public class TaskService {
             if (request.assignedToId() != null && !request.assignedToId().equals(currentUser.getId())) {
                 throw new AccessDeniedException("No puedes asignar esta tarea a otro usuario");
             }
-        } else {
-            authorizationHelper.requireEventManager(event, currentUser);
         }
 
         if (request.title() != null) {
@@ -130,6 +128,7 @@ public class TaskService {
         Event event = findEventForHermandadOrThrow(eventId, resolveHermandadId(authenticatedEmail));
         validateEventNotClosed(event);
         Task task = findTaskOrThrow(taskId, eventId);
+        authorizationHelper.requireTaskNotClosedOrAdmin(task, currentUser);
         authorizationHelper.requireEventManager(event, currentUser);
         String taskTitle = task.getTitle();
         taskRepository.delete(task);
@@ -258,6 +257,7 @@ public class TaskService {
             throw new IllegalStateException("La tarea ya esta en estado PLANNED");
         }
 
+        authorizationHelper.requireTaskNotClosedOrAdmin(task, currentUser);
         authorizationHelper.requireEventManager(event, currentUser);
 
         task.setStatus(TaskStatus.PLANNED);
@@ -304,9 +304,8 @@ public class TaskService {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
                 query.orderBy(
                         cb.asc(cb.selectCase()
-                                .when(cb.equal(root.get("status"), TaskStatus.REJECTED), 1)
+                                .when(root.get("status").in(TaskStatus.COMPLETED, TaskStatus.REJECTED), 1)
                                 .otherwise(0)),
-                        cb.asc(cb.coalesce(root.get("deadline"), cb.literal(LocalDate.of(9999, 12, 31)))),
                         cb.desc(root.get("createdAt"))
                 );
             }
