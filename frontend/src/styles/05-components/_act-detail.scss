@@ -186,12 +186,18 @@
     left: calc(50% + #{$space-12});
     right: calc(-50% + #{$space-12});
     height: $border-2;
-    background-color: var(--border-default);
-    transition: background-color 0.4s ease;
+    background: linear-gradient(
+      to right,
+      var(--text-primary) 0%,
+      var(--text-primary) var(--connector-fill, 0%),
+      var(--border-default) var(--connector-fill, 0%),
+      var(--border-default) 100%
+    );
+    transition: background 0.3s ease;
   }
 
   &--connector-done:not(:last-child)::after {
-    background-color: var(--text-primary);
+    background: var(--text-primary);
   }
 }
 
