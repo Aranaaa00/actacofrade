@@ -98,7 +98,7 @@
   padding: $space-12 $space-16;
   font-size: $text-label;
   font-weight: $weight-bold;
-  color: var(--nav-active);
+  color: $color-gold-text;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -136,7 +136,7 @@
 
 .users-table__email {
   font-size: $text-label;
-  color: var(--text-secondary);
+  color: var(--text-primary);
 }
 
 .users-table__date {
@@ -165,7 +165,7 @@
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    color: var(--nav-active);
+    color: var(--nav-bg);
   }
 
   &:disabled {
