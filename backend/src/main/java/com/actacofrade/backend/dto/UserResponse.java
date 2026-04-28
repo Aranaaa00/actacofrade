@@ -9,5 +9,6 @@ public record UserResponse(
         String email,
         List<String> roles,
         Boolean active,
-        LocalDateTime lastLogin
+        LocalDateTime lastLogin,
+        boolean hasAvatar
 ) {}

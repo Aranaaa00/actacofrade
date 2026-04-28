@@ -9,6 +9,7 @@ import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.RoleRepository;
+import com.actacofrade.backend.repository.UserAvatarRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,11 +27,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserAvatarRepository userAvatarRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,
+                       UserAvatarRepository userAvatarRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.userAvatarRepository = userAvatarRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -167,7 +171,8 @@ public class UserService {
                 user.getEmail(),
                 roles,
                 user.getActive(),
-                user.getLastLogin()
+                user.getLastLogin(),
+                userAvatarRepository.existsByUserId(user.getId())
         );
     }
 }

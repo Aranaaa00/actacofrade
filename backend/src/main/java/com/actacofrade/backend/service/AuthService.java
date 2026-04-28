@@ -9,6 +9,7 @@ import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.HermandadRepository;
 import com.actacofrade.backend.repository.RoleRepository;
+import com.actacofrade.backend.repository.UserAvatarRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.security.JwtService;
 import org.slf4j.Logger;
@@ -32,6 +33,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final HermandadRepository hermandadRepository;
+    private final UserAvatarRepository userAvatarRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -39,12 +41,14 @@ public class AuthService {
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        HermandadRepository hermandadRepository,
+                       UserAvatarRepository userAvatarRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.hermandadRepository = hermandadRepository;
+        this.userAvatarRepository = userAvatarRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -96,7 +100,8 @@ public class AuthService {
                 .map(r -> r.getCode().name())
                 .toList();
 
-        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre());
+        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre(),
+                userAvatarRepository.existsByUserId(user.getId()));
     }
 
     @Transactional
@@ -120,6 +125,7 @@ public class AuthService {
                 .toList();
 
         String hermandadNombre = user.getHermandad() != null ? user.getHermandad().getNombre() : null;
-        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre);
+        return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre,
+                userAvatarRepository.existsByUserId(user.getId()));
     }
 }

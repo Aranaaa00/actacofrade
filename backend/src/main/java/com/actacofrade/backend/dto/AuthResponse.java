@@ -8,5 +8,6 @@ public record AuthResponse(
         String email,
         String fullName,
         List<String> roles,
-        String hermandadNombre
+        String hermandadNombre,
+        boolean hasAvatar
 ) {}
