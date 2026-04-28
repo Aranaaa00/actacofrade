@@ -259,6 +259,7 @@
   background-color: var(--nav-bg);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
+  padding-block: $space-16;
 }
 
 .act-card__type-label {

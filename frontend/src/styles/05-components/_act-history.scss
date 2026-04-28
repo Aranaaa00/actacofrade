@@ -135,14 +135,14 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
-  padding-block: $space-12;
+  padding-block: $space-16;
 }
 
 .act-history__type-label {
   font-family: $font-body;
   font-size: $text-label;
   font-weight: $weight-bold;
-  color: $color-white;
+  color: var(--text-on-dark);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   white-space: nowrap;

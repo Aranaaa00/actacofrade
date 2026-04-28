@@ -27,6 +27,7 @@
   background-color: rgba(0, 0, 0, 0.15);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
+  padding-block: $space-16;
 
   @include from-tablet {
     display: flex;
