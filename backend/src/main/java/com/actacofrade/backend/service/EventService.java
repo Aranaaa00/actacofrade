@@ -130,9 +130,7 @@ public class EventService {
             throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
         }
         EventType eventType = EventType.valueOf(request.eventType());
-        User responsible = request.responsibleId() != null
-                ? resolveResponsible(request.responsibleId())
-                : (!authorizationHelper.isAdmin(currentUser) ? currentUser : null);
+        User responsible = resolveResponsibleForUser(currentUser, request.responsibleId());
         String reference = generateReference();
 
         Event event = new Event();
@@ -173,7 +171,7 @@ public class EventService {
             event.setObservations(SanitizationUtils.sanitize(request.observations()));
         }
         if (request.responsibleId() != null) {
-            event.setResponsible(resolveResponsible(request.responsibleId()));
+            event.setResponsible(resolveResponsibleForUser(currentUser, request.responsibleId()));
         }
 
         event.setUpdatedAt(LocalDateTime.now());
@@ -319,6 +317,13 @@ public class EventService {
                     .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado con id: " + responsibleId));
         }
         return responsible;
+    }
+
+    private User resolveResponsibleForUser(User currentUser, Integer requestedResponsibleId) {
+        if (!authorizationHelper.isAdmin(currentUser)) {
+            return currentUser;
+        }
+        return resolveResponsible(requestedResponsibleId);
     }
 
     private String generateReference() {
