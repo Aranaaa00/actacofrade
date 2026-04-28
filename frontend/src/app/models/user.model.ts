@@ -5,6 +5,7 @@ export interface UserResponse {
   roles: string[];
   active: boolean;
   lastLogin: string | null;
+  hasAvatar?: boolean;
 }
 
 export interface RoleStatsResponse {

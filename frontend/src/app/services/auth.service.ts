@@ -41,6 +41,10 @@ export class AuthService {
     return raw ? JSON.parse(raw) : null;
   }
 
+  updateStoredUser(user: AuthResponse): void {
+    localStorage.setItem(this.userKey, JSON.stringify(user));
+  }
+
   hasRole(role: string): boolean {
     return this.getUser()?.roles?.includes(role) ?? false;
   }

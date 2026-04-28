@@ -18,4 +18,5 @@ export interface AuthResponse {
   fullName: string;
   roles: string[];
   hermandadNombre?: string;
+  hasAvatar?: boolean;
 }
