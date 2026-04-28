@@ -56,9 +56,7 @@ export class ActList implements OnInit, OnDestroy {
       this.currentPage = 1;
       this.loadEvents();
     });
-    this.eventService.availableDates().subscribe({
-      next: (dates) => { this.availableDates = dates; }
-    });
+    this.loadAvailableDates();
     this.loadEvents();
   }
 
@@ -101,6 +99,7 @@ export class ActList implements OnInit, OnDestroy {
 
   onActCreated(event: EventResponse): void {
     this.showNewActModal = false;
+    this.loadAvailableDates();
     this.loadEvents();
   }
 
@@ -148,8 +147,15 @@ export class ActList implements OnInit, OnDestroy {
   cloneAct(act: EventResponse): void {
     this.eventService.clone(act.id).subscribe({
       next: () => {
+        this.loadAvailableDates();
         this.loadEvents();
       }
+    });
+  }
+
+  private loadAvailableDates(): void {
+    this.eventService.availableDates().subscribe({
+      next: (dates) => { this.availableDates = dates; }
     });
   }
 
