@@ -4,7 +4,8 @@
     [user]="user"
     [userInitials]="userInitials"
     (closed)="closeSidebar()"
-    (loggedOut)="logout()" />
+    (loggedOut)="logout()"
+    (profileEditRequested)="openProfile()" />
 
   <section class="app-shell__main">
     <app-header
@@ -16,4 +17,10 @@
       <router-outlet />
     </main>
   </section>
+
+  <app-profile-modal
+    [show]="profileModalOpen()"
+    [user]="user"
+    (closed)="closeProfile()"
+    (updated)="onProfileUpdated($event)" />
 </section>

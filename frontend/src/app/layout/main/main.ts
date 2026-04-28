@@ -1,13 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AuthResponse } from '../../models/auth.model';
 import { Sidebar } from '../../shared/components/sidebar/sidebar';
+import { ProfileModal } from '../../shared/components/profile-modal/profile-modal';
 import { Header } from '../header/header';
 
 @Component({
   selector: 'app-main',
-  imports: [RouterOutlet, Sidebar, Header],
+  imports: [RouterOutlet, Sidebar, Header, ProfileModal],
   templateUrl: './main.html',
 })
 export class Main {
@@ -15,9 +16,11 @@ export class Main {
   private readonly router = inject(Router);
 
   sidebarOpen = false;
+  readonly profileModalOpen = signal(false);
+  readonly currentUser = signal<AuthResponse | null>(this.authService.getUser());
 
   get user(): AuthResponse | null {
-    return this.authService.getUser();
+    return this.currentUser();
   }
 
   get userInitials(): string {
@@ -40,6 +43,19 @@ export class Main {
 
   closeSidebar(): void {
     this.sidebarOpen = false;
+  }
+
+  openProfile(): void {
+    this.profileModalOpen.set(true);
+  }
+
+  closeProfile(): void {
+    this.profileModalOpen.set(false);
+  }
+
+  onProfileUpdated(updated: AuthResponse): void {
+    this.authService.updateStoredUser(updated);
+    this.currentUser.set({ ...updated });
   }
 
   logout(): void {
