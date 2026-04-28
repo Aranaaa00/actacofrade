@@ -1,8 +1,10 @@
 package com.actacofrade.backend.service;
 
 import com.actacofrade.backend.dto.RoleStatsResponse;
+import com.actacofrade.backend.dto.UserCreateRequest;
 import com.actacofrade.backend.dto.UserResponse;
 import com.actacofrade.backend.dto.UserUpdateRequest;
+import com.actacofrade.backend.entity.Hermandad;
 import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
@@ -10,6 +12,7 @@ import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.util.SanitizationUtils;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +26,44 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public UserResponse create(UserCreateRequest request, String authenticatedEmail) {
+        User admin = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + authenticatedEmail));
+        Hermandad hermandad = admin.getHermandad();
+        if (hermandad == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+
+        String email = SanitizationUtils.sanitize(request.email()).toLowerCase();
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalStateException("El correo electrónico ya está registrado");
+        }
+
+        RoleCode roleCode = RoleCode.valueOf(request.roleCode());
+        if (roleCode == RoleCode.ADMINISTRADOR) {
+            throw new IllegalStateException("No se puede crear un usuario con rol ADMINISTRADOR");
+        }
+        Role role = roleRepository.findByCode(roleCode)
+                .orElseThrow(() -> new IllegalArgumentException("Rol no encontrado: " + request.roleCode()));
+
+        User user = new User();
+        user.setFullName(SanitizationUtils.sanitize(request.fullName()));
+        user.setEmail(email);
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setActive(true);
+        user.setRoles(new HashSet<>(Set.of(role)));
+        user.setHermandad(hermandad);
+
+        userRepository.save(user);
+        return toResponse(user);
     }
 
     public List<UserResponse> findAll(String authenticatedEmail) {
@@ -92,6 +129,16 @@ public class UserService {
         user.setActive(!user.getActive());
         userRepository.save(user);
         return toResponse(user);
+    }
+
+    public void delete(Integer id, String authenticatedEmail) {
+        Integer hermandadId = resolveHermandadId(authenticatedEmail);
+        User user = userRepository.findByIdAndHermandadId(id, hermandadId)
+                .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
+        if (user.getEmail().equalsIgnoreCase(authenticatedEmail)) {
+            throw new AccessDeniedException("No puedes eliminar tu propia cuenta");
+        }
+        userRepository.delete(user);
     }
 
     private Integer resolveHermandadId(String authenticatedEmail) {
