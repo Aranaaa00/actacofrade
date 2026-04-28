@@ -1,9 +1,8 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Cuerpo sin margen inferior propio (lo gestiona el footer del sistema)
 .export-modal__body {
-  margin-bottom: 0;
+  margin-bottom: $space-24;
 }
 
 // Miniatura del acto dentro del modal
@@ -196,7 +195,8 @@
   justify-content: space-between;
   gap: $space-8;
   width: 100%;
-  padding: $space-8 0;
+  min-height: 2.75rem;
+  padding: $space-12 0;
   background: none;
   border: none;
   font-family: inherit;
