@@ -53,24 +53,31 @@
         </a>
       </li>
     }
-    @if (auth.isAdmin()) {
-      <li>
-        <a class="sidebar__link" (click)="closed.emit()">
-          <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
-          Configuración
-        </a>
-      </li>
-    }
+    <li>
+      <a class="sidebar__link" routerLink="/settings" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+        Configuración
+      </a>
+    </li>
   </ul>
 
   <footer class="sidebar__footer">
-    <span class="sidebar__avatar" aria-hidden="true">{{ userInitials }}</span>
+    @if (avatarObjectUrl()) {
+      <img class="sidebar__avatar sidebar__avatar--image" [src]="avatarObjectUrl()" alt="Foto de perfil">
+    } @else {
+      <span class="sidebar__avatar" aria-hidden="true">{{ userInitials }}</span>
+    }
     <section class="sidebar__user-info">
       <strong class="sidebar__user-name">{{ user?.fullName }}</strong>
       <small class="sidebar__user-role">{{ user?.roles?.[0] }}</small>
     </section>
-    <button class="sidebar__logout" type="button" (click)="loggedOut.emit()" aria-label="Cerrar sesión">
-      <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
-    </button>
+    <div class="sidebar__user-actions">
+      <button class="sidebar__edit-profile" type="button" (click)="profileEditRequested.emit()" aria-label="Editar perfil">
+        <lucide-icon name="pencil" [size]="18" aria-hidden="true"></lucide-icon>
+      </button>
+      <button class="sidebar__logout" type="button" (click)="loggedOut.emit()" aria-label="Cerrar sesión">
+        <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
+      </button>
+    </div>
   </footer>
 </nav>

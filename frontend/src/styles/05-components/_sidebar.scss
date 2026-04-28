@@ -4,7 +4,8 @@
 // Shell: sidebar + main area
 .app-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 // Overlay para cerrar sidebar en movil
@@ -195,6 +196,12 @@
   flex-shrink: 0;
 }
 
+.sidebar__avatar--image {
+  padding: 0;
+  object-fit: cover;
+  background-color: transparent;
+}
+
 .sidebar__user-info {
   flex: 1;
   display: flex;
@@ -217,16 +224,24 @@
   letter-spacing: 0.04em;
 }
 
-.sidebar__logout {
+.sidebar__user-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  flex-shrink: 0;
+}
+
+.sidebar__edit-profile {
   @include focus-visible;
-  @include transition(color);
+  @include transition(color, background-color);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  color: var(--text-on-dark-muted);
-  flex-shrink: 0;
+  background-color: transparent;
+  color: var(--text-on-dark);
+  border-radius: $radius-2;
   cursor: pointer;
 
   & lucide-icon {
@@ -236,6 +251,34 @@
 
   &:hover {
     color: var(--nav-active);
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
+
+.sidebar__logout {
+  @include focus-visible;
+  @include transition(color, background-color, border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background-color: transparent;
+  color: var(--text-on-dark);
+  border: $border-1 solid var(--btn-danger-bg);
+  border-radius: $radius-2;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  & lucide-icon {
+    width: $size-icon-20;
+    height: $size-icon-20;
+  }
+
+  &:hover {
+    color: var(--btn-danger-text);
+    background-color: var(--btn-danger-bg-hover);
+    border-color: var(--btn-danger-bg-hover);
   }
 }
 
