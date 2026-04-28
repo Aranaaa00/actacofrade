@@ -39,6 +39,10 @@ export class Dashboard implements OnInit {
     return name;
   }
 
+  get isConsulta(): boolean {
+    return this.authService.isConsulta();
+  }
+
   ngOnInit(): void {
     this.dashboardService.getDashboard().subscribe({
       next: data => {

@@ -8,23 +8,27 @@
 
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
-    <p class="dashboard__summary">Tienes <strong>{{ alertCount }} alertas</strong> en total.</p>
+    @if (!isConsulta) {
+      <p class="dashboard__summary">Tienes <strong>{{ alertCount }} alertas</strong> en total.</p>
+    }
   </header>
 
-  <ul class="dashboard__stats" role="list">
-    <li class="dashboard__stat">
-      <strong class="dashboard__stat-number">{{ events.length }}</strong>
-      <p class="dashboard__stat-label">Actos activos</p>
-    </li>
-    <li class="dashboard__stat">
-      <strong class="dashboard__stat-number">{{ alertCount }}</strong>
-      <p class="dashboard__stat-label">Alertas</p>
-    </li>
-    <li class="dashboard__stat">
-      <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
-      <p class="dashboard__stat-label">Listos para cerrar</p>
-    </li>
-  </ul>
+  @if (!isConsulta) {
+    <ul class="dashboard__stats" role="list">
+      <li class="dashboard__stat">
+        <strong class="dashboard__stat-number">{{ events.length }}</strong>
+        <p class="dashboard__stat-label">Actos activos</p>
+      </li>
+      <li class="dashboard__stat">
+        <strong class="dashboard__stat-number">{{ alertCount }}</strong>
+        <p class="dashboard__stat-label">Alertas</p>
+      </li>
+      <li class="dashboard__stat">
+        <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
+        <p class="dashboard__stat-label">Listos para cerrar</p>
+      </li>
+    </ul>
+  }
 
   <section class="dashboard__grid">
 
@@ -44,7 +48,13 @@
         }
         @empty {
           <li class="dashboard__event">
-            <p class="dashboard__event-title">No hay actos registrados.</p>
+            <p class="dashboard__event-title">
+              @if (isConsulta) {
+                No hay actos activos para consultar.
+              } @else {
+                No hay actos registrados.
+              }
+            </p>
           </li>
         }
       </ul>
@@ -57,16 +67,22 @@
       </h2>
 
       <ul class="dashboard__alert-list" role="list">
-        @for (alert of alerts; track alert.type + '-' + alert.entityId) {
+        @if (isConsulta) {
           <li class="dashboard__alert-item">
-            <app-badge variant="wood">{{ getAlertTypeLabel(alert.type) }}</app-badge>
-            <a class="dashboard__alert-item-text" [routerLink]="['/events', alert.eventId]">{{ alert.description }}</a>
+            <p class="dashboard__alert-item-text">Al ser usuario de consulta, no recibes alertas.</p>
           </li>
-        }
-        @empty {
-          <li class="dashboard__alert-item">
-            <p class="dashboard__alert-item-text">Sin alertas pendientes.</p>
-          </li>
+        } @else {
+          @for (alert of alerts; track alert.type + '-' + alert.entityId) {
+            <li class="dashboard__alert-item">
+              <app-badge variant="wood">{{ getAlertTypeLabel(alert.type) }}</app-badge>
+              <a class="dashboard__alert-item-text" [routerLink]="['/events', alert.eventId]">{{ alert.description }}</a>
+            </li>
+          }
+          @empty {
+            <li class="dashboard__alert-item">
+              <p class="dashboard__alert-item-text">Sin alertas pendientes.</p>
+            </li>
+          }
         }
       </ul>
     </section>
