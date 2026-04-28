@@ -42,8 +42,10 @@
     </app-form-field>
 
     <app-form-field label="Responsable" fieldId="act-responsible" styleClass="act-editor__field--bordered">
-      <select id="act-responsible" formControlName="responsibleId">
-        <option [ngValue]="null">Asignar responsable</option>
+      <select id="act-responsible" formControlName="responsibleId" [attr.disabled]="canPickResponsible ? null : true">
+        @if (canPickResponsible) {
+          <option [ngValue]="null">Asignar responsable</option>
+        }
         @for (user of users; track user.id) {
           <option [ngValue]="user.id">{{ user.fullName }}</option>
         }

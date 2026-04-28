@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
+import { AuthService } from '../../services/auth.service';
 import { UserResponse } from '../../models/user.model';
 import { EventResponse } from '../../models/event.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
@@ -21,6 +22,7 @@ export class ActEditor implements OnInit, AfterViewInit {
   private readonly fb = inject(FormBuilder);
   private readonly eventService = inject(EventService);
   private readonly userService = inject(UserService);
+  private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -48,15 +50,38 @@ export class ActEditor implements OnInit, AfterViewInit {
       observations: ['', [Validators.maxLength(1000), noHtmlValidator()]]
     });
 
-    this.userService.findAll().subscribe({
-      next: (users) => this.users = users
-    });
+    this.loadUsers();
 
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
       this.eventId = Number(id);
       this.loadEvent(this.eventId);
+    }
+  }
+
+  get canPickResponsible(): boolean {
+    return this.auth.isAdmin();
+  }
+
+  private loadUsers(): void {
+    if (this.canPickResponsible) {
+      this.userService.findAssignable().subscribe({
+        next: (users) => this.users = users
+      });
+    } else {
+      const authUser = this.auth.getUser();
+      if (authUser) {
+        this.users = [{
+          id: authUser.userId,
+          fullName: authUser.fullName,
+          email: authUser.email,
+          roles: authUser.roles,
+          active: true,
+          lastLogin: null
+        }];
+        this.form.patchValue({ responsibleId: authUser.userId });
+      }
     }
   }
 
