@@ -1,109 +1,114 @@
-<section class="login-overlay"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="register-heading"
-  (click)="onOverlayClick($event)"
-  (keydown.escape)="close()">
+<ng-template #formFields>
+  @if (errorMessage) {
+    <app-banner type="critical">{{ errorMessage }}</app-banner>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" [class]="bodyClass" [attr.aria-label]="formAriaLabel">
+    <app-form-field label="Nombre completo" fieldId="register-name" [hasError]="hasError('fullName')" [errorMessage]="hasError('fullName') ? getError('fullName') : ''">
+      <input id="register-name"
+        type="text"
+        formControlName="fullName"
+        autocomplete="name"
+        maxlength="150">
+    </app-form-field>
+
+    <app-form-field label="Correo electrónico" fieldId="register-email" [hasError]="hasError('email')" [errorMessage]="hasError('email') ? getError('email') : ''">
+      <input id="register-email"
+        type="email"
+        formControlName="email"
+        placeholder="ejemplo@hermandad.es"
+        autocomplete="email"
+        maxlength="255">
+    </app-form-field>
+
+    <fieldset [class]="rowClass">
+      <app-form-field label="Contraseña" fieldId="register-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
+        <input id="register-password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="new-password">
+      </app-form-field>
+
+      <app-form-field label="Confirmar contraseña" fieldId="register-confirm" [hasError]="hasError('confirmPassword')" [errorMessage]="hasError('confirmPassword') ? getError('confirmPassword') : ''">
+        <input id="register-confirm"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="••••••••"
+          autocomplete="new-password">
+      </app-form-field>
+    </fieldset>
+
+    <app-form-field label="Rol" fieldId="register-role" [styleClass]="embedded ? 'act-editor__field--bordered' : ''" [hasError]="hasError('roleCode')" [errorMessage]="hasError('roleCode') ? getError('roleCode') : ''">
+      <select id="register-role" formControlName="roleCode">
+        @for (role of availableRoles; track role.code) {
+          <option [value]="role.code">{{ role.label }}</option>
+        }
+      </select>
+    </app-form-field>
+
+    @if (!embedded) {
+      <app-form-field [label]="hermandadLabel" fieldId="register-hermandad" [hasError]="hasError('hermandadNombre')" [errorMessage]="hasError('hermandadNombre') ? getError('hermandadNombre') : ''">
+        <input id="register-hermandad"
+          type="text"
+          formControlName="hermandadNombre"
+          [placeholder]="hermandadPlaceholder"
+          autocomplete="organization"
+          maxlength="200">
+      </app-form-field>
+    }
+
+    @if (embedded) {
+      <footer class="act-editor__footer">
+        <button type="button" class="button button--secondary" (click)="close()">Cancelar</button>
+        <button type="submit" class="button button--primary" [disabled]="loading" [attr.aria-busy]="loading">Crear usuario →</button>
+      </footer>
+    } @else {
+      <footer class="login__submit">
+        <button type="submit" class="button register__submit-button button--full-width" [disabled]="loading" [attr.aria-busy]="loading">Crear cuenta →</button>
+      </footer>
+
+      <p class="register__login-link">
+        ¿Ya tienes cuenta? <a class="login__register" routerLink="/login">Acceda aquí</a>
+      </p>
+    }
+  </form>
+</ng-template>
+
+@if (embedded) {
+
+  <app-modal-overlay modalClass="register-modal" headerClass="act-editor__header" titleId="register-heading" (closed)="close()">
+    <h1 modalTitle class="act-editor__title" id="register-heading">Crear usuario</h1>
+    <ng-container [ngTemplateOutlet]="formFields" />
+  </app-modal-overlay>
+
+} @else {
+
+  <section class="login-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="register-heading"
+    (click)="onOverlayClick($event)"
+    (keydown.escape)="close()">
 
     <article class="login login--register" #registerModal>
-    <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
-      <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
-      <h2 class="login__brand">ActaCofrade</h2>
-      <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
-      <p class="login__version">Secretaría General V2.4</p>
-    </aside>
+      <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
+        <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
+        <h2 class="login__brand">ActaCofrade</h2>
+        <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
+        <p class="login__version">Secretaría General V2.4</p>
+      </aside>
 
-    <section class="login__main">
-      <h1 class="login__heading" id="register-heading">Crear Cuenta</h1>
+      <section class="login__main">
+        <h1 class="login__heading" id="register-heading">Crear Cuenta</h1>
+        <ng-container [ngTemplateOutlet]="formFields" />
 
-      @if (errorMessage) {
-        <app-banner type="critical">{{ errorMessage }}</app-banner>
-      }
-
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login__form" aria-label="Formulario de registro">
-        <app-form-field label="Nombre completo" fieldId="register-name" [hasError]="hasError('fullName')" [errorMessage]="hasError('fullName') ? getError('fullName') : ''">
-          <input id="register-name"
-            type="text"
-            formControlName="fullName"
-            autocomplete="name"
-            maxlength="150"
-            [attr.aria-invalid]="hasError('fullName')"
-            [attr.aria-describedby]="hasError('fullName') ? 'register-name-error' : null">
-        </app-form-field>
-
-        <app-form-field label="Correo electrónico" fieldId="register-email" [hasError]="hasError('email')" [errorMessage]="hasError('email') ? getError('email') : ''">
-          <input id="register-email"
-            type="email"
-            formControlName="email"
-            placeholder="ejemplo@hermandad.es"
-            autocomplete="email"
-            maxlength="255"
-            [attr.aria-invalid]="hasError('email')"
-            [attr.aria-describedby]="hasError('email') ? 'register-email-error' : null">
-        </app-form-field>
-
-        <fieldset class="register__row">
-          <app-form-field label="Contraseña institucional" fieldId="register-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
-            <input id="register-password"
-              type="password"
-              formControlName="password"
-              placeholder="••••••••"
-              autocomplete="new-password"
-              [attr.aria-invalid]="hasError('password')"
-              [attr.aria-describedby]="hasError('password') ? 'register-password-error' : null">
-          </app-form-field>
-
-          <app-form-field label="Confirmar contraseña" fieldId="register-confirm" [hasError]="hasError('confirmPassword')" [errorMessage]="hasError('confirmPassword') ? getError('confirmPassword') : ''">
-            <input id="register-confirm"
-              type="password"
-              formControlName="confirmPassword"
-              placeholder="••••••••"
-              autocomplete="new-password"
-              [attr.aria-invalid]="hasError('confirmPassword')"
-              [attr.aria-describedby]="hasError('confirmPassword') ? 'register-confirm-error' : null">
-          </app-form-field>
-        </fieldset>
-
-        <app-form-field label="Rol" fieldId="register-role" [hasError]="hasError('roleCode')" [errorMessage]="hasError('roleCode') ? getError('roleCode') : ''">
-          <select id="register-role"
-            formControlName="roleCode"
-            [attr.aria-invalid]="hasError('roleCode')"
-            [attr.aria-describedby]="hasError('roleCode') ? 'register-role-error' : null">
-            @for (role of roles; track role.code) {
-              <option [value]="role.code">{{ role.label }}</option>
-            }
-          </select>
-        </app-form-field>
-
-        <app-form-field [label]="hermandadLabel" fieldId="register-hermandad" [hasError]="hasError('hermandadNombre')" [errorMessage]="hasError('hermandadNombre') ? getError('hermandadNombre') : ''">
-          <input id="register-hermandad"
-            type="text"
-            formControlName="hermandadNombre"
-            [placeholder]="hermandadPlaceholder"
-            autocomplete="organization"
-            maxlength="200"
-            [attr.aria-invalid]="hasError('hermandadNombre')"
-            [attr.aria-describedby]="hasError('hermandadNombre') ? 'register-hermandad-error' : null">
-        </app-form-field>
-
-        <footer class="login__submit">
-          <button type="submit"
-            class="button register__submit-button button--full-width"
-            [disabled]="loading"
-            [attr.aria-busy]="loading">
-            Crear cuenta →
-          </button>
-        </footer>
-
-        <p class="register__login-link">
-          ¿Ya tienes cuenta? <a class="login__register" routerLink="/login">Acceda aquí</a>
-        </p>
-      </form>
-
-      <section class="login__legal" aria-label="Aviso de privacidad">
-        <p class="register__legal-title">Privacidad y protección de datos</p>
-        <p>De conformidad con el RGPD, los datos facilitados serán tratados por la Secretaría General de ActaCofrade con la única finalidad de gestión institucional y protocolos internos.</p>
+        <section class="login__legal" aria-label="Aviso de privacidad">
+          <p class="register__legal-title">Privacidad y protección de datos</p>
+          <p>De conformidad con el RGPD, los datos facilitados serán tratados por la Secretaría General de ActaCofrade con la única finalidad de gestión institucional y protocolos internos.</p>
+        </section>
       </section>
-    </section>
-  </article>
-</section>
+    </article>
+  </section>
+
+}

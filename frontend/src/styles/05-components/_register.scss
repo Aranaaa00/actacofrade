@@ -75,3 +75,13 @@
   font-weight: $weight-semibold;
   margin-bottom: $space-8;
 }
+
+// Modal embebido (creacion de usuario desde gestion de usuarios)
+.register-modal {
+  max-width: 40rem;
+  padding: $space-16 $space-24 $space-12;
+
+  @include from-tablet {
+    padding: $space-24 $space-32 $space-16;
+  }
+}
