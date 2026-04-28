@@ -1,0 +1,245 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.users {
+  display: flex;
+  flex-direction: column;
+  gap: $space-24;
+  padding: $space-24 $space-16;
+
+  @include from-tablet {
+    padding: $space-32 $space-24;
+  }
+
+  @include from-desktop {
+    padding: $space-48 $space-32;
+  }
+}
+
+.users__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-16;
+  flex-wrap: wrap;
+}
+
+.users__title {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.users__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-12;
+  list-style: none;
+
+  @include from-tablet {
+    grid-template-columns: repeat(4, 1fr);
+    gap: $space-16;
+  }
+}
+
+.users__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-4;
+  padding: $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-bg);
+  border-radius: $radius-2;
+}
+
+.users__stat-number {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.users__stat-label {
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.users__loading,
+.users__error {
+  font-size: $text-body;
+  color: var(--text-secondary);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.users-table__head {
+  border-top: $border-1 solid var(--nav-active);
+  border-bottom: $border-1 solid var(--nav-active);
+}
+
+.users-table__head th {
+  padding: $space-12 $space-16;
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--nav-active);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.users-table__row {
+  @include transition(background-color);
+  border-bottom: $border-1 solid var(--border-default);
+
+  &:hover {
+    background-color: var(--bg-surface-hover);
+  }
+}
+
+.users-table__row td {
+  padding: $space-12 $space-16;
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.users-table__user {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  min-width: 0;
+}
+
+.users-table__name {
+  font-family: $font-heading;
+  font-size: $text-body;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+}
+
+.users-table__email {
+  font-size: $text-label;
+  color: var(--text-secondary);
+}
+
+.users-table__date {
+  font-weight: $weight-bold;
+  white-space: nowrap;
+}
+
+.users-table__actions {
+  display: flex;
+  gap: $space-16;
+  flex-wrap: wrap;
+}
+
+.users-table__action {
+  @include focus-visible;
+  @include transition(color);
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--nav-active);
+  }
+
+  &:disabled {
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.users-table__empty {
+  padding: $space-24 $space-16;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.users-table__perm-head {
+  text-align: center;
+}
+
+.users-table__perm {
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.users-table__perm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.users-table__perm-icon--on {
+  color: var(--nav-bg);
+}
+
+.users-table__perm-icon--off {
+  color: var(--text-disabled);
+}
+
+.users-permissions {
+  margin-top: $space-16;
+  padding: $space-24 $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+
+  @include from-tablet {
+    padding: $space-24;
+  }
+}
+
+.users-permissions__title {
+  margin-bottom: $space-16;
+  font-family: $font-heading;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.edit-user__user {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  margin-bottom: $space-16;
+
+  & strong {
+    font-family: $font-heading;
+    font-size: $text-body;
+    font-weight: $weight-semibold;
+    color: var(--text-primary);
+  }
+
+  & small {
+    font-size: $text-label;
+    color: var(--text-secondary);
+  }
+}

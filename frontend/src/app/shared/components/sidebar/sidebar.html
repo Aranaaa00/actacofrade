@@ -45,7 +45,7 @@
     </li>
     @if (auth.isAdmin()) {
       <li>
-        <a class="sidebar__link" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/users" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
           <lucide-icon name="users" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Usuarios
         </a>

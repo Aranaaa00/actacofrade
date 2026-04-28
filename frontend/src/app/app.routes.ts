@@ -63,6 +63,11 @@ export const routes: Routes = [
         path: 'history',
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/act-history/act-history').then(m => m.ActHistory)
+      },
+      {
+        path: 'users',
+        canActivate: [roleGuard(['ADMINISTRADOR'])],
+        loadComponent: () => import('./pages/users/users').then(m => m.Users)
       }
     ]
   },

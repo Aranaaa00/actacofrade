@@ -1,0 +1,179 @@
+<section class="users" aria-label="Gestión de usuarios y roles">
+
+  @if (loading) {
+    <p class="users__loading" role="status">Cargando usuarios…</p>
+  } @else if (errorMessage) {
+    <p class="users__error" role="alert">{{ errorMessage }}</p>
+  } @else {
+
+  <header class="users__header">
+    <h1 class="users__title">Usuarios y Roles</h1>
+    <button class="button button--secondary" type="button" (click)="openCreate()" aria-label="Crear nuevo usuario">
+      <lucide-icon name="user-plus" class="button__icon" [size]="20" aria-hidden="true"></lucide-icon>
+      Crear usuario
+    </button>
+  </header>
+
+  <ul class="users__stats" role="list">
+    <li class="users__stat">
+      <strong class="users__stat-number" aria-label="{{ stats.administradores }} administradores">{{ stats.administradores }}</strong>
+      <p class="users__stat-label">Administradores</p>
+    </li>
+    <li class="users__stat">
+      <strong class="users__stat-number" aria-label="{{ stats.responsables }} responsables">{{ stats.responsables }}</strong>
+      <p class="users__stat-label">Responsables</p>
+    </li>
+    <li class="users__stat">
+      <strong class="users__stat-number" aria-label="{{ stats.colaboradores }} colaboradores">{{ stats.colaboradores }}</strong>
+      <p class="users__stat-label">Colaboradores</p>
+    </li>
+    <li class="users__stat">
+      <strong class="users__stat-number" aria-label="{{ stats.consulta }} usuarios de consulta">{{ stats.consulta }}</strong>
+      <p class="users__stat-label">Consulta</p>
+    </li>
+  </ul>
+
+  <search class="act-list__filters" aria-label="Filtros de usuarios">
+    <app-filter-dropdown
+      [label]="activeRoleLabel"
+      [options]="roleOptions"
+      [isOpen]="openDropdown === 'role'"
+      (toggled)="toggleDropdown('role')"
+      (selected)="selectFilter('role', $event)" />
+    <app-filter-dropdown
+      [label]="activeStatusLabel"
+      [options]="statusOptions"
+      [isOpen]="openDropdown === 'status'"
+      (toggled)="toggleDropdown('status')"
+      (selected)="selectFilter('status', $event)" />
+    <div class="act-list__search-wrapper">
+      <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
+      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global" maxlength="200">
+    </div>
+    <button class="act-list__filter-clear" type="button" (click)="clearFilters()" aria-label="Limpiar filtros">Limpiar</button>
+  </search>
+
+  <table class="users-table" aria-label="Listado de usuarios">
+    <thead class="users-table__head">
+      <tr>
+        <th scope="col">Usuario</th>
+        <th scope="col">Rol</th>
+        <th scope="col">Estado</th>
+        <th scope="col">Último acceso</th>
+        <th scope="col">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (user of pageUsers; track user.id) {
+        <tr class="users-table__row">
+          <td>
+            <div class="users-table__user">
+              <strong class="users-table__name">{{ user.fullName }}</strong>
+              <small class="users-table__email">{{ user.email }}</small>
+            </div>
+          </td>
+          <td>
+            @if (getPrimaryRole(user)) {
+              <app-badge [variant]="getRoleBadgeVariant(getPrimaryRole(user))">{{ getRoleLabel(getPrimaryRole(user)) }}</app-badge>
+            }
+          </td>
+          <td>
+            <app-badge [variant]="user.active ? 'pending' : 'neutral'">{{ user.active ? 'Activo' : 'Inactivo' }}</app-badge>
+          </td>
+          <td class="users-table__date">{{ formatLastLogin(user.lastLogin) }}</td>
+          <td>
+            <div class="users-table__actions">
+              <button class="users-table__action" type="button"
+                [disabled]="processingUserId === user.id"
+                (click)="openEdit(user)"
+                [attr.aria-label]="'Editar ' + user.fullName">Editar</button>
+              @if (user.active) {
+                <button class="users-table__action" type="button"
+                  [disabled]="processingUserId === user.id || isCurrentUser(user)"
+                  (click)="toggleActive(user)"
+                  [attr.aria-label]="'Desactivar ' + user.fullName">Desactivar</button>
+              } @else {
+                <button class="users-table__action" type="button"
+                  [disabled]="processingUserId === user.id"
+                  (click)="toggleActive(user)"
+                  [attr.aria-label]="'Reactivar ' + user.fullName">Reactivar</button>
+                <button class="users-table__action" type="button"
+                  [disabled]="processingUserId === user.id || isCurrentUser(user)"
+                  (click)="deleteUser(user)"
+                  [attr.aria-label]="'Eliminar ' + user.fullName">Eliminar</button>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+      @empty {
+        <tr class="users-table__row">
+          <td colspan="5" class="users-table__empty">No se encontraron usuarios.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <app-pagination [currentPage]="currentPage" [totalPages]="totalPages" (pageChanged)="goToPage($event)" />
+
+  <section class="users-permissions" aria-label="Permisos por rol">
+    <header class="users-permissions__header">
+      <h2 class="users-permissions__title">Permisos por rol</h2>
+    </header>
+
+    <table class="users-table users-table--permissions" aria-label="Matriz de permisos por usuario">
+      <thead class="users-table__head">
+        <tr>
+          <th scope="col"><span class="visually-hidden">Usuario</span></th>
+          @for (column of permissionColumns; track column.key) {
+            <th scope="col" class="users-table__perm-head">{{ column.label }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (user of filteredUsers; track user.id) {
+          <tr class="users-table__row">
+            <td>
+              <div class="users-table__user">
+                <strong class="users-table__name">{{ user.fullName }}</strong>
+                <small class="users-table__email">{{ user.email }}</small>
+              </div>
+            </td>
+            @for (column of permissionColumns; track column.key) {
+              <td class="users-table__perm" [attr.aria-label]="(hasPermission(user, column) ? 'Puede ' : 'No puede ') + column.label.toLowerCase()">
+                @if (hasPermission(user, column)) {
+                  <lucide-icon name="check" [size]="18" class="users-table__perm-icon users-table__perm-icon--on" aria-hidden="true"></lucide-icon>
+                } @else {
+                  <lucide-icon name="minus" [size]="18" class="users-table__perm-icon users-table__perm-icon--off" aria-hidden="true"></lucide-icon>
+                }
+              </td>
+            }
+          </tr>
+        }
+        @empty {
+          <tr class="users-table__row">
+            <td [attr.colspan]="permissionColumns.length + 1" class="users-table__empty">No se encontraron usuarios.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  }
+
+  <app-edit-user-modal
+    [show]="showEditModal"
+    [processing]="processingUserId !== null"
+    [user]="editingUser"
+    [roles]="editableRoles"
+    (cancelled)="onEditCancelled()"
+    (confirmed)="onEditConfirmed($event)" />
+
+  @if (showCreateModal) {
+    <app-register
+      [embedded]="true"
+      (userCreated)="onUserCreated($event)"
+      (dialogClosed)="onCreateClosed()" />
+  }
+
+</section>
