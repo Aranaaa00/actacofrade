@@ -173,6 +173,19 @@
   letter-spacing: 0.02em;
 }
 
+.my-tasks__card-title-link {
+  @include focus-visible;
+  @include transition(color);
+  text-decoration: none;
+  color: inherit;
+
+  &:hover .my-tasks__card-title,
+  &:focus-visible .my-tasks__card-title {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+}
+
 .my-tasks__card-actions {
   display: flex;
   align-items: center;

@@ -50,7 +50,9 @@
         </aside>
         <section class="my-tasks__card-body">
           <header class="my-tasks__card-header">
-            <h2 class="my-tasks__card-title">{{ task.title }}</h2>
+            <a class="my-tasks__card-title-link" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">
+              <h2 class="my-tasks__card-title">{{ task.title }}</h2>
+            </a>
             <app-badge [variant]="getSimplifiedBadgeVariant(task.status)">{{ getSimplifiedStatusLabel(task.status) }}</app-badge>
           </header>
           @if (task.status === 'PLANNED') {
@@ -63,7 +65,7 @@
                   [disabled]="processingTaskId === task.id"
                   (click)="openRejectModal(task)">Rechazar →</button>
               }
-              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]">Ver acto →</a>
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </nav>
           } @else if (task.status === 'ACCEPTED') {
             <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
@@ -75,6 +77,7 @@
                   [disabled]="processingTaskId === task.id"
                   (click)="openRejectModal(task)">Rechazar →</button>
               }
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </nav>
           } @else if (task.status === 'IN_PREPARATION') {
             <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
@@ -86,12 +89,14 @@
                   [disabled]="processingTaskId === task.id"
                   (click)="openRejectModal(task)">Rechazar →</button>
               }
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </nav>
           } @else if (task.status === 'CONFIRMED') {
             <nav class="my-tasks__card-actions" aria-label="Acciones de tarea">
               <button class="my-tasks__action my-tasks__action--confirm" type="button"
                 [disabled]="processingTaskId === task.id"
                 (click)="completeTask(task)">Completar →</button>
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </nav>
           } @else if (task.status === 'REJECTED') {
             <footer class="my-tasks__card-footer">
@@ -99,10 +104,12 @@
               @if (task.rejectionReason) {
                 <p class="my-tasks__card-reason">"{{ task.rejectionReason }}"</p>
               }
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </footer>
           } @else {
             <footer class="my-tasks__card-footer">
               <p class="my-tasks__card-date">Completado el {{ formatDateTime(task.completedAt || task.updatedAt) }}</p>
+              <a class="my-tasks__action my-tasks__action--info" [routerLink]="['/events', task.eventId]" [fragment]="'task-' + task.id">Ver más info →</a>
             </footer>
           }
         </section>
