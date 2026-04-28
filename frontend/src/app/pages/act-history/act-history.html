@@ -79,7 +79,13 @@
                 </aside>
                 <div class="act-history__item-body">
                   <div class="act-history__item-info">
-                    <h2 class="act-history__item-title">{{ act.title }}</h2>
+                    @if (isClosed(act)) {
+                      <a class="act-history__item-link" [routerLink]="['/events', act.id]" aria-label="Ver detalle de {{ act.title }}">
+                        <h2 class="act-history__item-title">{{ act.title }}</h2>
+                      </a>
+                    } @else {
+                      <h2 class="act-history__item-title">{{ act.title }}</h2>
+                    }
                     <p class="act-history__item-ref">Ref: {{ act.reference }}</p>
                   </div>
                   <div class="act-history__item-actions">

@@ -175,6 +175,19 @@
   letter-spacing: 0.04em;
 }
 
+.act-history__item-link {
+  @include focus-visible;
+  @include transition(color);
+  text-decoration: none;
+  color: inherit;
+
+  &:hover .act-history__item-title,
+  &:focus-visible .act-history__item-title {
+    color: var(--link-hover);
+    text-decoration: underline;
+  }
+}
+
 .act-history__item-ref {
   font-size: $text-label;
   color: var(--text-secondary);
