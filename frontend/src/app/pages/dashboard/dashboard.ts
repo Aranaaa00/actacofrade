@@ -1,23 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
-import { EventService } from '../../services/event.service';
-import { TaskService } from '../../services/task.service';
+import { DashboardService } from '../../services/dashboard.service';
 import { EventResponse } from '../../models/event.model';
-import { MyTaskStats } from '../../models/task.model';
+import { DashboardAlert, DashboardAlertType } from '../../models/dashboard.model';
 import { Badge } from '../../shared/components/badge/badge';
 import { getEventStatusLabel, getEventStatusBadgeVariant } from '../../shared/utils/label-maps.utils';
 
-interface Alert {
-  type: 'TAREA' | 'INCIDENCIA' | 'CIERRE';
-  description: string;
-  eventId: number;
-  eventDate: string;
-}
-
-const MAX_ALERTS = 5;
+const ALERT_TYPE_LABELS: Record<DashboardAlertType, string> = {
+  TASK: 'TAREA',
+  INCIDENT: 'INCIDENCIA',
+  DECISION: 'DECISIÓN'
+};
 
 @Component({
   selector: 'app-dashboard',
@@ -26,24 +21,14 @@ const MAX_ALERTS = 5;
 })
 export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
-  private readonly eventService = inject(EventService);
-  private readonly taskService = inject(TaskService);
+  private readonly dashboardService = inject(DashboardService);
 
   events: EventResponse[] = [];
-  alerts: Alert[] = [];
-  myTaskStats: MyTaskStats = { pendingCount: 0, confirmedCount: 0, rejectedCount: 0 };
+  alerts: DashboardAlert[] = [];
+  alertCount = 0;
+  readyToCloseCount = 0;
   loading = true;
   errorMessage = '';
-
-  get pendingTasksCount(): number {
-    return this.myTaskStats.pendingCount;
-  }
-
-  get readyToCloseCount(): number {
-    return this.events.filter(e =>
-      e.status === 'CONFIRMACION' && e.pendingTasks === 0 && e.openIncidents === 0
-    ).length;
-  }
 
   get userName(): string {
     const user = this.authService.getUser();
@@ -55,14 +40,12 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
-    forkJoin({
-      events: this.eventService.findAll(),
-      stats: this.taskService.getMyTaskStats()
-    }).subscribe({
-      next: ({ events, stats }) => {
-        this.events = events;
-        this.myTaskStats = stats;
-        this.buildAlerts();
+    this.dashboardService.getDashboard().subscribe({
+      next: data => {
+        this.events = data.recentEvents;
+        this.alerts = data.alerts;
+        this.alertCount = data.pendingTasksCount;
+        this.readyToCloseCount = data.readyToCloseCount;
         this.loading = false;
       },
       error: () => {
@@ -75,35 +58,7 @@ export class Dashboard implements OnInit {
   getStatusLabel = getEventStatusLabel;
   getStatusBadgeVariant = getEventStatusBadgeVariant;
 
-  private buildAlerts(): void {
-    const result: Alert[] = [];
-    for (const event of this.events) {
-      if (event.pendingTasks > 0) {
-        result.push({
-          type: 'TAREA',
-          description: `${event.pendingTasks} tarea(s) pendiente(s) en «${event.title}».`,
-          eventId: event.id,
-          eventDate: event.eventDate
-        });
-      }
-      if (event.openIncidents > 0) {
-        result.push({
-          type: 'INCIDENCIA',
-          description: `${event.openIncidents} incidencia(s) abierta(s) en «${event.title}».`,
-          eventId: event.id,
-          eventDate: event.eventDate
-        });
-      }
-      if (event.status === 'CONFIRMACION' && event.pendingTasks === 0 && event.openIncidents === 0) {
-        result.push({
-          type: 'CIERRE',
-          description: `«${event.title}» listo para cerrar.`,
-          eventId: event.id,
-          eventDate: event.eventDate
-        });
-      }
-    }
-    result.sort((a, b) => a.eventDate.localeCompare(b.eventDate));
-    this.alerts = result.slice(0, MAX_ALERTS);
+  getAlertTypeLabel(type: DashboardAlertType): string {
+    return ALERT_TYPE_LABELS[type];
   }
 }

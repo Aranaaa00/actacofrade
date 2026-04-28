@@ -8,7 +8,7 @@
 
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
-    <p class="dashboard__summary">Tienes <strong>{{ pendingTasksCount }} tareas pendientes</strong> en total.</p>
+    <p class="dashboard__summary">Tienes <strong>{{ alertCount }} alertas</strong> en total.</p>
   </header>
 
   <ul class="dashboard__stats" role="list">
@@ -17,8 +17,8 @@
       <p class="dashboard__stat-label">Actos activos</p>
     </li>
     <li class="dashboard__stat">
-      <strong class="dashboard__stat-number">{{ pendingTasksCount }}</strong>
-      <p class="dashboard__stat-label">Tareas pendientes</p>
+      <strong class="dashboard__stat-number">{{ alertCount }}</strong>
+      <p class="dashboard__stat-label">Alertas</p>
     </li>
     <li class="dashboard__stat">
       <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
@@ -57,9 +57,9 @@
       </h2>
 
       <ul class="dashboard__alert-list" role="list">
-        @for (alert of alerts; track alert.description) {
+        @for (alert of alerts; track alert.type + '-' + alert.entityId) {
           <li class="dashboard__alert-item">
-            <app-badge variant="wood">{{ alert.type }}</app-badge>
+            <app-badge variant="wood">{{ getAlertTypeLabel(alert.type) }}</app-badge>
             <a class="dashboard__alert-item-text" [routerLink]="['/events', alert.eventId]">{{ alert.description }}</a>
           </li>
         }
