@@ -39,6 +39,7 @@ export class ElementForm implements OnInit {
   private readonly auth = inject(AuthService);
 
   @Input() eventId!: number;
+  @Input() eventResponsibleId: number | null = null;
   @Input() initialTab: ElementTab = 'task';
   @Input() editData: EditData | null = null;
   @Output() closed = new EventEmitter<void>();
@@ -118,7 +119,7 @@ export class ElementForm implements OnInit {
   }
 
   private loadUsers(): void {
-    if (this.auth.hasAnyRole('ADMINISTRADOR', 'RESPONSABLE')) {
+    if (this.canManageThisEvent()) {
       this.userService.findAssignable().subscribe({
         next: (users) => this.users = users
       });
@@ -138,6 +139,13 @@ export class ElementForm implements OnInit {
         }
       }
     }
+  }
+
+  private canManageThisEvent(): boolean {
+    if (this.auth.isAdmin()) {
+      return true;
+    }
+    return this.eventResponsibleId !== null && this.eventResponsibleId === this.auth.getUserId();
   }
 
   switchTab(tab: ElementTab): void {

@@ -271,6 +271,7 @@
   @if (showElementForm) {
     <app-element-form
       [eventId]="eventId"
+      [eventResponsibleId]="event?.responsibleId ?? null"
       [initialTab]="elementFormTab"
       [editData]="elementEditData"
       (closed)="onElementClosed()"
