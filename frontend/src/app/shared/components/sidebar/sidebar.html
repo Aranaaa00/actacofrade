@@ -29,11 +29,13 @@
               Registro de Actos
             </a>
           </li>
-          <li>
-            <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
-              Mis Tareas
-            </a>
-          </li>
+          @if (!auth.isConsulta()) {
+            <li>
+              <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+                Mis Tareas
+              </a>
+            </li>
+          }
         </ul>
       }
     </li>

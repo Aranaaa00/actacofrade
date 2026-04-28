@@ -61,6 +61,10 @@ export class AuthService {
     return this.hasRole('ADMINISTRADOR');
   }
 
+  isConsulta(): boolean {
+    return this.hasRole('CONSULTA');
+  }
+
   getUserId(): number | null {
     return this.getUser()?.userId ?? null;
   }
