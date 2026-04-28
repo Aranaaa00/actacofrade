@@ -110,7 +110,7 @@
   max-width: 32rem;
 }
 
-// Fila de opciones: recordar sesion + recuperar credenciales
+// Fila de opciones: recordar sesion
 .login__options {
   display: flex;
   align-items: center;
@@ -133,18 +133,6 @@
     height: $size-icon-20;
     accent-color: var(--nav-bg);
     cursor: pointer;
-  }
-}
-
-.login__forgot {
-  @include focus-visible;
-  font-size: $text-paragraph;
-  color: var(--text-primary);
-  text-decoration: underline;
-  text-underline-offset: $space-4;
-
-  &:hover {
-    color: var(--link-hover);
   }
 }
 
