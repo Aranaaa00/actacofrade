@@ -1,0 +1,233 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  padding: $space-24 $space-16;
+
+  @include from-tablet {
+    gap: $space-24;
+    padding: $space-32 $space-24;
+  }
+
+  @include from-desktop {
+    padding: $space-32 $space-32;
+  }
+}
+
+.settings__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-16;
+  flex-wrap: wrap;
+}
+
+.settings__title {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.settings__loading,
+.settings__error {
+  font-size: $text-body;
+  color: var(--text-secondary);
+}
+
+.settings__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-24;
+  align-items: start;
+
+  @include from-desktop {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+}
+
+.settings__form,
+.settings__aside {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+}
+
+.settings__section {
+  display: flex;
+  flex-direction: column;
+  gap: $space-12;
+  padding: $space-16 $space-16 $space-24;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-bg);
+  border-radius: $radius-2;
+
+  @include from-tablet {
+    padding: $space-16 $space-24 $space-24;
+  }
+}
+
+.settings__section--compact {
+  padding: $space-12 $space-16 $space-16;
+  gap: $space-8;
+}
+
+.settings__section-header {
+  display: flex;
+  align-items: center;
+  gap: $space-8;
+  padding-bottom: $space-8;
+  border-bottom: $border-1 solid var(--border-default);
+}
+
+.settings__section-icon {
+  color: var(--nav-bg);
+}
+
+.settings__section-title {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.settings__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-12;
+
+  @include from-tablet {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $space-16;
+  }
+}
+
+.settings__field--full {
+  @include from-tablet {
+    grid-column: 1 / -1;
+  }
+}
+
+.settings__input,
+.settings__textarea {
+  width: 100%;
+  padding: $space-8 $space-12;
+  background-color: var(--bg-page);
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+  font-family: $font-body;
+  font-size: $text-body;
+  color: var(--text-primary);
+  transition: border-color $motion-hover $motion-ease;
+}
+
+.settings__input {
+  height: $size-input-height;
+}
+
+.settings__textarea {
+  min-height: 4rem;
+  resize: vertical;
+}
+
+.settings__input:focus,
+.settings__textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+.settings__input:disabled,
+.settings__textarea:disabled {
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.settings__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $space-12;
+  padding-top: $space-8;
+}
+
+.settings__info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-8;
+}
+
+.settings__info-item {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  padding: $space-8 $space-12;
+  background-color: var(--bg-page);
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+}
+
+.settings__info-item--span {
+  grid-column: 1 / -1;
+}
+
+.settings__info-label {
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.settings__info-value {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.settings__info-meta {
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+}
+
+.settings__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-8;
+  list-style: none;
+}
+
+.settings__link {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: $space-8;
+  padding: $space-8 $space-12;
+  background-color: var(--bg-page);
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color $motion-hover $motion-ease, border-color $motion-hover $motion-ease;
+}
+
+.settings__link:hover {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--nav-bg);
+}

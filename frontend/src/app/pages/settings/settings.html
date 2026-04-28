@@ -1,0 +1,129 @@
+<section class="settings" aria-labelledby="settings-title">
+
+  @if (loading) {
+    <p class="settings__loading" role="status">Cargando configuración…</p>
+  } @else if (!hermandad) {
+    <p class="settings__error" role="alert">{{ errorMessage }}</p>
+  } @else {
+
+  <header class="settings__header">
+    <h1 id="settings-title" class="settings__title">Configuración</h1>
+  </header>
+
+  @if (!canEdit) {
+    <app-banner type="info">Solo el administrador puede modificar esta información.</app-banner>
+  }
+  @if (errorMessage) {
+    <app-banner type="danger">{{ errorMessage }}</app-banner>
+  }
+  @if (successMessage) {
+    <app-banner type="success">{{ successMessage }}</app-banner>
+  }
+
+  <div class="settings__layout">
+
+    <form class="settings__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <article class="settings__section">
+        <header class="settings__section-header">
+          <lucide-icon name="building-2" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <h2 class="settings__section-title">Identidad</h2>
+        </header>
+        <div class="settings__grid">
+          <app-form-field label="Nombre" fieldId="nombre" [hasError]="hasError('nombre')" [errorMessage]="getError('nombre')" styleClass="settings__field--full">
+            <input id="nombre" class="settings__input" type="text" formControlName="nombre" maxlength="200" autocomplete="organization" />
+          </app-form-field>
+          <app-form-field label="Descripción" fieldId="descripcion" [hasError]="hasError('descripcion')" [errorMessage]="getError('descripcion')" styleClass="settings__field--full">
+            <textarea id="descripcion" class="settings__textarea" formControlName="descripcion" rows="2" maxlength="500"></textarea>
+          </app-form-field>
+          <app-form-field label="Año de fundación" fieldId="anioFundacion" [hasError]="hasError('anioFundacion')" [errorMessage]="getError('anioFundacion')">
+            <input id="anioFundacion" class="settings__input" type="number" formControlName="anioFundacion" min="1000" max="2100" inputmode="numeric" />
+          </app-form-field>
+        </div>
+      </article>
+
+      <article class="settings__section">
+        <header class="settings__section-header">
+          <lucide-icon name="map-pin" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <h2 class="settings__section-title">Contacto y ubicación</h2>
+        </header>
+        <div class="settings__grid">
+          <app-form-field label="Localidad" fieldId="localidad" [hasError]="hasError('localidad')" [errorMessage]="getError('localidad')">
+            <input id="localidad" class="settings__input" type="text" formControlName="localidad" maxlength="120" autocomplete="address-level2" />
+          </app-form-field>
+          <app-form-field label="Dirección de la sede" fieldId="direccionSede" [hasError]="hasError('direccionSede')" [errorMessage]="getError('direccionSede')">
+            <input id="direccionSede" class="settings__input" type="text" formControlName="direccionSede" maxlength="200" autocomplete="street-address" />
+          </app-form-field>
+          <app-form-field label="Correo de contacto" fieldId="emailContacto" [hasError]="hasError('emailContacto')" [errorMessage]="getError('emailContacto')">
+            <input id="emailContacto" class="settings__input" type="email" formControlName="emailContacto" maxlength="150" autocomplete="email" />
+          </app-form-field>
+          <app-form-field label="Teléfono de contacto" fieldId="telefonoContacto" [hasError]="hasError('telefonoContacto')" [errorMessage]="getError('telefonoContacto')">
+            <input id="telefonoContacto" class="settings__input" type="tel" formControlName="telefonoContacto" maxlength="20" autocomplete="tel" />
+          </app-form-field>
+        </div>
+        @if (canEdit) {
+          <footer class="settings__actions">
+            <button class="button button--primary" type="submit" [disabled]="saving || form.invalid || form.pristine">
+              {{ saving ? 'Guardando…' : 'Guardar cambios' }}
+            </button>
+          </footer>
+        }
+      </article>
+    </form>
+
+    <aside class="settings__aside" aria-label="Información del sistema y accesos rápidos">
+
+      <article class="settings__section settings__section--compact">
+        <header class="settings__section-header">
+          <lucide-icon name="info" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <h2 class="settings__section-title">Sistema</h2>
+        </header>
+        <dl class="settings__info">
+          <div class="settings__info-item">
+            <dt class="settings__info-label">Miembros activos</dt>
+            <dd class="settings__info-value">{{ hermandad.usersCount }}</dd>
+          </div>
+          <div class="settings__info-item">
+            <dt class="settings__info-label">Actos registrados</dt>
+            <dd class="settings__info-value">{{ hermandad.eventsCount }}</dd>
+          </div>
+          <div class="settings__info-item settings__info-item--span">
+            <dt class="settings__info-label">Creada</dt>
+            <dd class="settings__info-meta">{{ formattedCreatedAt }}</dd>
+          </div>
+          <div class="settings__info-item settings__info-item--span">
+            <dt class="settings__info-label">Última modificación</dt>
+            <dd class="settings__info-meta">{{ formattedUpdatedAt }}</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="settings__section settings__section--compact">
+        <header class="settings__section-header">
+          <lucide-icon name="link" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <h2 class="settings__section-title">Accesos rápidos</h2>
+        </header>
+        <ul class="settings__links" role="list">
+          @if (canEdit) {
+            <li>
+              <a class="settings__link" routerLink="/users">
+                <lucide-icon name="users" [size]="18" aria-hidden="true"></lucide-icon>
+                Usuarios
+              </a>
+            </li>
+          }
+          <li>
+            <a class="settings__link" routerLink="/history">
+              <lucide-icon name="history" [size]="18" aria-hidden="true"></lucide-icon>
+              Historial
+            </a>
+          </li>
+        </ul>
+      </article>
+
+    </aside>
+
+  </div>
+
+  }
+</section>
