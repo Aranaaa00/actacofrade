@@ -28,9 +28,13 @@ import {
   getDecisionStatusLabel, getDecisionBadgeVariant,
   getIncidentStatusLabel, getIncidentBadgeVariant,
   getAreaLabel, getActionLabel, getEntityTypeLabel,
-  getHistoryBadgeVariant, getStepLabel
+  getHistoryBadgeVariant
 } from '../../shared/utils/label-maps.utils';
 import { formatDate, formatDateTime } from '../../shared/utils/date.utils';
+import {
+  calculateActProgress, getProgressMessage, getPendingActionsText,
+  buildProgressSteps, ActProgressStep
+} from '../../shared/utils/act-progress.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -42,13 +46,6 @@ interface EditData {
   deadline: string;
   notes: string;
   area: string;
-}
-
-interface StepInfo {
-  key: string;
-  label: string;
-  done: boolean;
-  connectorDone: boolean;
 }
 
 @Component({
@@ -109,75 +106,37 @@ export class ActDetail implements OnInit {
   historyLoading = false;
   private readonly historyPageSize = 5;
 
-  private readonly stepKeys = ['PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE'];
-
-  private readonly taskWeights: Record<string, number> = {
-    'PLANNED': 0,
-    'ACCEPTED': 0.2,
-    'IN_PREPARATION': 0.4,
-    'CONFIRMED': 0.6,
-    'COMPLETED': 1,
-    'REJECTED': 1
-  };
-
-  private readonly decisionWeights: Record<string, number> = {
-    'PENDING': 0,
-    'ACCEPTED': 1,
-    'REJECTED': 1
-  };
-
-  private readonly incidentWeights: Record<string, number> = {
-    'ABIERTA': 0,
-    'RESUELTA': 1
-  };
-
   get statusLabel(): string {
     return getEventStatusLabel(this.event?.status || '');
   }
 
-  get progressPercent(): number {
+  get progress() {
     if (this.event?.status === 'CERRADO') {
-      return 100;
+      const total = this.tasks.length + this.decisions.length + this.incidents.length;
+      return { total, completed: total, pending: 0, percent: 100 };
     }
-
-    let totalElements = 0;
-    let weightedSum = 0;
-
-    for (const task of this.tasks) {
-      totalElements++;
-      weightedSum += this.taskWeights[task.status] ?? 0;
-    }
-
-    for (const decision of this.decisions) {
-      totalElements++;
-      weightedSum += this.decisionWeights[decision.status] ?? 0;
-    }
-
-    for (const incident of this.incidents) {
-      totalElements++;
-      weightedSum += this.incidentWeights[incident.status] ?? 0;
-    }
-
-    if (totalElements === 0) {
-      return 0;
-    }
-
-    return (weightedSum / totalElements) * 100;
+    return calculateActProgress(this.tasks, this.decisions, this.incidents);
   }
 
-  get steps(): StepInfo[] {
-    const progress = this.progressPercent;
-    const stepCount = this.stepKeys.length;
-    return this.stepKeys.map((key, i) => {
-      const stepThreshold = (i / (stepCount - 1)) * 100;
-      const nextThreshold = ((i + 1) / (stepCount - 1)) * 100;
-      return {
-        key,
-        label: getStepLabel(key),
-        done: progress >= stepThreshold,
-        connectorDone: i < stepCount - 1 && progress >= nextThreshold
-      };
-    });
+  get progressPercent(): number {
+    return this.progress.percent;
+  }
+
+  get pendingActionsCount(): number {
+    return this.progress.pending;
+  }
+
+  get pendingActionsText(): string {
+    return getPendingActionsText(this.pendingActionsCount);
+  }
+
+  get progressMessage(): string {
+    const { percent, total } = this.progress;
+    return getProgressMessage(percent, total);
+  }
+
+  get steps(): ActProgressStep[] {
+    return buildProgressSteps(this.progressPercent);
   }
 
   get statusVariant(): string {
@@ -185,16 +144,8 @@ export class ActDetail implements OnInit {
     return status === 'CERRADO' ? 'confirmed' : 'pending';
   }
 
-  get unconfirmedTasksCount(): number {
-    return this.tasks.filter(t => t.status !== 'COMPLETED' && t.status !== 'REJECTED').length;
-  }
-
-  get openIncidentsCount(): number {
-    return this.incidents.filter(i => i.status === 'ABIERTA').length;
-  }
-
   get hasPendingItems(): boolean {
-    return this.unconfirmedTasksCount > 0 || this.openIncidentsCount > 0;
+    return this.pendingActionsCount > 0;
   }
 
 
