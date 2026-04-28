@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findByHermandadId(Integer hermandadId);
 
+    long countByHermandadIdAndActiveTrue(Integer hermandadId);
+
     Optional<User> findByIdAndHermandadId(Integer id, Integer hermandadId);
 
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r " +
