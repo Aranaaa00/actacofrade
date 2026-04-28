@@ -1,0 +1,182 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Modal de perfil: 2 columnas (avatar + formularios) sin scroll, centrado
+.profile-modal__overlay {
+  align-items: center;
+  padding: $space-16;
+  overflow: hidden;
+}
+
+.profile-modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 56rem;
+  max-height: calc(100dvh - #{$space-32});
+  padding: $space-24;
+  overflow: hidden;
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-bg);
+}
+
+.profile-modal__header {
+  margin-bottom: $space-16;
+  flex-shrink: 0;
+}
+
+.profile-modal__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-24;
+  min-height: 0;
+  overflow: hidden;
+
+  @include from-tablet {
+    grid-template-columns: 16rem 1fr;
+    align-items: start;
+  }
+}
+
+// Panel izquierdo: avatar + acciones
+.profile-modal__avatar-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-12;
+}
+
+.profile-modal__avatar-zone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12rem;
+  height: 12rem;
+  background-color: var(--bg-page);
+  border: $border-2 dashed var(--border-default);
+  border-radius: 50%;
+  overflow: hidden;
+
+  &--drag {
+    border-color: var(--border-focus);
+    background-color: var(--bg-surface-hover);
+  }
+}
+
+.profile-modal__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-modal__avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: $font-heading;
+  font-size: $text-h2;
+  font-weight: $weight-bold;
+  color: var(--text-secondary);
+}
+
+.profile-modal__avatar-cta {
+  @include focus-visible;
+  @include transition(background-color, color);
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $space-4;
+  padding-block: $space-8;
+  background-color: rgba(13, 13, 13, 0.7);
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--text-on-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--btn-primary-bg);
+  }
+}
+
+.profile-modal__avatar-input {
+  position: absolute;
+  width: 0.0625rem;
+  height: 0.0625rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.profile-modal__avatar-hint {
+  font-size: $text-label;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.profile-modal__avatar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-8;
+}
+
+// Panel derecho: forms
+.profile-modal__forms {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  min-height: 0;
+}
+
+.profile-modal__alert {
+  padding: $space-8 $space-12;
+  font-size: $text-paragraph;
+  border-radius: $radius-2;
+
+  &--error {
+    background-color: var(--btn-danger-bg);
+    color: var(--btn-danger-text);
+  }
+
+  &--success {
+    background-color: var(--nav-bg);
+    color: var(--text-on-dark);
+  }
+}
+
+.profile-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-12;
+}
+
+.profile-modal__form--password {
+  padding-top: $space-16;
+  border-top: $border-1 solid var(--border-default);
+}
+
+.profile-modal__section-title {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+}
+
+.profile-modal__form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+// Botón compacto reusado dentro del modal: respeta tokens
+.profile-modal__btn {
+  height: $size-input-height;
+  padding-inline: $space-16;
+  font-size: $text-paragraph;
+}
