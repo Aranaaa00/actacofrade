@@ -95,6 +95,7 @@ export class ElementForm implements OnInit {
   }
 
   ngOnInit(): void {
+    // edit mode reuses the same form to update tasks decisions or incidents
     this.activeTab = this.editData?.type || this.initialTab;
 
     this.form = this.fb.group({
@@ -159,6 +160,7 @@ export class ElementForm implements OnInit {
   }
 
   onSubmit(): void {
+    // block submission until every field validator passes
     if (this.form.invalid) {
       this.form.markAllAsTouched();
     } else {

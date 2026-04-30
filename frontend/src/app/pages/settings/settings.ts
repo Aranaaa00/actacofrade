@@ -69,6 +69,7 @@ export class Settings implements OnInit {
   }
 
   onSubmit(): void {
+    // ignore re-submissions while a previous save is still pending
     if (!this.canEdit || this.saving) {
       return;
     }

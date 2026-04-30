@@ -41,6 +41,7 @@ export class ActEditor implements OnInit, AfterViewInit {
   successMessage = '';
 
   ngOnInit(): void {
+    // build the reactive form with shared validators that block html injection
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       eventType: ['', [Validators.required]],
@@ -52,6 +53,7 @@ export class ActEditor implements OnInit, AfterViewInit {
 
     this.loadUsers();
 
+    // when the route has an id we switch to edit mode and prefill the form
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;

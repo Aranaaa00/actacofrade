@@ -77,6 +77,7 @@ export class Register implements OnInit {
   }
 
   ngOnInit(): void {
+    // when used inside the users modal hermandad name is not asked again
     if (this.embedded) {
       const hermandadControl = this.form.get('hermandadNombre');
       hermandadControl?.clearValidators();
@@ -85,6 +86,7 @@ export class Register implements OnInit {
   }
 
   onSubmit(): void {
+    // mark form as submitted to enable error display
     this.submitted = true;
     if (this.form.invalid || !this.passwordsMatch()) {
       this.form.markAllAsTouched();
@@ -144,6 +146,7 @@ export class Register implements OnInit {
     return this.form.get('password')?.value === this.form.get('confirmPassword')?.value;
   }
 
+  // composite error check that also considers password confirmation mismatch
   hasError(field: string): boolean {
     let showError = hasFieldError(this.form, field, this.submitted);
     if (field === 'confirmPassword' && this.submitted && !this.passwordsMatch()) {

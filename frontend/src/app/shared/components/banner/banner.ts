@@ -10,7 +10,7 @@ export class Banner {
   @Input() ariaLive: 'assertive' | 'polite' | null = null;
   @Input() styleClass = '';
 
-  /** Announce errors assertively; success/info announcements should be polite per WCAG 2.1 AA SC 4.1.3. */
+  // announce errors assertively, success and info announcements should be polite (WCAG 2.1 AA SC 4.1.3)
   get effectiveRole(): string {
     if (this.role) return this.role;
     return this.isCritical() ? 'alert' : 'status';
