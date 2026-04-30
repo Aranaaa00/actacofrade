@@ -11,5 +11,6 @@ public record AuditLogResponse(
         Integer performedById,
         String performedByName,
         LocalDateTime performedAt,
-        String details
+        String details,
+        String changes
 ) {}
