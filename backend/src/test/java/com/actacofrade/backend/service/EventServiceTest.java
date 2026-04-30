@@ -83,7 +83,7 @@ class EventServiceTest {
         when(eventRepository.findAll(any(Specification.class), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(event)));
 
-        Page<EventResponse> page = service.findFiltered("CABILDO", "PLANIFICACION",
+        Page<EventResponse> page = service.findFiltered("CABILDO", "PLANNING",
                 LocalDate.now(), "x", PageRequest.of(0, 10), admin.getEmail());
         assertThat(page.getTotalElements()).isEqualTo(1);
     }
@@ -191,33 +191,33 @@ class EventServiceTest {
         mockUser(admin);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         EventResponse res = service.advanceStatus(10, admin.getEmail());
-        assertThat(res.status()).isEqualTo("PREPARACION");
+        assertThat(res.status()).isEqualTo("PREPARATION");
     }
 
     @Test
     void advanceStatus_walksAllStates() {
         mockUser(admin);
-        event.setStatus(EventStatus.PREPARACION);
+        event.setStatus(EventStatus.PREPARATION);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
-        assertThat(service.advanceStatus(10, admin.getEmail()).status()).isEqualTo("CONFIRMACION");
+        assertThat(service.advanceStatus(10, admin.getEmail()).status()).isEqualTo("CONFIRMATION");
 
-        event.setStatus(EventStatus.CONFIRMACION);
-        assertThat(service.advanceStatus(10, admin.getEmail()).status()).isEqualTo("CIERRE");
+        event.setStatus(EventStatus.CONFIRMATION);
+        assertThat(service.advanceStatus(10, admin.getEmail()).status()).isEqualTo("CLOSING");
     }
 
     @Test
-    void advanceStatus_fromCierreThrows() {
+    void advanceStatus_fromClosingThrows() {
         mockUser(admin);
-        event.setStatus(EventStatus.CIERRE);
+        event.setStatus(EventStatus.CLOSING);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         assertThatThrownBy(() -> service.advanceStatus(10, admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
-    void advanceStatus_fromCerradoThrows() {
+    void advanceStatus_fromClosedThrows() {
         mockUser(admin);
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         assertThatThrownBy(() -> service.advanceStatus(10, admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
@@ -226,14 +226,14 @@ class EventServiceTest {
     @Test
     void close_succeedsWhenNothingPending() {
         mockUser(admin);
-        event.setStatus(EventStatus.CIERRE);
+        event.setStatus(EventStatus.CLOSING);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         when(eventRepository.countPendingTasksByEventId(10)).thenReturn(0L);
         when(eventRepository.countOpenIncidentsByEventId(10)).thenReturn(0L);
         when(eventRepository.countPendingDecisionsByEventId(10)).thenReturn(0L);
 
         EventResponse res = service.close(10, admin.getEmail());
-        assertThat(res.status()).isEqualTo("CERRADO");
+        assertThat(res.status()).isEqualTo("CLOSED");
         verify(auditLogService).log(eq(event), eq("EVENT"), eq(10), eq("EVENT_CLOSED"), eq(admin), any());
     }
 
@@ -277,7 +277,7 @@ class EventServiceTest {
     @Test
     void close_alreadyClosed_throws() {
         mockUser(admin);
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         assertThatThrownBy(() -> service.close(10, admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
@@ -304,7 +304,7 @@ class EventServiceTest {
     @Test
     void toggleLockForClosing_closedEventThrows() {
         mockUser(admin);
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         assertThatThrownBy(() -> service.toggleLockForClosing(10, admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
@@ -317,7 +317,7 @@ class EventServiceTest {
         when(eventRepository.findMaxReferenceNumberByYearPrefix(anyString())).thenReturn(null);
 
         EventResponse res = service.clone(10, admin.getEmail());
-        assertThat(res.status()).isEqualTo("PLANIFICACION");
+        assertThat(res.status()).isEqualTo("PLANNING");
         verify(eventRepository).save(any(Event.class));
         verify(eventRepository).insertCloneRelation(eq(10), any());
     }
@@ -334,12 +334,12 @@ class EventServiceTest {
     void findHistory_paginatesAndSorts() {
         mockUser(admin);
         Event closed = TestFixtures.event(20, hermandad, admin);
-        closed.setStatus(EventStatus.CERRADO);
+        closed.setStatus(EventStatus.CLOSED);
         when(eventRepository.findAll(any(Specification.class))).thenReturn(List.of(event, closed));
 
         Page<EventResponse> page = service.findHistory(null, null, null, null, null, 0, 10, admin.getEmail());
         assertThat(page.getTotalElements()).isEqualTo(2);
-        assertThat(page.getContent().get(0).status()).isEqualTo("PLANIFICACION");
+        assertThat(page.getContent().get(0).status()).isEqualTo("PLANNING");
     }
 
     @Test

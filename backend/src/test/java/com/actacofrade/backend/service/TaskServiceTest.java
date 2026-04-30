@@ -129,7 +129,7 @@ class TaskServiceTest {
 
     @Test
     void create_eventClosed_throws() {
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         mockEvent();
         CreateTaskRequest req = new CreateTaskRequest("T", null, null, null);
@@ -391,19 +391,19 @@ class TaskServiceTest {
         CreateTaskRequest req = new CreateTaskRequest("T", null, 3, null);
         service.create(10, req, admin.getEmail());
 
-        assertThat(event.getStatus()).isEqualTo(EventStatus.CONFIRMACION);
+        assertThat(event.getStatus()).isEqualTo(EventStatus.CONFIRMATION);
     }
 
     @Test
     void create_zeroTasks_setsPlanificacion() {
-        event.setStatus(EventStatus.PREPARACION);
+        event.setStatus(EventStatus.PREPARATION);
         mockUser(admin);
         mockEvent();
         when(userRepository.findById(3)).thenReturn(Optional.of(colaborador));
         when(eventRepository.countTotalTasksByEventId(10)).thenReturn(0L);
 
         service.create(10, new CreateTaskRequest("T", null, 3, null), admin.getEmail());
-        assertThat(event.getStatus()).isEqualTo(EventStatus.PLANIFICACION);
+        assertThat(event.getStatus()).isEqualTo(EventStatus.PLANNING);
     }
 
     @Test
@@ -416,7 +416,7 @@ class TaskServiceTest {
         when(eventRepository.countTasksWithRejectedStatus(10)).thenReturn(1L);
 
         service.create(10, new CreateTaskRequest("T", null, 3, null), admin.getEmail());
-        assertThat(event.getStatus()).isEqualTo(EventStatus.CIERRE);
+        assertThat(event.getStatus()).isEqualTo(EventStatus.CLOSING);
     }
 
     @Test
@@ -432,12 +432,12 @@ class TaskServiceTest {
         when(eventRepository.countTasksWithAcceptedStatus(10)).thenReturn(0L);
 
         service.create(10, new CreateTaskRequest("T", null, 3, null), admin.getEmail());
-        assertThat(event.getStatus()).isEqualTo(EventStatus.PREPARACION);
+        assertThat(event.getStatus()).isEqualTo(EventStatus.PREPARATION);
     }
 
     @Test
     void recalculate_skippedWhenClosed() {
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         when(eventRepository.findByIdAndHermandadId(10, 1)).thenReturn(Optional.of(event));
         assertThatThrownBy(() -> service.create(10, new CreateTaskRequest("T", null, null, null), admin.getEmail()))
@@ -445,3 +445,4 @@ class TaskServiceTest {
         verify(eventRepository, never()).countTotalTasksByEventId(any());
     }
 }
+
