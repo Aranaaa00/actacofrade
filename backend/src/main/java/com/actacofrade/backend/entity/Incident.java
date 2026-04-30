@@ -42,7 +42,7 @@ public class Incident {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status")
-    private IncidentStatus status = IncidentStatus.ABIERTA;
+    private IncidentStatus status = IncidentStatus.OPEN;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reported_by")
