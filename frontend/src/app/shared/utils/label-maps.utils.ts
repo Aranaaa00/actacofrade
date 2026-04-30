@@ -1,3 +1,4 @@
+// translation tables that turn backend enum codes into the spanish text shown in the ui
 const EVENT_TYPE_LABELS: Record<string, string> = {
   'CABILDO': 'Cabildo',
   'CULTOS': 'Cultos',
