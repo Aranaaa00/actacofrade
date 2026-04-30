@@ -68,16 +68,6 @@
   line-height: 1.6;
 }
 
-.login__version {
-  margin-top: auto;
-  padding-top: $space-48;
-  font-size: $text-paragraph;
-  font-weight: $weight-semibold;
-  color: var(--text-on-dark-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
 // Panel principal con formulario de acceso
 .login__main {
   flex: 1;
@@ -161,4 +151,17 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1.6;
+}
+
+.login__privacy {
+  summary {
+    cursor: pointer;
+    font-weight: $weight-semibold;
+  }
+
+  p {
+    margin-top: $space-8;
+    text-transform: none;
+    letter-spacing: normal;
+  }
 }

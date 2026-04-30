@@ -9,12 +9,11 @@
     <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
       <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
       <h2 class="login__brand">ActaCofrade</h2>
-      <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
-      <p class="login__version">Secretaría General V2.4</p>
+      <p class="login__tagline">Gestión de actos y decisiones</p>
     </aside>
 
     <section class="login__main">
-      <h1 class="login__heading" id="login-heading">Acceso al Archivo</h1>
+      <h1 class="login__heading" id="login-heading">Iniciar sesión</h1>
 
       @if (errorMessage) {
         <app-banner type="critical">{{ errorMessage }}</app-banner>
@@ -32,7 +31,7 @@
             [attr.aria-describedby]="hasError('email') ? 'login-email-error' : null">
         </app-form-field>
 
-        <app-form-field label="Contraseña institucional" fieldId="login-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
+        <app-form-field label="Contraseña" fieldId="login-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
           <input id="login-password"
             type="password"
             formControlName="password"
@@ -46,7 +45,7 @@
         <nav class="login__options" aria-label="Opciones de sesión">
           <label class="login__remember">
             <input type="checkbox" formControlName="rememberMe">
-            Recordar sesión
+            Recordarme
           </label>
         </nav>
 
@@ -55,16 +54,15 @@
             class="button button--primary button--full-width"
             [disabled]="loading"
             [attr.aria-busy]="loading">
-            Autenticar acceso
+            Entrar
           </button>
         </footer>
 
-        <a class="login__register" routerLink="/register">No tengo acceso, solicitar cuenta institucional</a>
+        <a class="login__register" routerLink="/register">¿No tienes cuenta? Solicítala</a>
       </form>
 
       <p class="login__legal">
-        Este sistema contiene información privada protegida por los protocolos de la hermandad.
-        El acceso no autorizado será debidamente registrado.
+        Información protegida. Acceso restringido a miembros.
       </p>
     </section>
   </article>
