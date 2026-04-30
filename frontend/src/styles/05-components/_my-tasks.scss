@@ -190,7 +190,7 @@
   display: flex;
   align-items: center;
   gap: $space-16;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .my-tasks__action {
