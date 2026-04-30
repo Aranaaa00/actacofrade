@@ -77,20 +77,20 @@
       </app-form-field>
     </section>
 
-    <app-form-field label="Notas adicionales" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
-      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones relevantes..." maxlength="1000"></textarea>
+    <app-form-field label="Notas" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
+      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones…" maxlength="1000"></textarea>
     </app-form-field>
 
     <aside class="element-form__status-box" aria-label="Estado inicial">
-      <strong class="element-form__status-text">Estado inicial: Pendiente</strong>
+      <span class="element-form__status-text">Estado: Pendiente</span>
     </aside>
 
     <p class="element-form__hint element-form__hint--italic">
-      La tarea se crea automáticamente como pendiente. El responsable asignado o un administrador deberá confirmarla o rechazarla más adelante.
+      Se crea como pendiente. El responsable debe confirmarla o rechazarla.
     </p>
 
     <p class="element-form__hint">
-      Solo cuando todas las tareas estén confirmadas y no existan incidencias abiertas, el acto podrá cerrarse.
+      El acto se cierra cuando todas las tareas están confirmadas.
     </p>
 
     <footer class="modal__footer">

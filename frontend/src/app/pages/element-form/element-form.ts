@@ -66,18 +66,18 @@ export class ElementForm implements OnInit {
 
   get titleLabel(): string {
     const labels: Record<ElementTab, string> = {
-      task: 'Descripción de la tarea',
-      decision: 'Título de la decisión',
-      incident: 'Descripción de la incidencia'
+      task: 'Tarea',
+      decision: 'Decisión',
+      incident: 'Incidencia'
     };
     return labels[this.activeTab];
   }
 
   get titlePlaceholder(): string {
     const placeholders: Record<ElementTab, string> = {
-      task: 'Escriba el título de la tarea...',
-      decision: 'Escriba el título de la decisión...',
-      incident: 'Describa la incidencia...'
+      task: 'Título de la tarea…',
+      decision: 'Título de la decisión…',
+      incident: 'Describe la incidencia…'
     };
     return placeholders[this.activeTab];
   }
