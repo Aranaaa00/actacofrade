@@ -6,6 +6,7 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { EditUserModal } from '../../shared/components/edit-user-modal/edit-user-modal';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { Register } from '../register/register';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -41,7 +42,7 @@ const PERMISSION_COLUMNS: PermissionColumn[] = [
 
 @Component({
   selector: 'app-users',
-  imports: [FormsModule, LucideAngularModule, Badge, Pagination, FilterDropdown, EditUserModal, Register],
+  imports: [FormsModule, LucideAngularModule, Badge, Pagination, FilterDropdown, EditUserModal, ConfirmDialog, Register],
   templateUrl: './users.html',
 })
 export class Users implements OnInit, OnDestroy {
@@ -231,7 +232,20 @@ export class Users implements OnInit, OnDestroy {
     this.refreshStats();
   }
 
+  pendingDeleteUser: UserResponse | null = null;
+
   deleteUser(user: UserResponse): void {
+    this.pendingDeleteUser = user;
+  }
+
+  cancelDeleteUser(): void {
+    this.pendingDeleteUser = null;
+  }
+
+  confirmDeleteUser(): void {
+    const user = this.pendingDeleteUser;
+    if (!user) return;
+    this.pendingDeleteUser = null;
     this.processingUserId = user.id;
     this.userService.delete(user.id).subscribe({
       next: () => {

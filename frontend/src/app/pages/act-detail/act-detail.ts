@@ -8,6 +8,7 @@ import { Pagination } from '../../shared/components/pagination/pagination';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
 import { EventService } from '../../services/event.service';
@@ -50,7 +51,7 @@ interface EditData {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay, ConfirmDialog],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -367,15 +368,42 @@ export class ActDetail implements OnInit {
   }
 
   deleteTask(taskId: number): void {
-    this.taskService.delete(this.eventId, taskId).subscribe({
-      next: () => this.loadData()
-    });
+    this.pendingDelete = { type: 'task', id: taskId };
   }
 
   deleteDecision(decisionId: number): void {
-    this.decisionService.delete(this.eventId, decisionId).subscribe({
-      next: () => this.loadData()
-    });
+    this.pendingDelete = { type: 'decision', id: decisionId };
+  }
+
+  deleteIncident(incidentId: number): void {
+    this.pendingDelete = { type: 'incident', id: incidentId };
+  }
+
+  pendingDelete: { type: ElementTab; id: number } | null = null;
+
+  get pendingDeleteMessage(): string {
+    if (!this.pendingDelete) return '';
+    const labels: Record<ElementTab, string> = {
+      task: 'esta tarea',
+      decision: 'esta decisión',
+      incident: 'esta incidencia',
+    };
+    return `¿Seguro que deseas eliminar ${labels[this.pendingDelete.type]}? Esta acción no se puede deshacer.`;
+  }
+
+  cancelPendingDelete(): void {
+    this.pendingDelete = null;
+  }
+
+  confirmPendingDelete(): void {
+    if (!this.pendingDelete) return;
+    const { type, id } = this.pendingDelete;
+    this.pendingDelete = null;
+    let request$: Observable<void>;
+    if (type === 'task') request$ = this.taskService.delete(this.eventId, id);
+    else if (type === 'decision') request$ = this.decisionService.delete(this.eventId, id);
+    else request$ = this.incidentService.delete(this.eventId, id);
+    request$.subscribe({ next: () => this.loadData() });
   }
 
   acceptDecision(decision: DecisionResponse): void {
@@ -386,12 +414,6 @@ export class ActDetail implements OnInit {
 
   rejectDecision(decision: DecisionResponse): void {
     this.decisionService.reject(this.eventId, decision.id).subscribe({
-      next: () => this.loadData()
-    });
-  }
-
-  deleteIncident(incidentId: number): void {
-    this.incidentService.delete(this.eventId, incidentId).subscribe({
       next: () => this.loadData()
     });
   }

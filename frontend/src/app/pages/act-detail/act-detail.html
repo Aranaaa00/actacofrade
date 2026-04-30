@@ -293,6 +293,16 @@
     [processing]="processingTaskId !== null"
     (cancelled)="onRejectCancelled()"
     (confirmed)="onRejectConfirmed($event)" />
+
+  @if (pendingDelete) {
+    <app-confirm-dialog
+      title="Eliminar elemento"
+      [message]="pendingDeleteMessage"
+      confirmLabel="Eliminar"
+      cancelLabel="Cancelar"
+      (confirmed)="confirmPendingDelete()"
+      (cancelled)="cancelPendingDelete()" />
+  }
 </section>
 
 @if (showExportModal) {

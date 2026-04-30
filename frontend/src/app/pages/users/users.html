@@ -176,4 +176,14 @@
       (dialogClosed)="onCreateClosed()" />
   }
 
+  @if (pendingDeleteUser) {
+    <app-confirm-dialog
+      title="Eliminar usuario"
+      [message]="'¿Seguro que deseas eliminar a ' + pendingDeleteUser.fullName + '? Esta acción no se puede deshacer.'"
+      confirmLabel="Eliminar"
+      cancelLabel="Cancelar"
+      (confirmed)="confirmDeleteUser()"
+      (cancelled)="cancelDeleteUser()" />
+  }
+
 </section>
