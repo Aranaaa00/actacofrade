@@ -358,5 +358,13 @@
 .app-shell__content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
+
+  // Reserva espacio inferior en movil/tablet para el boton hamburguesa flotante
+  padding-block-end: 5rem;
+
+  @include from-desktop {
+    padding-block-end: 0;
+  }
 }
