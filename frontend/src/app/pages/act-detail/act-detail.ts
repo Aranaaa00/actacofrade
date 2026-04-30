@@ -66,7 +66,7 @@ export class ActDetail implements OnInit {
 
   eventId = 0;
   selectedTab = 'Tareas';
-  readonly tabLabels = ['Tareas', 'Decisiones', 'Incidencias', 'Historial del acto'];
+  readonly tabLabels = ['Tareas', 'Decisiones', 'Incidencias', 'Historial'];
 
   showElementForm = false;
   elementFormTab: ElementTab = 'task';
@@ -432,7 +432,7 @@ export class ActDetail implements OnInit {
 
   onTabChange(tab: string): void {
     this.selectedTab = tab;
-    if (tab === 'Historial del acto' && this.historyEntries.length === 0) {
+    if (tab === 'Historial' && this.historyEntries.length === 0) {
       this.loadHistory(1);
     }
   }

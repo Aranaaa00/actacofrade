@@ -12,7 +12,10 @@
       <section class="act-detail__header-main">
         <h1 class="act-detail__title">{{ event.title }}</h1>
         <p class="act-detail__meta">
-          Ref: {{ event.reference }} · {{ getEventTypeLabel(event.eventType) }} · {{ formatDate(event.eventDate) }} · {{ event.location }} · {{ event.responsibleName || '—' }}
+          {{ formatDate(event.eventDate) }}
+        </p>
+        <p class="act-detail__meta">
+          {{ event.location }} · {{ event.responsibleName || '—' }}
         </p>
       </section>
       <aside class="act-detail__header-side">
@@ -222,7 +225,7 @@
           </table>
         </section>
       }
-      @case ('Historial del acto') {
+      @case ('Historial') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Historial del acto">
           @if (historyEntries.length === 0 && !historyLoading) {
             <p class="act-detail__history-empty">No hay registros en el historial</p>
