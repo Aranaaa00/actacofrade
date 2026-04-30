@@ -422,24 +422,39 @@ export class ActDetail implements OnInit {
     if (type === 'task') request$ = this.taskService.delete(this.eventId, id);
     else if (type === 'decision') request$ = this.decisionService.delete(this.eventId, id);
     else request$ = this.incidentService.delete(this.eventId, id);
-    request$.subscribe({ next: () => this.loadData() });
+    request$.subscribe({
+      next: () => this.loadData(),
+      error: () => {
+        // surface deletion failure to the user
+        this.actionError = 'No se pudo eliminar el elemento. Inténtalo de nuevo.';
+      }
+    });
   }
 
   acceptDecision(decision: DecisionResponse): void {
     this.decisionService.accept(this.eventId, decision.id).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo aceptar la decisión. Inténtalo de nuevo.';
+      }
     });
   }
 
   rejectDecision(decision: DecisionResponse): void {
     this.decisionService.reject(this.eventId, decision.id).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo rechazar la decisión. Inténtalo de nuevo.';
+      }
     });
   }
 
   resolveIncident(incidentId: number): void {
     this.incidentService.resolve(this.eventId, incidentId).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo resolver la incidencia. Inténtalo de nuevo.';
+      }
     });
   }
 
