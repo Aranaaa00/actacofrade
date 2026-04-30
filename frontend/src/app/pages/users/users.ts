@@ -317,6 +317,9 @@ export class Users implements OnInit, OnDestroy {
       next: (stats) => {
         this.stats = stats;
       },
+      error: () => {
+        // keep previous stats on transient errors
+      },
     });
   }
 }

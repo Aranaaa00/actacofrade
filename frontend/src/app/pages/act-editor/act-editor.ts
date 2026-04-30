@@ -67,7 +67,8 @@ export class ActEditor implements OnInit, AfterViewInit {
   private loadUsers(): void {
     if (this.canPickResponsible) {
       this.userService.findAssignable().subscribe({
-        next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE'))
+        next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE')),
+        error: () => { this.users = []; }
       });
     } else {
       const authUser = this.auth.getUser();
@@ -118,9 +119,10 @@ export class ActEditor implements OnInit, AfterViewInit {
 
       request$.subscribe({
         next: (event) => {
+          // always reset loading regardless of mode to keep button enabled
+          this.loading = false;
           if (this.isEditMode) {
             this.successMessage = 'Acto actualizado correctamente.';
-            this.loading = false;
           } else {
             this.actCreated.emit(event);
           }

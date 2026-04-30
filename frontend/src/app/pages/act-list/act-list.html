@@ -9,6 +9,10 @@
     }
   </header>
 
+  @if (errorMessage) {
+    <app-banner type="error">{{ errorMessage }}</app-banner>
+  }
+
   <search class="act-list__filters" aria-label="Filtros de búsqueda">
     <app-filter-dropdown
       [label]="activeTypeLabel"

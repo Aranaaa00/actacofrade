@@ -121,7 +121,8 @@ export class ElementForm implements OnInit {
   private loadUsers(): void {
     if (this.canManageThisEvent()) {
       this.userService.findAssignable().subscribe({
-        next: (users) => this.users = users
+        next: (users) => this.users = users,
+        error: () => { this.users = []; }
       });
     } else {
       const authUser = this.auth.getUser();

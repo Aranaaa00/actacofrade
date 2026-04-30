@@ -72,9 +72,10 @@ export class ActHistory implements OnInit, OnDestroy {
         this.availableDates = dates;
         this.loadEvents();
       },
-      error: (err) => {
-        // log filter data load failure and continue with empty filters
-        console.error('Failed to load history filters', err);
+      error: () => {
+        // keep history usable even when filter data fails to load
+        this.users = [];
+        this.availableDates = [];
         this.loadEvents();
       }
     });
