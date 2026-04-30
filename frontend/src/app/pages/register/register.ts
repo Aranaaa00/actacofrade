@@ -177,6 +177,9 @@ export class Register implements OnInit, AfterViewInit {
     if (errors['tooShort']) {
       missing.push('mínimo 8 caracteres');
     }
+    if (errors['tooLong']) {
+      missing.push('máximo 100 caracteres');
+    }
     if (errors['noUppercase']) {
       missing.push('una mayúscula');
     }
@@ -188,6 +191,9 @@ export class Register implements OnInit, AfterViewInit {
     }
     if (errors['noSpecial']) {
       missing.push('un carácter especial (@$!%*?&.#_-)');
+    }
+    if (errors['invalidChars']) {
+      missing.push('solo caracteres permitidos (letras, dígitos y @$!%*?&.#_-)');
     }
     return 'Falta: ' + missing.join(', ') + '.';
   }

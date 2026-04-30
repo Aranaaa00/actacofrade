@@ -241,10 +241,12 @@ export class ProfileModal implements OnChanges {
     if (errors['pattern']) return 'Formato no válido';
     if (errors['noHtml']) return 'No se permiten caracteres HTML';
     if (errors['tooShort']) return 'Mínimo 8 caracteres';
+    if (errors['tooLong']) return 'Máximo 100 caracteres';
     if (errors['noUppercase']) return 'Debe incluir una mayúscula';
     if (errors['noLowercase']) return 'Debe incluir una minúscula';
     if (errors['noDigit']) return 'Debe incluir un número';
     if (errors['noSpecial']) return 'Debe incluir un carácter especial';
+    if (errors['invalidChars']) return 'Solo letras, dígitos y @$!%*?&.#_-';
     return 'Valor no válido';
   }
 
