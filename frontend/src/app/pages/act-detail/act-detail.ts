@@ -83,6 +83,10 @@ export class ActDetail implements OnInit {
   exportSections: string[] = ['TASKS', 'DECISIONS', 'INCIDENTS'];
   exportSubmitted = false;
   exportLoading = false;
+  exportError = '';
+
+  // global error message for header actions like clone
+  actionError = '';
 
   readonly exportSectionOptions = [
     { value: 'TASKS', label: 'Tareas y responsables' },
@@ -165,17 +169,28 @@ export class ActDetail implements OnInit {
   getAreaLabel = getAreaLabel;
 
   cloneAct(): void {
+    // reset previous error before request
+    this.actionError = '';
     this.eventService.clone(this.eventId).subscribe({
       next: (cloned) => {
         this.router.navigate(['/events', cloned.id]);
+      },
+      error: () => {
+        // notify user when cloning fails
+        this.actionError = 'No se pudo clonar el acto. Inténtalo de nuevo.';
       }
     });
+  }
+
+  dismissActionError(): void {
+    this.actionError = '';
   }
 
   openExportModal(): void {
     this.exportFormat = 'PDF';
     this.exportSections = ['TASKS', 'DECISIONS', 'INCIDENTS'];
     this.exportSubmitted = false;
+    this.exportError = '';
     this.showExportModal = true;
   }
 
@@ -206,8 +221,10 @@ export class ActDetail implements OnInit {
       return;
     }
     this.exportLoading = true;
+    this.exportError = '';
     this.eventService.export(this.eventId, this.exportFormat, this.exportSections).subscribe({
       next: (blob: Blob) => {
+        // trigger browser download for the generated file
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -218,7 +235,9 @@ export class ActDetail implements OnInit {
         this.closeExportModal();
       },
       error: () => {
+        // show error inside modal so the user can retry
         this.exportLoading = false;
+        this.exportError = 'No se pudo generar el archivo. Inténtalo de nuevo.';
       }
     });
   }
