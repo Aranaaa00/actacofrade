@@ -277,7 +277,7 @@
 .topbar {
   display: flex;
   align-items: center;
-  gap: $space-16;
+  gap: $space-12;
   padding: $space-12 $space-16;
   background-color: var(--bg-surface);
   border-bottom: $border-1 solid var(--border-default);
@@ -285,6 +285,7 @@
 
   @include from-desktop {
     padding: $space-12 $space-32;
+    gap: $space-16;
   }
 }
 
@@ -293,10 +294,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  color: var(--text-primary);
+  width: 3rem;
+  height: 3rem;
+  color: var(--text-on-dark);
+  background-color: var(--nav-bg);
+  border-radius: 50%;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
   cursor: pointer;
+
+  // En movil/tablet flota abajo a la izquierda para no estorbar
+  position: fixed;
+  inset-block-end: $space-16;
+  inset-inline-start: $space-16;
+  z-index: 80;
 
   & lucide-icon {
     width: $size-icon-24;
@@ -309,32 +319,32 @@
 }
 
 .topbar__title {
+  flex: 1;
   font-family: $font-heading;
-  font-size: 1.25rem;
+  font-size: $text-body;
   font-weight: $weight-bold;
   font-style: italic;
   color: var(--text-primary);
   letter-spacing: 0.02em;
-  flex: 1;
-  display: none;
+  @include truncate;
 
   @include from-tablet {
-    display: block;
+    font-size: 1.25rem;
   }
 }
 
 .topbar__date {
-  font-size: $text-paragraph;
+  font-size: $text-label;
   font-weight: $weight-semibold;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
-  display: none;
   margin-inline-start: auto;
 
   @include from-tablet {
-    display: block;
+    font-size: $text-paragraph;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -348,4 +358,5 @@
 .app-shell__content {
   flex: 1;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
