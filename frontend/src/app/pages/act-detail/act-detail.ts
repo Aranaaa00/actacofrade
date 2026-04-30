@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Banner } from '../../shared/components/banner/banner';
@@ -111,7 +111,7 @@ export class ActDetail implements OnInit {
   }
 
   get progress() {
-    if (this.event?.status === 'CERRADO') {
+    if (this.event?.status === 'CLOSED') {
       const total = this.tasks.length + this.decisions.length + this.incidents.length;
       return { total, completed: total, pending: 0, percent: 100 };
     }
@@ -141,7 +141,7 @@ export class ActDetail implements OnInit {
 
   get statusVariant(): string {
     const status = this.event?.status || '';
-    return status === 'CERRADO' ? 'confirmed' : 'pending';
+    return status === 'CLOSED' ? 'confirmed' : 'pending';
   }
 
   get hasPendingItems(): boolean {
@@ -280,55 +280,19 @@ export class ActDetail implements OnInit {
   }
 
   acceptTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.accept(this.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.taskService.accept(this.eventId, task.id));
   }
 
   startPreparation(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.startPreparation(this.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.taskService.startPreparation(this.eventId, task.id));
   }
 
   confirmTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.confirm(this.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.taskService.confirm(this.eventId, task.id));
   }
 
   completeTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.complete(this.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.taskService.complete(this.eventId, task.id));
   }
 
   openRejectModal(task: TaskResponse): void {
@@ -345,25 +309,27 @@ export class ActDetail implements OnInit {
     if (!this.rejectingTaskId) {
       return;
     }
-    this.processingTaskId = this.rejectingTaskId;
-    this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizeText(reason)).subscribe({
-      next: () => {
-        this.processingTaskId = null;
+    const taskId = this.rejectingTaskId;
+    this.runTaskAction(
+      taskId,
+      this.taskService.reject(this.eventId, taskId, sanitizeText(reason)),
+      () => {
         this.showRejectModal = false;
         this.rejectingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
       }
-    });
+    );
   }
 
   resetTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.reset(this.eventId, task.id).subscribe({
+    this.runTaskAction(task.id, this.taskService.reset(this.eventId, task.id));
+  }
+
+  private runTaskAction(taskId: number, request$: Observable<unknown>, onSuccess?: () => void): void {
+    this.processingTaskId = taskId;
+    request$.subscribe({
       next: () => {
         this.processingTaskId = null;
+        onSuccess?.();
         this.loadData();
       },
       error: () => {
@@ -465,7 +431,7 @@ export class ActDetail implements OnInit {
   }
 
   get isEventClosed(): boolean {
-    return this.event?.status === 'CERRADO';
+    return this.event?.status === 'CLOSED';
   }
 
   private loadData(): void {
