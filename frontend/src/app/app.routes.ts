@@ -5,18 +5,27 @@ import { roleGuard } from './guards/role.guard';
 const ROLES_ALL = ['ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR', 'CONSULTA'];
 const ROLES_MANAGE = ['ADMINISTRADOR', 'RESPONSABLE'];
 
+// suffix appended by the Title service to every page title
+const APP_NAME = 'ActaCofrade';
+
+// build a title string for the document head
+const pageTitle = (label: string): string => `${label} | ${APP_NAME}`;
+
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
+    title: APP_NAME,
     loadComponent: () => import('./pages/landing/landing').then(m => m.Landing)
   },
   {
     path: 'login',
+    title: pageTitle('Iniciar sesión'),
     loadComponent: () => import('./pages/login/login').then(m => m.Login)
   },
   {
     path: 'register',
+    title: pageTitle('Registro'),
     loadComponent: () => import('./pages/register/register').then(m => m.Register)
   },
   {
@@ -26,51 +35,61 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        title: pageTitle('Panel'),
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard)
       },
       {
         path: 'events',
+        title: pageTitle('Actos'),
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/act-list/act-list').then(m => m.ActList)
       },
       {
         path: 'events/new',
+        title: pageTitle('Nuevo acto'),
         canActivate: [roleGuard(ROLES_MANAGE)],
         loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
       },
       {
         path: 'events/:id',
+        title: pageTitle('Detalle del acto'),
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/act-detail/act-detail').then(m => m.ActDetail)
       },
       {
         path: 'events/:id/edit',
+        title: pageTitle('Editar acto'),
         canActivate: [roleGuard(ROLES_MANAGE)],
         loadComponent: () => import('./pages/act-editor/act-editor').then(m => m.ActEditor)
       },
       {
         path: 'events/:eventId/close',
+        title: pageTitle('Cerrar acto'),
         canActivate: [roleGuard(ROLES_MANAGE)],
         loadComponent: () => import('./pages/close-event/close-event').then(m => m.CloseEvent)
       },
       {
         path: 'my-tasks',
+        title: pageTitle('Mis tareas'),
         canActivate: [roleGuard(['ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR', 'CONSULTA'])],
         loadComponent: () => import('./pages/my-tasks/my-tasks').then(m => m.MyTasks)
       },
       {
         path: 'history',
+        title: pageTitle('Historial'),
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/act-history/act-history').then(m => m.ActHistory)
       },
       {
         path: 'users',
+        title: pageTitle('Usuarios'),
         canActivate: [roleGuard(['ADMINISTRADOR'])],
         loadComponent: () => import('./pages/users/users').then(m => m.Users)
       },
       {
         path: 'settings',
+        title: pageTitle('Ajustes'),
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/settings/settings').then(m => m.Settings)
       }
