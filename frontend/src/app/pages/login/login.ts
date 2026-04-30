@@ -1,25 +1,24 @@
-import { Component, inject, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, Banner, FormField],
+  imports: [ReactiveFormsModule, RouterLink, Banner, FormField, AutofocusDirective],
   templateUrl: './login.html',
 })
-export class Login implements AfterViewInit {
+export class Login {
   private static readonly REMEMBER_EMAIL_KEY = 'remember_email';
 
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-
-  @ViewChild('loginModal') loginModal!: ElementRef<HTMLElement>;
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
@@ -38,10 +37,13 @@ export class Login implements AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    const selector = this.form.value.email ? '#login-password' : '#login-email';
-    const target = this.loginModal.nativeElement.querySelector<HTMLInputElement>(selector);
-    target?.focus();
+  // tells the autofocus directive which input should receive focus on load
+  get focusEmail(): boolean {
+    return !this.form.value.email;
+  }
+
+  get focusPassword(): boolean {
+    return !!this.form.value.email;
   }
 
   onSubmit(): void {

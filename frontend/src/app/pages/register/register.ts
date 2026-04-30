@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef, ViewChild, AfterViewInit, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,22 +8,21 @@ import { UserResponse } from '../../models/user.model';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, Banner, FormField, ModalOverlay],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, Banner, FormField, ModalOverlay, AutofocusDirective],
   templateUrl: './register.html',
 })
-export class Register implements OnInit, AfterViewInit {
+export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
-
-  @ViewChild('registerModal') registerModal?: ElementRef<HTMLElement>;
 
   @Input() embedded = false;
   @Output() userCreated = new EventEmitter<UserResponse>();
@@ -83,11 +82,6 @@ export class Register implements OnInit, AfterViewInit {
       hermandadControl?.clearValidators();
       hermandadControl?.updateValueAndValidity();
     }
-  }
-
-  ngAfterViewInit(): void {
-    const firstInput = this.registerModal?.nativeElement.querySelector<HTMLInputElement>('#register-name');
-    firstInput?.focus();
   }
 
   onSubmit(): void {
