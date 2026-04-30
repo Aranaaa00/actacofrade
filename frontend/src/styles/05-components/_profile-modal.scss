@@ -14,10 +14,14 @@
   width: 100%;
   max-width: 56rem;
   max-height: calc(100dvh - #{$space-32});
-  padding: $space-24;
+  padding: $space-16;
   overflow: hidden;
   border: $border-1 solid var(--border-default);
   border-top: $border-2 solid var(--nav-bg);
+
+  @include from-tablet {
+    padding: $space-24;
+  }
 }
 
 .profile-modal__header {
@@ -51,12 +55,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 12rem;
-  height: 12rem;
+  width: 8rem;
+  height: 8rem;
   background-color: var(--bg-page);
   border: $border-2 dashed var(--border-default);
   border-radius: 50%;
   overflow: hidden;
+
+  @include from-tablet {
+    width: 12rem;
+    height: 12rem;
+  }
 
   &--drag {
     border-color: var(--border-focus);

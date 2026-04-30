@@ -4,9 +4,13 @@
 .act-detail {
   display: flex;
   flex-direction: column;
-  margin: $space-32;
+  margin: $space-16;
 
   @include from-tablet {
+    margin: $space-32;
+  }
+
+  @include from-desktop {
     margin: $space-48 $space-64;
   }
 }
@@ -166,9 +170,13 @@
 .act-detail__stepper {
   display: flex;
   gap: $space-4;
-  padding: $space-32 $space-32;
+  padding: $space-24 $space-16;
 
   @include from-tablet {
+    padding: $space-32 $space-32;
+  }
+
+  @include from-desktop {
     padding: $space-48 $space-64;
   }
 }
@@ -224,6 +232,8 @@
   letter-spacing: 0.06em;
   margin-top: $space-12;
   text-align: center;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 // Contenido de pestanas

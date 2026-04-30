@@ -60,7 +60,6 @@
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 9rem;
   height: $size-input-height;
   padding-inline: $space-12;
   font-size: $text-paragraph;
@@ -73,6 +72,10 @@
   letter-spacing: 0.04em;
   cursor: pointer;
   white-space: nowrap;
+
+  @include from-tablet {
+    min-width: 9rem;
+  }
 
   &:hover {
     background-color: var(--bg-surface-hover);
@@ -302,9 +305,13 @@
 
 .act-card__meta {
   display: grid;
-  grid-template-rows: auto auto;
-  grid-auto-flow: column;
+  grid-template-rows: auto;
   gap: $space-4 $space-24;
+
+  @include from-mobile {
+    grid-template-rows: auto auto;
+    grid-auto-flow: column;
+  }
 }
 
 .act-card__meta-label {
