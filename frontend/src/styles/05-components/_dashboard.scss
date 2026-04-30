@@ -50,9 +50,13 @@
 // Fila de metricas
 .dashboard__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: $space-12;
   list-style: none;
+
+  @include from-mobile {
+    grid-template-columns: repeat(3, 1fr);
+  }
 
   @include from-tablet {
     gap: $space-16;

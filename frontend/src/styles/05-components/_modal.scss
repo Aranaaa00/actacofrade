@@ -7,17 +7,25 @@
   inset: 0;
   display: grid;
   place-items: center;
-  padding: $space-32 $space-16;
+  padding: $space-16;
   overflow-y: auto;
   background-color: var(--overlay-modal);
   z-index: 100;
+
+  @include from-tablet {
+    padding: $space-32 $space-16;
+  }
 }
 
 .modal {
   background-color: var(--bg-surface);
   width: 100%;
   max-width: 32rem;
-  padding: $space-32;
+  padding: $space-16;
+
+  @include from-tablet {
+    padding: $space-32;
+  }
 }
 
 .modal__header {

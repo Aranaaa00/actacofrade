@@ -29,8 +29,12 @@
   letter-spacing: 0.04em;
   justify-content: center;
   padding: $space-16 $space-24;
-  margin-inline: -$space-32;
+  margin-inline: -$space-16;
   margin-bottom: $space-8;
+
+  @include from-tablet {
+    margin-inline: -$space-32;
+  }
 }
 
 // Icono de triangulo de advertencia en el banner
