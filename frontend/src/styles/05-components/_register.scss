@@ -4,7 +4,7 @@
 // Modificador para compactar el modal de registro sin scroll
 .login--register {
   & .login__main {
-    padding: $space-24 $space-32;
+    padding: $space-16 $space-16;
 
     @include from-tablet {
       padding: $space-24 $space-48;

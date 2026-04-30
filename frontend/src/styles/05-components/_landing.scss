@@ -14,22 +14,35 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: $space-32;
-  padding: $space-64 $space-32;
+  gap: $space-24;
+  padding: $space-32 $space-16;
   text-align: center;
+
+  @include from-tablet {
+    gap: $space-32;
+    padding: $space-64 $space-32;
+  }
 }
 
 .landing__logo {
-  width: 15rem;
+  width: 10rem;
   height: auto;
+
+  @include from-tablet {
+    width: 15rem;
+  }
 }
 
 .landing__tagline {
   font-family: $font-heading;
-  font-size: $text-h4;
+  font-size: $text-body;
   color: var(--text-secondary);
   max-width: 36rem;
   line-height: 1.6;
+
+  @include from-tablet {
+    font-size: $text-h4;
+  }
 }
 
 .landing__cta {
@@ -40,8 +53,12 @@
 }
 
 .landing__footer {
-  padding: $space-24 $space-32;
+  padding: $space-16 $space-16;
   text-align: center;
+
+  @include from-tablet {
+    padding: $space-24 $space-32;
+  }
 }
 
 .landing__copyright {
