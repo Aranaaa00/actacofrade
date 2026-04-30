@@ -82,9 +82,9 @@
                       <small class="act-detail__task-desc">{{ task.description }}</small>
                     }
                   </td>
-                  <td>{{ task.assignedToName || '—' }}</td>
-                  <td><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
-                  <td class="act-detail__date">{{ formatDate(task.deadline) }}</td>
+                  <td data-label="Asignado a">{{ task.assignedToName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
+                  <td class="act-detail__date" data-label="Fecha límite">{{ formatDate(task.deadline) }}</td>
                   <td>
                     @if (!isEventClosed) {
                     <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
@@ -162,9 +162,9 @@
               @for (decision of decisions; track decision.id) {
                 <tr>
                   <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
-                  <td>{{ decision.reviewedByName || '—' }}</td>
-                  <td><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
-                  <td>{{ getAreaLabel(decision.area) }}</td>
+                  <td data-label="Revisado por">{{ decision.reviewedByName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
+                  <td data-label="Área">{{ getAreaLabel(decision.area) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
                       @if (!isEventClosed && decision.status === 'PENDING' && auth.canManageAct(event)) {
@@ -206,9 +206,9 @@
               @for (incident of incidents; track incident.id) {
                 <tr>
                   <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
-                  <td>{{ incident.reportedByName || '—' }}</td>
-                  <td><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
-                  <td>{{ incident.resolvedByName || '—' }}</td>
+                  <td data-label="Reportado por">{{ incident.reportedByName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
+                  <td data-label="Resuelto por">{{ incident.resolvedByName || '—' }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
                       @if (canActOnIncident(incident)) {

@@ -91,9 +91,13 @@
 .act-detail__header-side {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: $space-12;
   flex-shrink: 0;
+
+  @include from-tablet {
+    align-items: flex-end;
+  }
 }
 
 .act-detail__status-badge {
@@ -238,7 +242,7 @@
 
 // Contenido de pestanas
 .act-detail__tab-content {
-  padding: $space-24 $space-16 0;
+  padding: $space-16 0 0;
 
   @include from-tablet {
     padding: $space-24 $space-24 0;
@@ -254,7 +258,11 @@
 .act-detail__panel-header {
   display: flex;
   justify-content: flex-end;
-  padding: $space-16 $space-24;
+  padding: $space-12 $space-16;
+
+  @include from-tablet {
+    padding: $space-16 $space-24;
+  }
 }
 
 .act-detail__add-btn {
@@ -360,12 +368,18 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: $space-16;
-  padding: $space-24 $space-16;
+  padding: $space-16;
   border-top: $border-1 solid var(--border-default);
-  margin-top: $space-32;
+  margin-top: $space-16;
 
   @include from-tablet {
+    padding: $space-24 $space-16;
+    margin-top: $space-24;
+  }
+
+  @include from-desktop {
     padding: $space-32 $space-24;
+    margin-top: $space-32;
   }
 }
 
@@ -380,8 +394,12 @@
 .act-detail__footer-actions {
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: stretch;
   gap: $space-8;
+
+  @include from-tablet {
+    align-items: flex-end;
+  }
 
   & .button {
     text-transform: uppercase;
@@ -464,4 +482,62 @@
   font-size: $text-paragraph;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
+}
+
+// Mobile: tablas de detalle como tarjetas (sin scroll horizontal)
+@media (max-width: 47.9375rem) {
+  .act-detail__table,
+  .act-detail__table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .act-detail__table thead {
+    @include visually-hidden;
+  }
+
+  .act-detail__table tbody tr {
+    display: flex;
+    flex-direction: column;
+    gap: $space-8;
+    padding: $space-16;
+    border-bottom: $border-1 solid var(--border-default);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .act-detail__table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-12;
+    padding: 0;
+    width: 100%;
+    border: none;
+  }
+
+  .act-detail__table tbody td[data-label]::before {
+    content: attr(data-label);
+    font-size: $text-label;
+    font-weight: $weight-bold;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  // Primera celda (titulo) destacada arriba
+  .act-detail__table tbody td:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-bottom: $space-8;
+    border-bottom: $border-1 solid var(--border-default);
+  }
+
+  .act-detail__row-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
 }
