@@ -13,6 +13,8 @@ import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
   templateUrl: './login.html',
 })
 export class Login implements AfterViewInit {
+  private static readonly REMEMBER_EMAIL_KEY = 'remember_email';
+
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -29,9 +31,17 @@ export class Login implements AfterViewInit {
   errorMessage = '';
   submitted = false;
 
+  constructor() {
+    const remembered = this.readRememberedEmail();
+    if (remembered) {
+      this.form.patchValue({ email: remembered, rememberMe: true });
+    }
+  }
+
   ngAfterViewInit(): void {
-    const firstInput = this.loginModal.nativeElement.querySelector<HTMLInputElement>('#login-email');
-    firstInput?.focus();
+    const selector = this.form.value.email ? '#login-password' : '#login-email';
+    const target = this.loginModal.nativeElement.querySelector<HTMLInputElement>(selector);
+    target?.focus();
   }
 
   onSubmit(): void {
@@ -44,6 +54,7 @@ export class Login implements AfterViewInit {
 
       const { rememberMe, ...rawCredentials } = this.form.value;
       const credentials = sanitizeFormValues(rawCredentials);
+      this.persistRememberedEmail(rememberMe, credentials.email);
       this.authService.login(credentials).subscribe({
         next: () => {
           this.loading = false;
@@ -78,5 +89,23 @@ export class Login implements AfterViewInit {
 
   getError(field: string): string {
     return getFieldError(this.form, field);
+  }
+
+  private readRememberedEmail(): string | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+    return localStorage.getItem(Login.REMEMBER_EMAIL_KEY);
+  }
+
+  private persistRememberedEmail(remember: boolean, email: string): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+    if (remember && email) {
+      localStorage.setItem(Login.REMEMBER_EMAIL_KEY, email);
+    } else {
+      localStorage.removeItem(Login.REMEMBER_EMAIL_KEY);
+    }
   }
 }
