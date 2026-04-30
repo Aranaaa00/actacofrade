@@ -146,7 +146,7 @@ class IncidentServiceTest {
         mockEvent();
         mockIncident();
         IncidentResponse res = service.resolve(10, 40, admin.getEmail());
-        assertThat(res.status()).isEqualTo("RESUELTA");
+        assertThat(res.status()).isEqualTo("RESOLVED");
     }
 
     @Test
@@ -175,7 +175,7 @@ class IncidentServiceTest {
         mockEvent();
         mockIncident();
         IncidentResponse res = service.reopen(10, 40, admin.getEmail());
-        assertThat(res.status()).isEqualTo("ABIERTA");
+        assertThat(res.status()).isEqualTo("OPEN");
     }
 
     @Test
