@@ -10,6 +10,19 @@ export class AuthService {
   private readonly baseUrl = '/api/auth';
   private readonly tokenKey = 'auth_token';
   private readonly userKey = 'auth_user';
+  private readonly storage: Storage = typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage;
+
+  constructor() {
+    // Migrate any pre-existing session data out of persistent localStorage (security hardening).
+    if (typeof localStorage !== 'undefined' && localStorage.getItem(this.tokenKey)) {
+      const legacyToken = localStorage.getItem(this.tokenKey);
+      const legacyUser = localStorage.getItem(this.userKey);
+      if (legacyToken) this.storage.setItem(this.tokenKey, legacyToken);
+      if (legacyUser) this.storage.setItem(this.userKey, legacyUser);
+      localStorage.removeItem(this.tokenKey);
+      localStorage.removeItem(this.userKey);
+    }
+  }
 
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/login`, request).pipe(
@@ -24,12 +37,12 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+    this.storage.removeItem(this.tokenKey);
+    this.storage.removeItem(this.userKey);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.storage.getItem(this.tokenKey);
   }
 
   isAuthenticated(): boolean {
@@ -37,12 +50,12 @@ export class AuthService {
   }
 
   getUser(): AuthResponse | null {
-    const raw = localStorage.getItem(this.userKey);
+    const raw = this.storage.getItem(this.userKey);
     return raw ? JSON.parse(raw) : null;
   }
 
   updateStoredUser(user: AuthResponse): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+    this.storage.setItem(this.userKey, JSON.stringify(user));
   }
 
   hasRole(role: string): boolean {
@@ -78,7 +91,7 @@ export class AuthService {
   }
 
   private storeSession(response: AuthResponse): void {
-    localStorage.setItem(this.tokenKey, response.token);
-    localStorage.setItem(this.userKey, JSON.stringify(response));
+    this.storage.setItem(this.tokenKey, response.token);
+    this.storage.setItem(this.userKey, JSON.stringify(response));
   }
 }
