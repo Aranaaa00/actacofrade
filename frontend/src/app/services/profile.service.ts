@@ -31,6 +31,7 @@ export class ProfileService {
   }
 
   uploadAvatar(file: File): Observable<UserResponse> {
+    // build a multipart form so the backend receives the file with its original metadata
     const form = new FormData();
     form.append('file', file);
     return this.http.post<UserResponse>(`${this.baseUrl}/avatar`, form);
@@ -41,6 +42,7 @@ export class ProfileService {
   }
 
   loadAvatar(userId: number): Observable<string> {
+    // fetch the avatar as a blob and turn it into an object url usable by img src
     return this.http
       .get(`${this.baseUrl}/avatar/${userId}`, { responseType: 'blob' })
       .pipe(map((blob) => URL.createObjectURL(blob)));
