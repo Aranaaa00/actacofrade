@@ -56,7 +56,7 @@ export const routes: Routes = [
       },
       {
         path: 'my-tasks',
-        canActivate: [roleGuard(['ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR'])],
+        canActivate: [roleGuard(['ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR', 'CONSULTA'])],
         loadComponent: () => import('./pages/my-tasks/my-tasks').then(m => m.MyTasks)
       },
       {
