@@ -102,24 +102,34 @@ public class TaskService {
             }
         }
 
+        AuditLogService.ChangeSetBuilder diff = new AuditLogService.ChangeSetBuilder();
+
         if (request.title() != null) {
-            task.setTitle(SanitizationUtils.sanitize(request.title()));
+            String newTitle = SanitizationUtils.sanitize(request.title());
+            diff.track("title", task.getTitle(), newTitle);
+            task.setTitle(newTitle);
         }
         if (request.description() != null) {
-            task.setDescription(SanitizationUtils.sanitize(request.description()));
+            String newDesc = SanitizationUtils.sanitize(request.description());
+            diff.track("description", task.getDescription(), newDesc);
+            task.setDescription(newDesc);
         }
         if (request.assignedToId() != null) {
             User newAssignee = resolveUser(request.assignedToId());
             authorizationHelper.requireAssignable(newAssignee);
+            Integer oldId = task.getAssignedTo() != null ? task.getAssignedTo().getId() : null;
+            Integer newId = newAssignee != null ? newAssignee.getId() : null;
+            diff.track("assignedToId", oldId, newId);
             task.setAssignedTo(newAssignee);
         }
         if (request.deadline() != null) {
+            diff.track("deadline", task.getDeadline(), request.deadline());
             task.setDeadline(request.deadline());
         }
 
         task.setUpdatedAt(LocalDateTime.now());
         taskRepository.save(task);
-        auditLogService.log(event, "TASK", task.getId(), "TASK_UPDATED", currentUser, task.getTitle());
+        auditLogService.log(event, "TASK", task.getId(), "TASK_UPDATED", currentUser, task.getTitle(), diff.toJson());
         return toResponse(task);
     }
 
@@ -345,13 +355,13 @@ public class TaskService {
     }
 
     private void recalculateEventProgress(Event event) {
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             return;
         }
 
         long total = eventRepository.countTotalTasksByEventId(event.getId());
         if (total == 0) {
-            event.setStatus(EventStatus.PLANIFICACION);
+            event.setStatus(EventStatus.PLANNING);
             event.setUpdatedAt(LocalDateTime.now());
             eventRepository.save(event);
             return;
@@ -366,13 +376,13 @@ public class TaskService {
 
         EventStatus newStatus;
         if (finalized == total) {
-            newStatus = EventStatus.CIERRE;
+            newStatus = EventStatus.CLOSING;
         } else if (confirmed > 0) {
-            newStatus = EventStatus.CONFIRMACION;
+            newStatus = EventStatus.CONFIRMATION;
         } else if (inPreparation > 0 || accepted > 0) {
-            newStatus = EventStatus.PREPARACION;
+            newStatus = EventStatus.PREPARATION;
         } else {
-            newStatus = EventStatus.PLANIFICACION;
+            newStatus = EventStatus.PLANNING;
         }
 
         event.setStatus(newStatus);
@@ -381,7 +391,7 @@ public class TaskService {
     }
 
     private void validateEventNotClosed(Event event) {
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
         }
     }

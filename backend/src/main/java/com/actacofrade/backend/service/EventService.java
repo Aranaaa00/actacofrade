@@ -49,7 +49,7 @@ public class EventService {
         return eventRepository.findAll(spec).stream()
                 .map(this::toResponse)
                 .sorted(Comparator
-                        .comparing((EventResponse e) -> "CERRADO".equals(e.status()) ? 1 : 0)
+                        .comparing((EventResponse e) -> "CLOSED".equals(e.status()) ? 1 : 0)
                         .thenComparing(EventResponse::eventDate))
                 .toList();
     }
@@ -88,10 +88,10 @@ public class EventService {
         List<EventResponse> sorted = eventRepository.findAll(spec).stream()
                 .map(this::toResponse)
                 .sorted(Comparator
-                        .comparingInt((EventResponse e) -> "CERRADO".equals(e.status()) ? 1 : 0)
+                        .comparingInt((EventResponse e) -> "CLOSED".equals(e.status()) ? 1 : 0)
                         .thenComparing((a, b) -> {
-                            boolean aClosed = "CERRADO".equals(a.status());
-                            boolean bClosed = "CERRADO".equals(b.status());
+                            boolean aClosed = "CLOSED".equals(a.status());
+                            boolean bClosed = "CLOSED".equals(b.status());
                             if (!aClosed && !bClosed) {
                                 return b.eventDate().compareTo(a.eventDate());
                             }
@@ -155,27 +155,45 @@ public class EventService {
         Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
         authorizationHelper.requireEventManager(event, currentUser);
 
+        AuditLogService.ChangeSetBuilder diff = new AuditLogService.ChangeSetBuilder();
+
         if (request.title() != null) {
-            event.setTitle(SanitizationUtils.sanitize(request.title()));
+            String newTitle = SanitizationUtils.sanitize(request.title());
+            diff.track("title", event.getTitle(), newTitle);
+            event.setTitle(newTitle);
         }
         if (request.eventType() != null) {
-            event.setEventType(EventType.valueOf(request.eventType()));
+            EventType newType = EventType.valueOf(request.eventType());
+            diff.track("eventType", event.getEventType(), newType);
+            event.setEventType(newType);
         }
         if (request.eventDate() != null) {
+            diff.track("eventDate", event.getEventDate(), request.eventDate());
             event.setEventDate(request.eventDate());
         }
         if (request.location() != null) {
-            event.setLocation(SanitizationUtils.sanitize(request.location()));
+            String newLocation = SanitizationUtils.sanitize(request.location());
+            diff.track("location", event.getLocation(), newLocation);
+            event.setLocation(newLocation);
         }
         if (request.observations() != null) {
-            event.setObservations(SanitizationUtils.sanitize(request.observations()));
+            String newObs = SanitizationUtils.sanitize(request.observations());
+            diff.track("observations", event.getObservations(), newObs);
+            event.setObservations(newObs);
         }
         if (request.responsibleId() != null) {
-            event.setResponsible(resolveResponsibleForUser(currentUser, request.responsibleId()));
+            User newResponsible = resolveResponsibleForUser(currentUser, request.responsibleId());
+            Integer oldId = event.getResponsible() != null ? event.getResponsible().getId() : null;
+            Integer newId = newResponsible != null ? newResponsible.getId() : null;
+            diff.track("responsibleId", oldId, newId);
+            event.setResponsible(newResponsible);
         }
 
         event.setUpdatedAt(LocalDateTime.now());
         eventRepository.save(event);
+        if (!diff.isEmpty()) {
+            auditLogService.log(event, "EVENT", event.getId(), "EVENT_UPDATED", currentUser, event.getTitle(), diff.toJson());
+        }
         return toResponse(event);
     }
 
@@ -194,10 +212,10 @@ public class EventService {
         authorizationHelper.requireEventManager(event, currentUser);
         EventStatus currentStatus = event.getStatus();
 
-        if (currentStatus == EventStatus.CERRADO) {
+        if (currentStatus == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto ya se encuentra cerrado y no puede avanzar de fase");
         }
-        if (currentStatus == EventStatus.CIERRE) {
+        if (currentStatus == EventStatus.CLOSING) {
             throw new IllegalStateException("El acto esta en fase de cierre. Use la accion de cerrar acto");
         }
 
@@ -216,7 +234,7 @@ public class EventService {
         Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
         authorizationHelper.requireEventManager(event, currentUser);
 
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto ya se encuentra cerrado");
         }
 
@@ -231,7 +249,7 @@ public class EventService {
                             + " decisiones pendientes y " + openIncidents + " incidencias abiertas");
         }
 
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         event.setIsLockedForClosing(true);
         event.setUpdatedAt(LocalDateTime.now());
         eventRepository.save(event);
@@ -247,7 +265,7 @@ public class EventService {
         Event event = findEventForHermandadOrThrow(id, currentUser.getHermandad().getId());
         authorizationHelper.requireEventManager(event, currentUser);
 
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto ya esta cerrado y no puede modificarse");
         }
 
@@ -274,7 +292,7 @@ public class EventService {
         cloned.setLocation(original.getLocation());
         cloned.setObservations(original.getObservations());
         cloned.setResponsible(currentUser);
-        cloned.setStatus(EventStatus.PLANIFICACION);
+        cloned.setStatus(EventStatus.PLANNING);
         cloned.setHermandad(original.getHermandad());
 
         eventRepository.save(cloned);
@@ -284,9 +302,9 @@ public class EventService {
 
     private EventStatus getNextStatus(EventStatus current) {
         return switch (current) {
-            case PLANIFICACION -> EventStatus.PREPARACION;
-            case PREPARACION -> EventStatus.CONFIRMACION;
-            case CONFIRMACION -> EventStatus.CIERRE;
+            case PLANNING -> EventStatus.PREPARATION;
+            case PREPARATION -> EventStatus.CONFIRMATION;
+            case CONFIRMATION -> EventStatus.CLOSING;
             default -> throw new IllegalStateException("No se puede avanzar desde el estado: " + current.name());
         };
     }
