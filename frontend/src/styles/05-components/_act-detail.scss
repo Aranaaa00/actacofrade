@@ -31,7 +31,7 @@
   background-color: rgba(0, 0, 0, 0.15);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
-  padding-block: $space-16;
+  padding-inline: $space-24;
 
   @include from-tablet {
     display: flex;
@@ -139,11 +139,37 @@
 .act-detail__alert {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: $space-8;
+  flex-wrap: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+
+  @include from-tablet {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $space-12;
+  }
+}
+
+.act-detail__alert-text {
+  flex: 1;
+  min-width: 0;
+  @include truncate;
+  font-size: $text-label;
+
+  @include from-tablet {
+    flex: 0 1 auto;
+    white-space: normal;
+    font-size: $text-paragraph;
+  }
+}
+
+.act-detail__alert-suffix {
+  display: none;
+
+  @include from-tablet {
+    display: inline;
+  }
 }
 
 .act-detail__alert-icon {
@@ -156,14 +182,19 @@
 .act-detail__alert-link {
   @include focus-visible;
   @include transition(color);
-  font-size: $text-paragraph;
+  font-size: $text-label;
   font-weight: $weight-bold;
   color: var(--text-on-dark);
   text-decoration: underline;
   text-underline-offset: $space-4;
   white-space: nowrap;
   cursor: pointer;
-  margin-inline-start: auto;
+  flex-shrink: 0;
+
+  @include from-tablet {
+    font-size: $text-paragraph;
+    margin-inline-start: auto;
+  }
 
   &:hover {
     color: var(--nav-active);

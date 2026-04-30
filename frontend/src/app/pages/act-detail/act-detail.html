@@ -33,7 +33,7 @@
   @if (hasPendingItems) {
     <app-banner type="info" styleClass="act-detail__alert">
       <lucide-icon name="triangle-alert" class="act-detail__alert-icon" [size]="20" aria-hidden="true"></lucide-icon>
-      {{ pendingActionsText }} — Revisar antes del cierre
+      <span class="act-detail__alert-text">{{ pendingActionsText }}<span class="act-detail__alert-suffix"> — Revisar antes del cierre</span></span>
       <a class="act-detail__alert-link" (click)="selectedTab = 'Tareas'">Ver pendientes →</a>
     </app-banner>
   }
