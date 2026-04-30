@@ -258,7 +258,12 @@
   background-color: var(--nav-bg);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
-  padding-block: $space-16;
+  padding-inline: $space-16;
+
+  @include from-tablet {
+    width: 2.75rem;
+    padding-inline: $space-24;
+  }
 }
 
 .act-card__type-label {
@@ -266,7 +271,7 @@
   font-weight: $weight-bold;
   color: var(--text-on-dark);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   white-space: nowrap;
 }
 
