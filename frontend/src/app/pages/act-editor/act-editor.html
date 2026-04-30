@@ -41,10 +41,10 @@
       <input id="act-location" type="text" formControlName="location" placeholder="Lugar donde se celebra" maxlength="255">
     </app-form-field>
 
-    <app-form-field label="Responsable" fieldId="act-responsible" styleClass="act-editor__field--bordered">
-      <select id="act-responsible" formControlName="responsibleId" [attr.disabled]="canPickResponsible ? null : true">
+    <app-form-field label="Responsable" fieldId="act-responsible" styleClass="act-editor__field--bordered" [hasError]="hasError('responsibleId')" [errorMessage]="hasError('responsibleId') ? 'Debes asignar un responsable.' : ''">
+      <select id="act-responsible" formControlName="responsibleId" [attr.disabled]="canPickResponsible ? null : true" required aria-required="true">
         @if (canPickResponsible) {
-          <option [ngValue]="null">Asignar responsable</option>
+          <option [ngValue]="null" disabled>Asignar responsable</option>
         }
         @for (user of users; track user.id) {
           <option [ngValue]="user.id">{{ user.fullName }}</option>

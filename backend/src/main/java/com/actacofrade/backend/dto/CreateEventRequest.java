@@ -27,6 +27,7 @@ public record CreateEventRequest(
         @Pattern(regexp = "^[^<>]*$", message = "La ubicación contiene caracteres no permitidos")
         String location,
 
+        @NotNull(message = "El responsable del acto es obligatorio")
         Integer responsibleId,
 
         @Size(max = 1000, message = "Las observaciones no pueden superar los 1000 caracteres")

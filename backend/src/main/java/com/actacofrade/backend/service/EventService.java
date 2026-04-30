@@ -6,6 +6,7 @@ import com.actacofrade.backend.dto.UpdateEventRequest;
 import com.actacofrade.backend.entity.Event;
 import com.actacofrade.backend.entity.EventStatus;
 import com.actacofrade.backend.entity.EventType;
+import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.EventSpecification;
@@ -333,6 +334,11 @@ public class EventService {
         if (responsibleId != null) {
             responsible = userRepository.findById(responsibleId)
                     .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado con id: " + responsibleId));
+            boolean hasValidRole = responsible.getRoles().stream()
+                    .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR || r.getCode() == RoleCode.RESPONSABLE);
+            if (!hasValidRole) {
+                throw new IllegalArgumentException("El responsable debe tener rol ADMINISTRADOR o RESPONSABLE");
+            }
         }
         return responsible;
     }

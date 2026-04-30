@@ -46,7 +46,7 @@ export class ActEditor implements OnInit, AfterViewInit {
       eventType: ['', [Validators.required]],
       eventDate: ['', [Validators.required]],
       location: ['', [Validators.maxLength(255), noHtmlValidator()]],
-      responsibleId: [null],
+      responsibleId: [null, [Validators.required]],
       observations: ['', [Validators.maxLength(1000), noHtmlValidator()]]
     });
 
@@ -67,7 +67,7 @@ export class ActEditor implements OnInit, AfterViewInit {
   private loadUsers(): void {
     if (this.canPickResponsible) {
       this.userService.findAssignable().subscribe({
-        next: (users) => this.users = users
+        next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE'))
       });
     } else {
       const authUser = this.auth.getUser();
