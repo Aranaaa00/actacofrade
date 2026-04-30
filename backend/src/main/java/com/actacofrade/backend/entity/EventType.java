@@ -4,6 +4,7 @@ public enum EventType {
     CABILDO,
     CULTOS,
     PROCESION,
+    ESTACION_PENITENCIA,
     ENSAYO,
     OTRO
 }
