@@ -90,6 +90,7 @@ export class Users implements OnInit, OnDestroy {
   private searchSubscription: Subscription | null = null;
 
   ngOnInit(): void {
+    // debounce keyboard input so we do not refilter the list on every keystroke
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -105,6 +106,7 @@ export class Users implements OnInit, OnDestroy {
   }
 
   get filteredUsers(): UserResponse[] {
+    // combine the role, status and search filters in a single pass
     const search = this.searchQuery.trim().toLowerCase();
     return this.users.filter((u) => {
       const matchesRole = !this.filterRole || u.roles.includes(this.filterRole);
@@ -176,6 +178,7 @@ export class Users implements OnInit, OnDestroy {
   }
 
   toggleActive(user: UserResponse): void {
+    // optimistic ui: keep the row disabled while the request is in flight
     this.processingUserId = user.id;
     this.userService.toggleActive(user.id).subscribe({
       next: (updated) => {

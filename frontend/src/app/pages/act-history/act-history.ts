@@ -54,6 +54,7 @@ export class ActHistory implements OnInit, OnDestroy {
   private searchSubscription: Subscription | null = null;
 
   ngOnInit(): void {
+    // debounce keystrokes so we only request a new page after the user stops typing
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -63,6 +64,7 @@ export class ActHistory implements OnInit, OnDestroy {
       this.loadEvents();
     });
 
+    // load the dropdown sources in parallel and then fetch the first page
     forkJoin({
       users: this.userService.findAll(),
       dates: this.eventService.availableDates()
@@ -86,6 +88,7 @@ export class ActHistory implements OnInit, OnDestroy {
   }
 
   get groupedEvents(): DateGroup[] {
+    // group every event by date so the template can render one section per day
     const groups: Map<string, EventResponse[]> = new Map();
     for (const event of this.events) {
       const key = event.eventDate as string;

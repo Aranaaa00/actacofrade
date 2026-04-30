@@ -46,6 +46,7 @@ export class Datepicker {
   }
 
   get weeks(): (number | null)[][] {
+    // build the calendar grid using monday as the first column
     const firstDay = new Date(this.viewYear, this.viewMonth, 1);
     const daysInMonth = new Date(this.viewYear, this.viewMonth + 1, 0).getDate();
     let startDay = firstDay.getDay() - 1;
@@ -85,6 +86,7 @@ export class Datepicker {
   }
 
   toggle(): void {
+    // when the picker opens, jump to the month that contains the current value
     this.open = !this.open;
     if (this.open && this.selectedDate) {
       const d = new Date(this.selectedDate + 'T00:00:00');
@@ -118,6 +120,7 @@ export class Datepicker {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
+    // close the dropdown when the user clicks outside of the host element
     if (!this.el.nativeElement.contains(event.target)) {
       this.open = false;
     }

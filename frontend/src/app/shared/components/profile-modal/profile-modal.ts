@@ -99,10 +99,12 @@ export class ProfileModal implements OnChanges {
   }
 
   onSaveProfile(): void {
+    // block submission while a previous save is still pending
     if (this.profileForm.invalid || this.profileSaving()) {
       this.profileForm.markAllAsTouched();
       return;
     }
+    // strip html and normalise the email before sending it to the api
     const raw = this.profileForm.getRawValue() as { fullName: string; email: string };
     const payload = {
       fullName: sanitizeText(raw.fullName),
@@ -169,6 +171,7 @@ export class ProfileModal implements OnChanges {
   }
 
   onFileSelected(event: Event): void {
+    // reset the input value so the same file can be picked again later
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
@@ -178,6 +181,7 @@ export class ProfileModal implements OnChanges {
   }
 
   onConfirmAvatar(): void {
+    // upload the staged file using multipart form data instead of json
     if (!this.pendingFile || this.avatarSaving()) {
       return;
     }
