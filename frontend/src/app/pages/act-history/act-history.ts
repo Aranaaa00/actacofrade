@@ -103,7 +103,7 @@ export class ActHistory implements OnInit, OnDestroy {
   }
 
   get activeDateRangeLabel(): string {
-    if (!this.filterDateFrom && !this.filterDateTo) { return 'Rango de fechas'; }
+    if (!this.filterDateFrom && !this.filterDateTo) { return 'Fechas'; }
     const parts: string[] = [];
     if (this.filterDateFrom) { parts.push(this.formatShortDate(this.filterDateFrom)); }
     if (this.filterDateTo) { parts.push(this.formatShortDate(this.filterDateTo)); }

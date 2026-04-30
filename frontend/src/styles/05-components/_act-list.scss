@@ -201,10 +201,6 @@
     color: var(--text-on-dark);
   }
 
-  & .act-card__reference {
-    color: var(--nav-active);
-  }
-
   & .act-card__meta-label {
     color: var(--nav-active);
   }
@@ -302,12 +298,6 @@
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
-}
-
-.act-card__reference {
-  font-size: $text-label;
-  font-weight: $weight-bold;
-  color: $color-gold-text;
 }
 
 .act-card__meta {

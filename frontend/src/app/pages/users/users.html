@@ -48,7 +48,7 @@
       (selected)="selectFilter('status', $event)" />
     <div class="act-list__search-wrapper">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
-      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Búsqueda global" aria-label="Búsqueda global" maxlength="200">
+      <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar" aria-label="Buscar" maxlength="200">
     </div>
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()" aria-label="Limpiar filtros">Limpiar</button>
   </search>
