@@ -1,12 +1,21 @@
 <div class="act-list__filter-dropdown">
-  <button class="act-list__filter-btn" type="button" (click)="toggled.emit()">
+  <button class="act-list__filter-btn" type="button"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-expanded]="isOpen"
+    (click)="toggled.emit()"
+    (keydown)="onTriggerKeydown($event)">
     {{ label }}
     <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
   </button>
   @if (isOpen) {
-    <ul class="act-list__dropdown-menu" role="listbox">
-      @for (option of options; track option.value) {
-        <li role="option" (click)="selected.emit(option.value)">{{ option.label }}</li>
+    <ul class="act-list__dropdown-menu" role="listbox" [attr.aria-label]="label">
+      @for (option of options; track option.value; let i = $index) {
+        <li #optionItem
+          role="option"
+          tabindex="0"
+          [attr.aria-selected]="activeIndex === i"
+          (click)="selected.emit(option.value)"
+          (keydown)="onOptionKeydown($event, i)">{{ option.label }}</li>
       }
     </ul>
   }
