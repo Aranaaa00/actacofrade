@@ -18,8 +18,8 @@ const DECISION_PROGRESS_WEIGHTS: Record<string, number> = {
 };
 
 const INCIDENT_PROGRESS_WEIGHTS: Record<string, number> = {
-  'ABIERTA': 0,
-  'RESUELTA': 1,
+  'OPEN': 0,
+  'RESOLVED': 1,
 };
 
 export interface ActProgress {

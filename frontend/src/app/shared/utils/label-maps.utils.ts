@@ -2,24 +2,25 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
   'CABILDO': 'Cabildo',
   'CULTOS': 'Cultos',
   'PROCESION': 'Procesión',
+  'ESTACION_PENITENCIA': 'Estación de penitencia',
   'ENSAYO': 'Ensayo',
   'OTRO': 'Otro',
 };
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
-  'PLANIFICACION': 'Planificación',
-  'PREPARACION': 'En preparación',
-  'CONFIRMACION': 'Confirmación',
-  'CIERRE': 'En cierre',
-  'CERRADO': 'Cerrado',
+  'PLANNING': 'Planificación',
+  'PREPARATION': 'En preparación',
+  'CONFIRMATION': 'Confirmación',
+  'CLOSING': 'En cierre',
+  'CLOSED': 'Cerrado',
 };
 
 const EVENT_STATUS_BADGE_VARIANTS: Record<string, string> = {
-  'PLANIFICACION': 'neutral',
-  'PREPARACION': 'pending',
-  'CONFIRMACION': 'confirmed',
-  'CIERRE': 'wood',
-  'CERRADO': 'neutral',
+  'PLANNING': 'neutral',
+  'PREPARATION': 'pending',
+  'CONFIRMATION': 'confirmed',
+  'CLOSING': 'wood',
+  'CLOSED': 'neutral',
 };
 
 const TASK_STATUS_LABELS: Record<string, string> = {
@@ -41,7 +42,7 @@ const TASK_BADGE_VARIANTS: Record<string, string> = {
 };
 
 const DECISION_STATUS_LABELS: Record<string, string> = {
-  'ACCEPTED': 'Aceptada',
+  'ACCEPTED': 'Confirmada',
   'PENDING': 'Pendiente',
   'REJECTED': 'Rechazada',
 };
@@ -53,13 +54,13 @@ const DECISION_BADGE_VARIANTS: Record<string, string> = {
 };
 
 const INCIDENT_STATUS_LABELS: Record<string, string> = {
-  'ABIERTA': 'Abierta',
-  'RESUELTA': 'Resuelta',
+  'OPEN': 'Abierta',
+  'RESOLVED': 'Resuelta',
 };
 
 const INCIDENT_BADGE_VARIANTS: Record<string, string> = {
-  'ABIERTA': 'pending',
-  'RESUELTA': 'confirmed',
+  'OPEN': 'pending',
+  'RESOLVED': 'confirmed',
 };
 
 const AREA_LABELS: Record<string, string> = {
@@ -103,11 +104,11 @@ const HISTORY_BADGE_VARIANTS: Record<string, string> = {
 };
 
 const STEP_INDEX_MAP: Record<string, number> = {
-  'PLANIFICACION': 1,
-  'PREPARACION': 2,
-  'CONFIRMACION': 3,
-  'CIERRE': 4,
-  'CERRADO': 4,
+  'PLANNING': 1,
+  'PREPARATION': 2,
+  'CONFIRMATION': 3,
+  'CLOSING': 4,
+  'CLOSED': 4,
 };
 
 export function getEventTypeLabel(type: string): string {
@@ -197,14 +198,15 @@ export const EVENT_TYPE_OPTIONS = [
   { value: 'CABILDO', label: 'Cabildo' },
   { value: 'CULTOS', label: 'Cultos' },
   { value: 'PROCESION', label: 'Procesión' },
+  { value: 'ESTACION_PENITENCIA', label: 'Estación de penitencia' },
   { value: 'ENSAYO', label: 'Ensayo' },
   { value: 'OTRO', label: 'Otro' },
 ];
 
 export const EVENT_STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
-  { value: 'PLANIFICACION', label: 'Planificación' },
-  { value: 'PREPARACION', label: 'En preparación' },
-  { value: 'CONFIRMACION', label: 'Confirmación' },
-  { value: 'CIERRE', label: 'En cierre' },
+  { value: 'PLANNING', label: 'Planificación' },
+  { value: 'PREPARATION', label: 'En preparación' },
+  { value: 'CONFIRMATION', label: 'Confirmación' },
+  { value: 'CLOSING', label: 'En cierre' },
 ];

@@ -133,7 +133,7 @@ export class CloseEvent implements OnInit {
     }
 
     for (const incident of incidents) {
-      if (incident.status === 'ABIERTA') {
+      if (incident.status === 'OPEN') {
         items.push({
           type: 'INCIDENCIA',
           label: incident.description,

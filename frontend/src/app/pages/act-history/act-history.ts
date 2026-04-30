@@ -122,7 +122,7 @@ export class ActHistory implements OnInit, OnDestroy {
   getStatusBadgeVariant = getEventStatusBadgeVariant;
 
   isClosed(event: EventResponse): boolean {
-    return event.status === 'CERRADO';
+    return event.status === 'CLOSED';
   }
 
   formatTimelineDate(dateStr: string): string {

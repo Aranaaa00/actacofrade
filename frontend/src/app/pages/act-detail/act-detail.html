@@ -209,7 +209,7 @@
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
                       @if (canActOnIncident(incident)) {
-                        @if (incident.status === 'ABIERTA') {
+                        @if (incident.status === 'OPEN') {
                           <a class="act-detail__row-link" (click)="resolveIncident(incident.id)">Resolver</a>
                         }
                         <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
