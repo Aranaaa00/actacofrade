@@ -25,7 +25,7 @@ import { AuthResponse } from '../../../models/auth.model';
 import { passwordStrength } from '../../validators/password-strength.validator';
 import { sanitizeText, noHtmlValidator } from '../../utils/sanitize.utils';
 
-const NAME_PATTERN = /^[\p{L}\p{M} .'\-]{3,150}$/u;
+const NAME_PATTERN = /^[\p{L}\p{M} .'\-·]{3,150}$/u;
 
 const ALLOWED_AVATAR_TYPES: ReadonlyArray<string> = [
   'image/png',

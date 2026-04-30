@@ -30,7 +30,7 @@ export class Register implements OnInit, AfterViewInit {
   @Output() dialogClosed = new EventEmitter<void>();
 
   form: FormGroup = this.fb.group({
-    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'-]{3,150}$/u)]],
+    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'·-]{3,150}$/u)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],
