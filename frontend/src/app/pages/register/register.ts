@@ -54,11 +54,11 @@ export class Register implements OnInit, AfterViewInit {
   }
 
   get hermandadLabel(): string {
-    return this.isAdmin ? 'Nombre de tu hermandad (nueva)' : 'Hermandad a la que perteneces';
+    return this.isAdmin ? 'Hermandad (nueva)' : 'Hermandad';
   }
 
   get hermandadPlaceholder(): string {
-    return this.isAdmin ? 'Hermandad de la Macarena...' : 'Nombre exacto de tu hermandad';
+    return this.isAdmin ? 'Ej. Hermandad de la Macarena' : 'Nombre de tu hermandad';
   }
 
   get availableRoles() {
