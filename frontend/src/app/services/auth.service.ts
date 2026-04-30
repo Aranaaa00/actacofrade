@@ -13,14 +13,18 @@ export class AuthService {
   private readonly storage: Storage = typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage;
 
   constructor() {
-    // Migrate any pre-existing session data out of persistent localStorage (security hardening).
-    if (typeof localStorage !== 'undefined' && localStorage.getItem(this.tokenKey)) {
-      const legacyToken = localStorage.getItem(this.tokenKey);
-      const legacyUser = localStorage.getItem(this.userKey);
-      if (legacyToken) this.storage.setItem(this.tokenKey, legacyToken);
-      if (legacyUser) this.storage.setItem(this.userKey, legacyUser);
-      localStorage.removeItem(this.tokenKey);
-      localStorage.removeItem(this.userKey);
+    // migrate pre-existing session data out of persistent localStorage to sessionStorage
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem(this.tokenKey)) {
+        const legacyToken = localStorage.getItem(this.tokenKey);
+        const legacyUser = localStorage.getItem(this.userKey);
+        if (legacyToken) this.storage.setItem(this.tokenKey, legacyToken);
+        if (legacyUser) this.storage.setItem(this.userKey, legacyUser);
+        localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(this.userKey);
+      }
+    } catch {
+      // browsers may throw in private mode or when storage is full
     }
   }
 

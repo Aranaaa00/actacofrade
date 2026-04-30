@@ -68,6 +68,6 @@ export class EventService {
   }
 
   export(id: number, format: string, selectedSections: string[]): Observable<Blob> {
-    return this.http.post(`${this.baseUrl}/${id}/export`, { format, selectedSections }, { responseType: 'blob' });
+    return this.http.post(`${this.baseUrl}/${id}/export`, { format, selectedSections }, { responseType: 'blob' as const });
   }
 }

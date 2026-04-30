@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, DestroyRef, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren, inject } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 
 export interface FilterOption {
@@ -22,6 +22,18 @@ export class FilterDropdown {
 
   activeIndex = -1;
 
+  // pending focus timer id, cleared on destroy to avoid leaks
+  private pendingFocusId: ReturnType<typeof setTimeout> | undefined;
+  private readonly destroyRef = inject(DestroyRef);
+
+  constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (this.pendingFocusId !== undefined) {
+        clearTimeout(this.pendingFocusId);
+      }
+    });
+  }
+
   onTriggerKeydown(event: KeyboardEvent): void {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp' || event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -29,7 +41,8 @@ export class FilterDropdown {
         this.toggled.emit();
       }
       this.activeIndex = event.key === 'ArrowUp' ? Math.max(0, this.options.length - 1) : 0;
-      setTimeout(() => this.focusOption(this.activeIndex));
+      // schedule focus once the dropdown options are rendered
+      this.pendingFocusId = setTimeout(() => this.focusOption(this.activeIndex));
     } else if (event.key === 'Escape' && this.isOpen) {
       event.preventDefault();
       this.toggled.emit();

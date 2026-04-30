@@ -97,17 +97,26 @@ export class Login {
     if (typeof localStorage === 'undefined') {
       return null;
     }
-    return localStorage.getItem(Login.REMEMBER_EMAIL_KEY);
+    try {
+      return localStorage.getItem(Login.REMEMBER_EMAIL_KEY);
+    } catch {
+      // storage may be blocked in private mode
+      return null;
+    }
   }
 
   private persistRememberedEmail(remember: boolean, email: string): void {
     if (typeof localStorage === 'undefined') {
       return;
     }
-    if (remember && email) {
-      localStorage.setItem(Login.REMEMBER_EMAIL_KEY, email);
-    } else {
-      localStorage.removeItem(Login.REMEMBER_EMAIL_KEY);
+    try {
+      if (remember && email) {
+        localStorage.setItem(Login.REMEMBER_EMAIL_KEY, email);
+      } else {
+        localStorage.removeItem(Login.REMEMBER_EMAIL_KEY);
+      }
+    } catch {
+      // storage may be blocked in private mode
     }
   }
 }
