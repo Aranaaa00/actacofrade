@@ -69,6 +69,6 @@ public final class EventSpecification {
     }
 
     public static Specification<Event> isNotClosed() {
-        return (root, query, cb) -> cb.notEqual(root.get("status"), EventStatus.CERRADO);
+        return (root, query, cb) -> cb.notEqual(root.get("status"), EventStatus.CLOSED);
     }
 }

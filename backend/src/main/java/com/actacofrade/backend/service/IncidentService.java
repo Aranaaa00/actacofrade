@@ -85,14 +85,14 @@ public class IncidentService {
         validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
-        if (incident.getStatus() == IncidentStatus.RESUELTA) {
+        if (incident.getStatus() == IncidentStatus.RESOLVED) {
             throw new IllegalStateException("La incidencia ya esta resuelta");
         }
 
         User resolver = findUserByEmailOrThrow(authenticatedEmail);
         authorizationHelper.requireEventManager(event, resolver);
 
-        incident.setStatus(IncidentStatus.RESUELTA);
+        incident.setStatus(IncidentStatus.RESOLVED);
         incident.setResolvedAt(LocalDateTime.now());
         incident.setResolvedBy(resolver);
         incidentRepository.save(incident);
@@ -105,13 +105,13 @@ public class IncidentService {
         validateEventNotClosed(event);
         Incident incident = findIncidentOrThrow(incidentId, eventId);
 
-        if (incident.getStatus() == IncidentStatus.ABIERTA) {
+        if (incident.getStatus() == IncidentStatus.OPEN) {
             throw new IllegalStateException("La incidencia ya esta abierta");
         }
 
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         authorizationHelper.requireEventManager(event, currentUser);
-        incident.setStatus(IncidentStatus.ABIERTA);
+        incident.setStatus(IncidentStatus.OPEN);
         incident.setResolvedAt(null);
         incident.setResolvedBy(null);
         incidentRepository.save(incident);
@@ -124,7 +124,7 @@ public class IncidentService {
     }
 
     private void validateEventNotClosed(Event event) {
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
         }
     }
