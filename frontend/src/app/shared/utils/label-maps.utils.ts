@@ -113,6 +113,7 @@ const STEP_INDEX_MAP: Record<string, number> = {
 };
 
 export function getEventTypeLabel(type: string): string {
+  // every getter falls back to the raw code so unknown enum values stay visible instead of disappearing
   return EVENT_TYPE_LABELS[type] || type;
 }
 
