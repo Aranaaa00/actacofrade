@@ -72,15 +72,15 @@
               <small class="users-table__email">{{ user.email }}</small>
             </div>
           </td>
-          <td>
+          <td data-label="Rol">
             @if (getPrimaryRole(user)) {
               <app-badge [variant]="getRoleBadgeVariant(getPrimaryRole(user))">{{ getRoleLabel(getPrimaryRole(user)) }}</app-badge>
             }
           </td>
-          <td>
+          <td data-label="Estado">
             <app-badge [variant]="user.active ? 'wood' : 'neutral'">{{ user.active ? 'Activo' : 'Inactivo' }}</app-badge>
           </td>
-          <td class="users-table__date">{{ formatLastLogin(user.lastLogin) }}</td>
+          <td class="users-table__date" data-label="Último acceso">{{ formatLastLogin(user.lastLogin) }}</td>
           <td>
             <div class="users-table__actions">
               <button class="users-table__action" type="button"
@@ -140,7 +140,7 @@
               </div>
             </td>
             @for (column of permissionColumns; track column.key) {
-              <td class="users-table__perm" [attr.aria-label]="(hasPermission(user, column) ? 'Puede ' : 'No puede ') + column.label.toLowerCase()">
+              <td class="users-table__perm" [attr.data-label]="column.label" [attr.aria-label]="(hasPermission(user, column) ? 'Puede ' : 'No puede ') + column.label.toLowerCase()">
                 @if (hasPermission(user, column)) {
                   <lucide-icon name="check" [size]="18" class="users-table__perm-icon users-table__perm-icon--on" aria-hidden="true"></lucide-icon>
                 } @else {
