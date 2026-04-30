@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = () => {
+  // block any private route when there is no valid session and send the user to login
   const authService = inject(AuthService);
   const router = inject(Router);
 
