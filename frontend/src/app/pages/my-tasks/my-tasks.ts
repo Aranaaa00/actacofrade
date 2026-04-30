@@ -34,6 +34,8 @@ export class MyTasks implements OnInit, OnDestroy {
   currentPage = 1;
   totalPages = 1;
   loading = true;
+  // separate flag for filter/search refresh; does not hide the current list
+  refreshing = false;
 
   openDropdown: string | null = null;
   filterEventType = '';
@@ -229,6 +231,8 @@ export class MyTasks implements OnInit, OnDestroy {
   }
 
   private loadTasks(): void {
+    // use a non-blocking flag so the list stays visible while results refresh
+    this.refreshing = true;
     this.taskService.findMyTasks({
       eventType: this.filterEventType || undefined,
       statusGroup: this.filterStatus || undefined,
@@ -239,6 +243,10 @@ export class MyTasks implements OnInit, OnDestroy {
       next: (page) => {
         this.tasks = page.content;
         this.totalPages = Math.max(1, page.totalPages);
+        this.refreshing = false;
+      },
+      error: () => {
+        this.refreshing = false;
       }
     });
   }
