@@ -40,6 +40,7 @@ function isIncidentPending(status: string): boolean {
   return (INCIDENT_PROGRESS_WEIGHTS[status] ?? 0) < 1;
 }
 
+// Computes weighted progress for an act based on tasks, decisions and incidents.
 export function calculateActProgress(
   tasks: TaskResponse[],
   decisions: DecisionResponse[],
@@ -61,6 +62,7 @@ export function calculateActProgress(
   return { total, pending, percent };
 }
 
+// Returns a friendly progress message tailored to the completion percentage.
 export function getProgressMessage(percent: number, total: number): string {
   if (total === 0) {
     return 'Sin acciones registradas';
@@ -106,6 +108,7 @@ const PROGRESS_STEPS: ReadonlyArray<{ key: string; label: string; threshold: num
   { key: 'LISTO', label: 'Listo', threshold: 100 },
 ];
 
+// Builds the four-step model used by the visual progress bar.
 export function buildProgressSteps(percent: number): ActProgressStep[] {
   return PROGRESS_STEPS.map((s, i) => {
     const next = PROGRESS_STEPS[i + 1];

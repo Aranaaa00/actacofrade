@@ -1,5 +1,6 @@
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
+// Reactive Forms validator that enforces a strong password policy.
 export function passwordStrength(control: AbstractControl): ValidationErrors | null {
   const value: string = control.value || '';
   const errors: ValidationErrors = {};

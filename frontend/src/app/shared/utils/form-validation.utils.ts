@@ -1,5 +1,6 @@
 import { FormGroup } from '@angular/forms';
 
+// True when the field should display its validation error in the UI.
 export function hasFieldError(form: FormGroup, field: string, submitted?: boolean): boolean {
   const control = form.get(field);
   let showError = false;
@@ -14,6 +15,7 @@ export function hasFieldError(form: FormGroup, field: string, submitted?: boolea
   return showError;
 }
 
+// Maps validator codes to a human-friendly Spanish error message.
 export function getFieldError(form: FormGroup, field: string): string {
   const control = form.get(field);
   let message = '';
