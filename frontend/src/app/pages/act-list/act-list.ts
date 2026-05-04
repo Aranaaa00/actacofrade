@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -11,6 +12,7 @@ import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
 import { EventResponse } from '../../models/event.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import {
   getEventTypeLabel, getEventStatusLabel,
   getEventStatusBadgeVariant, getStepIndex,
@@ -26,6 +28,7 @@ import { formatDate } from '../../shared/utils/date.utils';
 export class ActList implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
   readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
   readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
@@ -40,6 +43,7 @@ export class ActList implements OnInit, OnDestroy {
   filterDate = '';
   searchQuery = '';
   loading = true;
+  errorMessage = '';
   availableDates: string[] = [];
 
   events: EventResponse[] = [];
@@ -145,22 +149,26 @@ export class ActList implements OnInit, OnDestroy {
   }
 
   cloneAct(act: EventResponse): void {
-    this.eventService.clone(act.id).subscribe({
+    this.eventService.clone(act.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loadAvailableDates();
         this.loadEvents();
+      },
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo clonar el acto.');
       }
     });
   }
 
   private loadAvailableDates(): void {
-    this.eventService.availableDates().subscribe({
+    this.eventService.availableDates().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (dates) => { this.availableDates = dates; }
     });
   }
 
   private loadEvents(): void {
     this.loading = true;
+    this.errorMessage = '';
     this.eventService.filter({
       eventType: this.filterType || undefined,
       status: this.filterStatus || undefined,
@@ -168,13 +176,14 @@ export class ActList implements OnInit, OnDestroy {
       search: this.searchQuery || undefined,
       page: this.currentPage - 1,
       size: this.pageSize
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (page) => {
         this.events = page.content;
         this.totalPages = Math.max(1, page.totalPages);
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar los actos.');
         this.loading = false;
       }
     });

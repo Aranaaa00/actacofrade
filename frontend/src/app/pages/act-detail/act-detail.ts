@@ -1,6 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, Renderer2, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
 import { Banner } from '../../shared/components/banner/banner';
@@ -22,6 +24,7 @@ import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { AuditLogResponse } from '../../models/audit-log.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import {
   getEventTypeLabel, getEventStatusLabel,
   getTaskStatusLabel, getTaskBadgeVariant,
@@ -61,6 +64,9 @@ export class ActDetail implements OnInit {
   private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
   private readonly auditLogService = inject(AuditLogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
   readonly auth = inject(AuthService);
 
   eventId = 0;
@@ -72,6 +78,7 @@ export class ActDetail implements OnInit {
   elementEditData: EditData | null = null;
   showCloseEvent = false;
   loading = true;
+  errorMessage = '';
 
   showRejectModal = false;
   rejectingTaskId: number | null = null;
@@ -164,7 +171,7 @@ export class ActDetail implements OnInit {
   getAreaLabel = getAreaLabel;
 
   cloneAct(): void {
-    this.eventService.clone(this.eventId).subscribe({
+    this.bind(this.eventService.clone(this.eventId)).subscribe({
       next: (cloned) => {
         this.router.navigate(['/events', cloned.id]);
       }
@@ -205,21 +212,34 @@ export class ActDetail implements OnInit {
       return;
     }
     this.exportLoading = true;
-    this.eventService.export(this.eventId, this.exportFormat, this.exportSections).subscribe({
+    this.bind(this.eventService.export(this.eventId, this.exportFormat, this.exportSections)).subscribe({
       next: (blob: Blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `acto-${this.eventId}.${this.exportFormat.toLowerCase()}`;
-        a.click();
-        URL.revokeObjectURL(url);
+        this.triggerDownload(blob, `acto-${this.eventId}.${this.exportFormat.toLowerCase()}`);
         this.exportLoading = false;
         this.closeExportModal();
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo exportar el acto.');
         this.exportLoading = false;
       }
     });
+  }
+
+  // Angular-friendly file download via Renderer2.
+  private triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const anchor = this.renderer.createElement('a') as HTMLAnchorElement;
+    this.renderer.setAttribute(anchor, 'href', url);
+    this.renderer.setAttribute(anchor, 'download', filename);
+    this.renderer.setStyle(anchor, 'display', 'none');
+    this.renderer.appendChild(this.document.body, anchor);
+    anchor.click();
+    this.renderer.removeChild(this.document.body, anchor);
+    URL.revokeObjectURL(url);
+  }
+
+  private bind<T>(source: Observable<T>): Observable<T> {
+    return source.pipe(takeUntilDestroyed(this.destroyRef));
   }
 
   addTask(): void {
@@ -281,7 +301,7 @@ export class ActDetail implements OnInit {
 
   acceptTask(task: TaskResponse): void {
     this.processingTaskId = task.id;
-    this.taskService.accept(this.eventId, task.id).subscribe({
+    this.bind(this.taskService.accept(this.eventId, task.id)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -294,7 +314,7 @@ export class ActDetail implements OnInit {
 
   startPreparation(task: TaskResponse): void {
     this.processingTaskId = task.id;
-    this.taskService.startPreparation(this.eventId, task.id).subscribe({
+    this.bind(this.taskService.startPreparation(this.eventId, task.id)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -307,7 +327,7 @@ export class ActDetail implements OnInit {
 
   confirmTask(task: TaskResponse): void {
     this.processingTaskId = task.id;
-    this.taskService.confirm(this.eventId, task.id).subscribe({
+    this.bind(this.taskService.confirm(this.eventId, task.id)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -320,7 +340,7 @@ export class ActDetail implements OnInit {
 
   completeTask(task: TaskResponse): void {
     this.processingTaskId = task.id;
-    this.taskService.complete(this.eventId, task.id).subscribe({
+    this.bind(this.taskService.complete(this.eventId, task.id)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -346,7 +366,7 @@ export class ActDetail implements OnInit {
       return;
     }
     this.processingTaskId = this.rejectingTaskId;
-    this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizeText(reason)).subscribe({
+    this.bind(this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizeText(reason))).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.showRejectModal = false;
@@ -361,7 +381,7 @@ export class ActDetail implements OnInit {
 
   resetTask(task: TaskResponse): void {
     this.processingTaskId = task.id;
-    this.taskService.reset(this.eventId, task.id).subscribe({
+    this.bind(this.taskService.reset(this.eventId, task.id)).subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
@@ -401,37 +421,37 @@ export class ActDetail implements OnInit {
   }
 
   deleteTask(taskId: number): void {
-    this.taskService.delete(this.eventId, taskId).subscribe({
+    this.bind(this.taskService.delete(this.eventId, taskId)).subscribe({
       next: () => this.loadData()
     });
   }
 
   deleteDecision(decisionId: number): void {
-    this.decisionService.delete(this.eventId, decisionId).subscribe({
+    this.bind(this.decisionService.delete(this.eventId, decisionId)).subscribe({
       next: () => this.loadData()
     });
   }
 
   acceptDecision(decision: DecisionResponse): void {
-    this.decisionService.accept(this.eventId, decision.id).subscribe({
+    this.bind(this.decisionService.accept(this.eventId, decision.id)).subscribe({
       next: () => this.loadData()
     });
   }
 
   rejectDecision(decision: DecisionResponse): void {
-    this.decisionService.reject(this.eventId, decision.id).subscribe({
+    this.bind(this.decisionService.reject(this.eventId, decision.id)).subscribe({
       next: () => this.loadData()
     });
   }
 
   deleteIncident(incidentId: number): void {
-    this.incidentService.delete(this.eventId, incidentId).subscribe({
+    this.bind(this.incidentService.delete(this.eventId, incidentId)).subscribe({
       next: () => this.loadData()
     });
   }
 
   resolveIncident(incidentId: number): void {
-    this.incidentService.resolve(this.eventId, incidentId).subscribe({
+    this.bind(this.incidentService.resolve(this.eventId, incidentId)).subscribe({
       next: () => this.loadData()
     });
   }
@@ -452,7 +472,7 @@ export class ActDetail implements OnInit {
   loadHistory(page: number): void {
     this.historyPage = page;
     this.historyLoading = true;
-    this.auditLogService.findByEventId(this.eventId, page - 1, this.historyPageSize).subscribe({
+    this.bind(this.auditLogService.findByEventId(this.eventId, page - 1, this.historyPageSize)).subscribe({
       next: (data) => {
         this.historyEntries = data.content;
         this.historyTotalPages = Math.max(1, data.totalPages);
@@ -469,12 +489,12 @@ export class ActDetail implements OnInit {
   }
 
   private loadData(): void {
-    forkJoin({
+    this.bind(forkJoin({
       event: this.eventService.findById(this.eventId),
       tasks: this.taskService.findByEventId(this.eventId),
       decisions: this.decisionService.findByEventId(this.eventId),
       incidents: this.incidentService.findByEventId(this.eventId)
-    }).subscribe({
+    })).subscribe({
       next: (data) => {
         this.event = data.event;
         this.tasks = data.tasks;
@@ -482,7 +502,8 @@ export class ActDetail implements OnInit {
         this.incidents = data.incidents;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo cargar el acto.');
         this.loading = false;
       }
     });
