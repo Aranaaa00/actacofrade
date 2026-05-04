@@ -1,9 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BrowserService } from './shared/services/browser.service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html'
 })
-export class App {}
+export class App {
+  // Bootstraps document-level side effects (title, scroll, key listeners).
+  constructor() {
+    inject(BrowserService).init();
+  }
+}

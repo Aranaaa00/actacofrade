@@ -1,8 +1,10 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { Role } from '../shared/constants/roles.const';
 
-export const roleGuard = (roles: string[]): CanActivateFn => () => {
+// Allows navigation only if the user owns at least one of the given roles.
+export const roleGuard = (roles: ReadonlyArray<Role | string>): CanActivateFn => () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

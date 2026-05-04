@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LUCIDE_ICONS, LucideIconProvider, House, FileText, ChevronDown, ChevronLeft, ChevronRight, Clock, Users, Settings, LogOut, Menu, X, Search, Diamond, TriangleAlert, Lock, Calendar, Gem, Check, Minus, UserPlus, Building2, MapPin, Info, Link, History, Pencil, Upload, Trash2 } from 'lucide-angular';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { errorInterceptor } from './interceptors/error.interceptor';
 
 import { routes } from './app.routes';
 
@@ -11,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     {
       provide: LUCIDE_ICONS,
       multi: true,
