@@ -44,6 +44,17 @@ export class Sidebar implements OnInit, OnChanges, OnDestroy {
     this.actsMenuOpen = !this.actsMenuOpen;
   }
 
+  get roleLabel(): string {
+    const code = this.user?.roles?.[0];
+    switch (code) {
+      case 'ADMINISTRADOR': return 'Administrador';
+      case 'RESPONSABLE': return 'Responsable';
+      case 'COLABORADOR': return 'Colaborador';
+      case 'CONSULTA': return 'Consulta';
+      default: return '';
+    }
+  }
+
   private refreshAvatar(): void {
     this.revokeAvatar();
     const u = this.user;

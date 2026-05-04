@@ -2,6 +2,7 @@ import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 
+// progress weights mapped per status, used to turn a list of items into a percent
 const TASK_PROGRESS_WEIGHTS: Record<string, number> = {
   'PLANNED': 0,
   'ACCEPTED': 0.25,
@@ -18,8 +19,8 @@ const DECISION_PROGRESS_WEIGHTS: Record<string, number> = {
 };
 
 const INCIDENT_PROGRESS_WEIGHTS: Record<string, number> = {
-  'ABIERTA': 0,
-  'RESUELTA': 1,
+  'OPEN': 0,
+  'RESOLVED': 1,
 };
 
 export interface ActProgress {
@@ -46,6 +47,7 @@ export function calculateActProgress(
   decisions: DecisionResponse[],
   incidents: IncidentResponse[]
 ): ActProgress {
+  // weighted average of every action so the same scale works for tasks, decisions and incidents
   const total = tasks.length + decisions.length + incidents.length;
   if (total === 0) {
     return { total: 0, pending: 0, percent: 0 };
@@ -110,6 +112,7 @@ const PROGRESS_STEPS: ReadonlyArray<{ key: string; label: string; threshold: num
 
 // Builds the four-step model used by the visual progress bar.
 export function buildProgressSteps(percent: number): ActProgressStep[] {
+  // turn the percent value into a list of steps with partial connectors for the timeline
   return PROGRESS_STEPS.map((s, i) => {
     const next = PROGRESS_STEPS[i + 1];
     let connectorFill = 0;

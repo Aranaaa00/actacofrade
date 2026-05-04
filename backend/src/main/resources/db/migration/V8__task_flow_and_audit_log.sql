@@ -34,7 +34,8 @@ CREATE TABLE audit_log (
     action VARCHAR(50) NOT NULL,
     performed_by INTEGER REFERENCES users(id),
     performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    details TEXT
+    details TEXT,
+    changes JSONB
 );
 
 CREATE INDEX idx_audit_log_event_id ON audit_log(event_id);

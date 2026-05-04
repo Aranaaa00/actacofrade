@@ -55,7 +55,7 @@ class AuditLogControllerIntegrationTest {
     @Test
     void findByEventId_returnsPage() throws Exception {
         AuditLogResponse log = new AuditLogResponse(1, 5, "TASK", 10,
-                "CREATED", 2, "Admin", LocalDateTime.now(), "Tarea creada");
+                "CREATED", 2, "Admin", LocalDateTime.now(), "Tarea creada", null);
         Page<AuditLogResponse> page = new PageImpl<>(List.of(log), PageRequest.of(0, 5), 1);
         given(auditLogService.findByEventId(eq(5), any(), anyString())).willReturn(page);
 

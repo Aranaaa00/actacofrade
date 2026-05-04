@@ -164,8 +164,12 @@
 
 .settings__info {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr;
   gap: $space-8;
+
+  @include from-mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .settings__info-item {

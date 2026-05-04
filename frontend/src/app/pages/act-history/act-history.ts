@@ -54,6 +54,7 @@ export class ActHistory implements OnInit, OnDestroy {
   private searchSubscription: Subscription | null = null;
 
   ngOnInit(): void {
+    // debounce keystrokes so we only request a new page after the user stops typing
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -63,6 +64,7 @@ export class ActHistory implements OnInit, OnDestroy {
       this.loadEvents();
     });
 
+    // load the dropdown sources in parallel and then fetch the first page
     forkJoin({
       users: this.userService.findAll(),
       dates: this.eventService.availableDates()
@@ -73,6 +75,9 @@ export class ActHistory implements OnInit, OnDestroy {
         this.loadEvents();
       },
       error: () => {
+        // keep history usable even when filter data fails to load
+        this.users = [];
+        this.availableDates = [];
         this.loadEvents();
       }
     });
@@ -83,6 +88,7 @@ export class ActHistory implements OnInit, OnDestroy {
   }
 
   get groupedEvents(): DateGroup[] {
+    // group every event by date so the template can render one section per day
     const groups: Map<string, EventResponse[]> = new Map();
     for (const event of this.events) {
       const key = event.eventDate as string;
@@ -103,7 +109,7 @@ export class ActHistory implements OnInit, OnDestroy {
   }
 
   get activeDateRangeLabel(): string {
-    if (!this.filterDateFrom && !this.filterDateTo) { return 'Rango de fechas'; }
+    if (!this.filterDateFrom && !this.filterDateTo) { return 'Fechas'; }
     const parts: string[] = [];
     if (this.filterDateFrom) { parts.push(this.formatShortDate(this.filterDateFrom)); }
     if (this.filterDateTo) { parts.push(this.formatShortDate(this.filterDateTo)); }
@@ -122,7 +128,7 @@ export class ActHistory implements OnInit, OnDestroy {
   getStatusBadgeVariant = getEventStatusBadgeVariant;
 
   isClosed(event: EventResponse): boolean {
-    return event.status === 'CERRADO';
+    return event.status === 'CLOSED';
   }
 
   formatTimelineDate(dateStr: string): string {

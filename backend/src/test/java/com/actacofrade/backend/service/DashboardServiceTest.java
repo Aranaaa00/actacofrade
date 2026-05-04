@@ -82,13 +82,13 @@ class DashboardServiceTest {
         Page<Event> page = new PageImpl<>(List.of(event));
         when(eventRepository.<Event>findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
         EventResponse er = new EventResponse(10, "2026/0001", "Acto", "CABILDO",
-                LocalDate.now(), null, null, "PLANIFICACION", 1, "User 1", false,
+                LocalDate.now(), null, null, "PLANNING", 1, "User 1", false,
                 0, 0, 0, 0, null, null);
         when(eventService.toResponse(event)).thenReturn(er);
 
         when(taskRepository.findByAssignedToIdAndStatusInAndEventHermandadIdOrderByCreatedAtDesc(eq(1), any(), eq(1)))
                 .thenReturn(List.of());
-        when(incidentRepository.findByReportedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(eq(1), eq(IncidentStatus.ABIERTA), eq(1)))
+        when(incidentRepository.findByReportedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(eq(1), eq(IncidentStatus.OPEN), eq(1)))
                 .thenReturn(List.of());
         when(decisionRepository.findByReviewedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(eq(1), eq(DecisionStatus.PENDING), eq(1)))
                 .thenReturn(List.of());
@@ -106,11 +106,11 @@ class DashboardServiceTest {
     void getDashboard_excludesClosedEventsFromRecentSpecification() {
         when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
         Event closed = TestFixtures.event(11, hermandad, admin);
-        closed.setStatus(EventStatus.CERRADO);
+        closed.setStatus(EventStatus.CLOSED);
         Page<Event> page = new PageImpl<>(List.of(event));
         when(eventRepository.<Event>findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
         when(eventService.toResponse(any(Event.class))).thenReturn(
-                new EventResponse(10, "r", "t", "CABILDO", LocalDate.now(), null, null, "PLANIFICACION",
+                new EventResponse(10, "r", "t", "CABILDO", LocalDate.now(), null, null, "PLANNING",
                         1, "U", false, 0, 0, 0, 0, null, null));
         when(taskRepository.findByAssignedToIdAndStatusInAndEventHermandadIdOrderByCreatedAtDesc(any(), any(), any()))
                 .thenReturn(List.of());
@@ -121,6 +121,6 @@ class DashboardServiceTest {
 
         DashboardResponse res = service.getDashboard("admin@e.com");
         assertThat(res.recentEvents()).hasSize(1);
-        assertThat(res.recentEvents().get(0).status()).isEqualTo("PLANIFICACION");
+        assertThat(res.recentEvents().get(0).status()).isEqualTo("PLANNING");
     }
 }

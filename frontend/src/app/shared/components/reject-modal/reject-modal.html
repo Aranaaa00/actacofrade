@@ -9,13 +9,13 @@
       </header>
       <section class="modal__body">
         <fieldset class="form-field">
-          <label class="form-field__label" for="rejectionReason">Motivo del rechazo</label>
+          <label class="form-field__label" for="rejectionReason">Motivo</label>
           <textarea id="rejectionReason" class="input" rows="3"
             [(ngModel)]="reason"
             maxlength="500"
-            placeholder="Indica el motivo por el que rechazas esta tarea..."></textarea>
+            placeholder="Indica el motivo del rechazo…"></textarea>
           @if (submitted && !reason.trim()) {
-            <small class="form-field__error" role="alert">El motivo de rechazo es obligatorio</small>
+            <small class="form-field__error" role="alert">El motivo es obligatorio</small>
           }
         </fieldset>
       </section>

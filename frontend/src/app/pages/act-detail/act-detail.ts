@@ -10,6 +10,7 @@ import { Pagination } from '../../shared/components/pagination/pagination';
 import { Tabs } from '../../shared/components/tabs/tabs';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
 import { EventService } from '../../services/event.service';
@@ -53,7 +54,7 @@ interface EditData {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay, ConfirmDialog],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
@@ -71,7 +72,7 @@ export class ActDetail implements OnInit {
 
   eventId = 0;
   selectedTab = 'Tareas';
-  readonly tabLabels = ['Tareas', 'Decisiones', 'Incidencias', 'Historial del acto'];
+  readonly tabLabels = ['Tareas', 'Decisiones', 'Incidencias', 'Historial'];
 
   showElementForm = false;
   elementFormTab: ElementTab = 'task';
@@ -89,6 +90,10 @@ export class ActDetail implements OnInit {
   exportSections: string[] = ['TASKS', 'DECISIONS', 'INCIDENTS'];
   exportSubmitted = false;
   exportLoading = false;
+  exportError = '';
+
+  // global error message for header actions like clone
+  actionError = '';
 
   readonly exportSectionOptions = [
     { value: 'TASKS', label: 'Tareas y responsables' },
@@ -118,7 +123,7 @@ export class ActDetail implements OnInit {
   }
 
   get progress() {
-    if (this.event?.status === 'CERRADO') {
+    if (this.event?.status === 'CLOSED') {
       const total = this.tasks.length + this.decisions.length + this.incidents.length;
       return { total, completed: total, pending: 0, percent: 100 };
     }
@@ -148,7 +153,7 @@ export class ActDetail implements OnInit {
 
   get statusVariant(): string {
     const status = this.event?.status || '';
-    return status === 'CERRADO' ? 'confirmed' : 'pending';
+    return status === 'CLOSED' ? 'confirmed' : 'pending';
   }
 
   get hasPendingItems(): boolean {
@@ -171,17 +176,28 @@ export class ActDetail implements OnInit {
   getAreaLabel = getAreaLabel;
 
   cloneAct(): void {
+    // reset previous error before request
+    this.actionError = '';
     this.bind(this.eventService.clone(this.eventId)).subscribe({
       next: (cloned) => {
         this.router.navigate(['/events', cloned.id]);
+      },
+      error: () => {
+        // notify user when cloning fails
+        this.actionError = 'No se pudo clonar el acto. Inténtalo de nuevo.';
       }
     });
+  }
+
+  dismissActionError(): void {
+    this.actionError = '';
   }
 
   openExportModal(): void {
     this.exportFormat = 'PDF';
     this.exportSections = ['TASKS', 'DECISIONS', 'INCIDENTS'];
     this.exportSubmitted = false;
+    this.exportError = '';
     this.showExportModal = true;
   }
 
@@ -212,15 +228,17 @@ export class ActDetail implements OnInit {
       return;
     }
     this.exportLoading = true;
+    this.exportError = '';
     this.bind(this.eventService.export(this.eventId, this.exportFormat, this.exportSections)).subscribe({
       next: (blob: Blob) => {
         this.triggerDownload(blob, `acto-${this.eventId}.${this.exportFormat.toLowerCase()}`);
         this.exportLoading = false;
         this.closeExportModal();
       },
-      error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo exportar el acto.');
+      error: () => {
+        // show error inside modal so the user can retry
         this.exportLoading = false;
+        this.exportError = 'No se pudo generar el archivo. Inténtalo de nuevo.';
       }
     });
   }
@@ -300,55 +318,19 @@ export class ActDetail implements OnInit {
   }
 
   acceptTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.bind(this.taskService.accept(this.eventId, task.id)).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.bind(this.taskService.accept(this.eventId, task.id)));
   }
 
   startPreparation(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.bind(this.taskService.startPreparation(this.eventId, task.id)).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.bind(this.taskService.startPreparation(this.eventId, task.id)));
   }
 
   confirmTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.bind(this.taskService.confirm(this.eventId, task.id)).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.bind(this.taskService.confirm(this.eventId, task.id)));
   }
 
   completeTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.bind(this.taskService.complete(this.eventId, task.id)).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task.id, this.bind(this.taskService.complete(this.eventId, task.id)));
   }
 
   openRejectModal(task: TaskResponse): void {
@@ -365,25 +347,27 @@ export class ActDetail implements OnInit {
     if (!this.rejectingTaskId) {
       return;
     }
-    this.processingTaskId = this.rejectingTaskId;
-    this.bind(this.taskService.reject(this.eventId, this.rejectingTaskId, sanitizeText(reason))).subscribe({
-      next: () => {
-        this.processingTaskId = null;
+    const taskId = this.rejectingTaskId;
+    this.runTaskAction(
+      taskId,
+      this.bind(this.taskService.reject(this.eventId, taskId, sanitizeText(reason))),
+      () => {
         this.showRejectModal = false;
         this.rejectingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
       }
-    });
+    );
   }
 
   resetTask(task: TaskResponse): void {
-    this.processingTaskId = task.id;
-    this.bind(this.taskService.reset(this.eventId, task.id)).subscribe({
+    this.runTaskAction(task.id, this.bind(this.taskService.reset(this.eventId, task.id)));
+  }
+
+  private runTaskAction(taskId: number, request$: Observable<unknown>, onSuccess?: () => void): void {
+    this.processingTaskId = taskId;
+    request$.subscribe({
       next: () => {
         this.processingTaskId = null;
+        onSuccess?.();
         this.loadData();
       },
       error: () => {
@@ -421,38 +405,74 @@ export class ActDetail implements OnInit {
   }
 
   deleteTask(taskId: number): void {
-    this.bind(this.taskService.delete(this.eventId, taskId)).subscribe({
-      next: () => this.loadData()
-    });
+    this.pendingDelete = { type: 'task', id: taskId };
   }
 
   deleteDecision(decisionId: number): void {
-    this.bind(this.decisionService.delete(this.eventId, decisionId)).subscribe({
-      next: () => this.loadData()
+    this.pendingDelete = { type: 'decision', id: decisionId };
+  }
+
+  deleteIncident(incidentId: number): void {
+    this.pendingDelete = { type: 'incident', id: incidentId };
+  }
+
+  pendingDelete: { type: ElementTab; id: number } | null = null;
+
+  get pendingDeleteMessage(): string {
+    if (!this.pendingDelete) return '';
+    const labels: Record<ElementTab, string> = {
+      task: 'esta tarea',
+      decision: 'esta decisión',
+      incident: 'esta incidencia',
+    };
+    return `¿Seguro que deseas eliminar ${labels[this.pendingDelete.type]}? Esta acción no se puede deshacer.`;
+  }
+
+  cancelPendingDelete(): void {
+    this.pendingDelete = null;
+  }
+
+  confirmPendingDelete(): void {
+    if (!this.pendingDelete) return;
+    const { type, id } = this.pendingDelete;
+    this.pendingDelete = null;
+    let request$: Observable<void>;
+    if (type === 'task') request$ = this.taskService.delete(this.eventId, id);
+    else if (type === 'decision') request$ = this.decisionService.delete(this.eventId, id);
+    else request$ = this.incidentService.delete(this.eventId, id);
+    this.bind(request$).subscribe({
+      next: () => this.loadData(),
+      error: () => {
+        // surface deletion failure to the user
+        this.actionError = 'No se pudo eliminar el elemento. Inténtalo de nuevo.';
+      }
     });
   }
 
   acceptDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.accept(this.eventId, decision.id)).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo aceptar la decisión. Inténtalo de nuevo.';
+      }
     });
   }
 
   rejectDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.reject(this.eventId, decision.id)).subscribe({
-      next: () => this.loadData()
-    });
-  }
-
-  deleteIncident(incidentId: number): void {
-    this.bind(this.incidentService.delete(this.eventId, incidentId)).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo rechazar la decisión. Inténtalo de nuevo.';
+      }
     });
   }
 
   resolveIncident(incidentId: number): void {
     this.bind(this.incidentService.resolve(this.eventId, incidentId)).subscribe({
-      next: () => this.loadData()
+      next: () => this.loadData(),
+      error: () => {
+        this.actionError = 'No se pudo resolver la incidencia. Inténtalo de nuevo.';
+      }
     });
   }
 
@@ -464,7 +484,7 @@ export class ActDetail implements OnInit {
 
   onTabChange(tab: string): void {
     this.selectedTab = tab;
-    if (tab === 'Historial del acto' && this.historyEntries.length === 0) {
+    if (tab === 'Historial' && this.historyEntries.length === 0) {
       this.loadHistory(1);
     }
   }
@@ -485,7 +505,7 @@ export class ActDetail implements OnInit {
   }
 
   get isEventClosed(): boolean {
-    return this.event?.status === 'CERRADO';
+    return this.event?.status === 'CLOSED';
   }
 
   private loadData(): void {

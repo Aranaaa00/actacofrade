@@ -83,20 +83,32 @@ public class DecisionService {
         User currentUser = findUserByEmailOrThrow(authenticatedEmail);
         authorizationHelper.requireEventManager(event, currentUser);
 
+        AuditLogService.ChangeSetBuilder diff = new AuditLogService.ChangeSetBuilder();
+
         if (request.area() != null) {
-            decision.setArea(HermandadArea.valueOf(request.area()));
+            HermandadArea newArea = HermandadArea.valueOf(request.area());
+            diff.track("area", decision.getArea(), newArea);
+            decision.setArea(newArea);
         }
         if (request.title() != null) {
-            decision.setTitle(SanitizationUtils.sanitize(request.title()));
+            String newTitle = SanitizationUtils.sanitize(request.title());
+            diff.track("title", decision.getTitle(), newTitle);
+            decision.setTitle(newTitle);
         }
         if (request.reviewedById() != null) {
             User newReviewer = resolveUser(request.reviewedById());
             authorizationHelper.requireAssignable(newReviewer);
+            Integer oldId = decision.getReviewedBy() != null ? decision.getReviewedBy().getId() : null;
+            Integer newId = newReviewer != null ? newReviewer.getId() : null;
+            diff.track("reviewedById", oldId, newId);
             decision.setReviewedBy(newReviewer);
         }
 
         decision.setUpdatedAt(LocalDateTime.now());
         decisionRepository.save(decision);
+        if (!diff.isEmpty()) {
+            auditLogService.log(event, "DECISION", decision.getId(), "DECISION_UPDATED", currentUser, decision.getTitle(), diff.toJson());
+        }
         return toResponse(decision);
     }
 
@@ -151,7 +163,7 @@ public class DecisionService {
     }
 
     private void validateEventNotClosed(Event event) {
-        if (event.getStatus() == EventStatus.CERRADO) {
+        if (event.getStatus() == EventStatus.CLOSED) {
             throw new IllegalStateException("El acto esta cerrado y no permite modificaciones");
         }
     }

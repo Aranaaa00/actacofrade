@@ -41,17 +41,19 @@ export class ActEditor implements OnInit, AfterViewInit {
   successMessage = '';
 
   ngOnInit(): void {
+    // build the reactive form with shared validators that block html injection
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       eventType: ['', [Validators.required]],
       eventDate: ['', [Validators.required]],
       location: ['', [Validators.maxLength(255), noHtmlValidator()]],
-      responsibleId: [null],
+      responsibleId: [null, [Validators.required]],
       observations: ['', [Validators.maxLength(1000), noHtmlValidator()]]
     });
 
     this.loadUsers();
 
+    // when the route has an id we switch to edit mode and prefill the form
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -67,7 +69,8 @@ export class ActEditor implements OnInit, AfterViewInit {
   private loadUsers(): void {
     if (this.canPickResponsible) {
       this.userService.findAssignable().subscribe({
-        next: (users) => this.users = users
+        next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE')),
+        error: () => { this.users = []; }
       });
     } else {
       const authUser = this.auth.getUser();
@@ -118,9 +121,10 @@ export class ActEditor implements OnInit, AfterViewInit {
 
       request$.subscribe({
         next: (event) => {
+          // always reset loading regardless of mode to keep button enabled
+          this.loading = false;
           if (this.isEditMode) {
             this.successMessage = 'Acto actualizado correctamente.';
-            this.loading = false;
           } else {
             this.actCreated.emit(event);
           }

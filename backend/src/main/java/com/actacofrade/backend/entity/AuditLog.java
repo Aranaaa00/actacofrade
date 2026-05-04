@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -50,4 +52,8 @@ public class AuditLog {
 
     @Column(name = "details", columnDefinition = "TEXT")
     private String details;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "changes", columnDefinition = "jsonb")
+    private String changes;
 }

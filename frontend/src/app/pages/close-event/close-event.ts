@@ -56,6 +56,7 @@ export class CloseEvent implements OnInit {
   }
 
   close(): void {
+    // close request is enabled only when there are no blocking items
     if (this.event && !this.closing) {
       this.closing = true;
       this.errorMessage = '';
@@ -82,6 +83,7 @@ export class CloseEvent implements OnInit {
   }
 
   private loadEventData(eventId: number): void {
+    // run the four requests in parallel and apply the result once all complete
     forkJoin({
       event: this.eventService.findById(eventId),
       tasks: this.taskService.findByEventId(eventId),
@@ -133,7 +135,7 @@ export class CloseEvent implements OnInit {
     }
 
     for (const incident of incidents) {
-      if (incident.status === 'ABIERTA') {
+      if (incident.status === 'OPEN') {
         items.push({
           type: 'INCIDENCIA',
           label: incident.description,

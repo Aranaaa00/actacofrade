@@ -16,7 +16,7 @@ public record CreateEventRequest(
         String title,
 
         @NotBlank(message = "El tipo de acto es obligatorio")
-        @Pattern(regexp = "CABILDO|CULTOS|PROCESION|ENSAYO|OTRO", message = "Tipo de acto no v\u00e1lido")
+        @Pattern(regexp = "CABILDO|CULTOS|PROCESION|ESTACION_PENITENCIA|ENSAYO|OTRO", message = "Tipo de acto no v\u00e1lido")
         String eventType,
 
         @NotNull(message = "La fecha del acto es obligatoria")
@@ -27,6 +27,7 @@ public record CreateEventRequest(
         @Pattern(regexp = "^[^<>]*$", message = "La ubicación contiene caracteres no permitidos")
         String location,
 
+        @NotNull(message = "El responsable del acto es obligatorio")
         Integer responsibleId,
 
         @Size(max = 1000, message = "Las observaciones no pueden superar los 1000 caracteres")

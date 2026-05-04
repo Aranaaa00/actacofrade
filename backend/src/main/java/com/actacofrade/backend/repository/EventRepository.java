@@ -56,7 +56,7 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
             nativeQuery = true)
     long countTotalTasksByEventId(@Param("eventId") Integer eventId);
 
-    @Query(value = "SELECT COUNT(*) FROM incidents WHERE event_id = :eventId AND status = 'ABIERTA'",
+    @Query(value = "SELECT COUNT(*) FROM incidents WHERE event_id = :eventId AND status = 'OPEN'",
             nativeQuery = true)
     long countOpenIncidentsByEventId(@Param("eventId") Integer eventId);
 

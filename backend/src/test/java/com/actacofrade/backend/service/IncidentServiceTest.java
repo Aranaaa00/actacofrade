@@ -55,7 +55,7 @@ class IncidentServiceTest {
         colaborador = TestFixtures.user(3, "col@e.com", hermandad, RoleCode.COLABORADOR);
         consultor = TestFixtures.user(4, "cons@e.com", hermandad, RoleCode.CONSULTA);
         event = TestFixtures.event(10, hermandad, responsable);
-        incident = TestFixtures.incident(40, event, colaborador, IncidentStatus.ABIERTA);
+        incident = TestFixtures.incident(40, event, colaborador, IncidentStatus.OPEN);
     }
 
     private void mockUser(User u) {
@@ -115,7 +115,7 @@ class IncidentServiceTest {
 
     @Test
     void create_eventClosed_throws() {
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         mockEvent();
         assertThatThrownBy(() -> service.create(10, new CreateIncidentRequest("d", null), admin.getEmail()))
@@ -146,12 +146,12 @@ class IncidentServiceTest {
         mockEvent();
         mockIncident();
         IncidentResponse res = service.resolve(10, 40, admin.getEmail());
-        assertThat(res.status()).isEqualTo("RESUELTA");
+        assertThat(res.status()).isEqualTo("RESOLVED");
     }
 
     @Test
     void resolve_alreadyResolved_throws() {
-        incident.setStatus(IncidentStatus.RESUELTA);
+        incident.setStatus(IncidentStatus.RESOLVED);
         mockUser(admin);
         mockEvent();
         mockIncident();
@@ -170,12 +170,12 @@ class IncidentServiceTest {
 
     @Test
     void reopen_admin_reopens() {
-        incident.setStatus(IncidentStatus.RESUELTA);
+        incident.setStatus(IncidentStatus.RESOLVED);
         mockUser(admin);
         mockEvent();
         mockIncident();
         IncidentResponse res = service.reopen(10, 40, admin.getEmail());
-        assertThat(res.status()).isEqualTo("ABIERTA");
+        assertThat(res.status()).isEqualTo("OPEN");
     }
 
     @Test
@@ -189,7 +189,7 @@ class IncidentServiceTest {
 
     @Test
     void reopen_collaborator_denied() {
-        incident.setStatus(IncidentStatus.RESUELTA);
+        incident.setStatus(IncidentStatus.RESOLVED);
         mockUser(colaborador);
         mockEvent();
         mockIncident();
@@ -207,3 +207,4 @@ class IncidentServiceTest {
         assertThat(incident.getResolvedAt()).isNotNull();
     }
 }
+

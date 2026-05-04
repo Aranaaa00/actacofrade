@@ -60,7 +60,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status")
-    private EventStatus status = EventStatus.PLANIFICACION;
+    private EventStatus status = EventStatus.PLANNING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsible_id")

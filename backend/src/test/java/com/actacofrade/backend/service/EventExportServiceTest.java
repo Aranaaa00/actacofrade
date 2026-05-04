@@ -88,7 +88,7 @@ class EventExportServiceTest {
         mockUserAndEvent();
         when(taskRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.task(20, event, admin, TaskStatus.PLANNED)));
         when(decisionRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.decision(30, event, admin, DecisionStatus.PENDING)));
-        when(incidentRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.incident(40, event, admin, IncidentStatus.ABIERTA)));
+        when(incidentRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.incident(40, event, admin, IncidentStatus.OPEN)));
 
         byte[] bytes = service.export(10, new ExportRequest("PDF", List.of("OBSERVATIONS", "TASKS", "DECISIONS", "INCIDENTS")), "admin@e.com");
         assertThat(bytes).isNotEmpty();
@@ -120,7 +120,7 @@ class EventExportServiceTest {
         mockUserAndEvent();
         when(taskRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.task(20, event, admin, TaskStatus.PLANNED)));
         when(decisionRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.decision(30, event, admin, DecisionStatus.ACCEPTED)));
-        when(incidentRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.incident(40, event, admin, IncidentStatus.RESUELTA)));
+        when(incidentRepository.findByEventId(10)).thenReturn(List.of(TestFixtures.incident(40, event, admin, IncidentStatus.RESOLVED)));
 
         byte[] bytes = service.export(10, new ExportRequest("CSV", List.of("OBSERVATIONS", "TASKS", "DECISIONS", "INCIDENTS")), "admin@e.com");
         String csv = new String(bytes, 3, bytes.length - 3, StandardCharsets.UTF_8);

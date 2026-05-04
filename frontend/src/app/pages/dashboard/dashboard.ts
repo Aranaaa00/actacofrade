@@ -44,6 +44,7 @@ export class Dashboard implements OnInit {
   }
 
   ngOnInit(): void {
+    // single endpoint that aggregates events, alerts and counters in one network call
     this.dashboardService.getDashboard().subscribe({
       next: data => {
         this.events = data.recentEvents;

@@ -51,8 +51,8 @@
         type="search"
         [value]="searchQuery"
         (input)="onSearch($any($event.target).value)"
-        placeholder="Búsqueda global"
-        aria-label="Búsqueda global"
+        placeholder="Buscar"
+        aria-label="Buscar"
         maxlength="200">
     </div>
 
@@ -86,7 +86,6 @@
                     } @else {
                       <h2 class="act-history__item-title">{{ act.title }}</h2>
                     }
-                    <p class="act-history__item-ref">Ref: {{ act.reference }}</p>
                   </div>
                   <div class="act-history__item-actions">
                     <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ getStatusLabel(act.status) }}</app-badge>

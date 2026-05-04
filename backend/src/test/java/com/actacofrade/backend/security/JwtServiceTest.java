@@ -67,4 +67,38 @@ class JwtServiceTest {
         assertThatThrownBy(() -> service.extractEmail(token))
                 .isInstanceOf(JwtException.class);
     }
+
+    @Test
+    void validateConfiguration_acceptsLongSecret() {
+        JwtService svc = new JwtService();
+        ReflectionTestUtils.setField(svc, "secret", "clave-secreta-de-prueba-suficientemente-larga-para-hs256");
+        ReflectionTestUtils.setField(svc, "expirationMs", 1000L);
+        ReflectionTestUtils.invokeMethod(svc, "validateConfiguration");
+    }
+
+    @Test
+    void validateConfiguration_rejectsNullSecret() {
+        JwtService svc = new JwtService();
+        ReflectionTestUtils.setField(svc, "secret", null);
+        assertThatThrownBy(() -> ReflectionTestUtils.invokeMethod(svc, "validateConfiguration"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("jwt.secret");
+    }
+
+    @Test
+    void validateConfiguration_rejectsBlankSecret() {
+        JwtService svc = new JwtService();
+        ReflectionTestUtils.setField(svc, "secret", "   ");
+        assertThatThrownBy(() -> ReflectionTestUtils.invokeMethod(svc, "validateConfiguration"))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void validateConfiguration_rejectsShortSecret() {
+        JwtService svc = new JwtService();
+        ReflectionTestUtils.setField(svc, "secret", "corto");
+        assertThatThrownBy(() -> ReflectionTestUtils.invokeMethod(svc, "validateConfiguration"))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("32 bytes");
+    }
 }

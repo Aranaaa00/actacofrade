@@ -8,10 +8,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TYPE role_code AS ENUM ('ADMINISTRADOR', 'RESPONSABLE', 'COLABORADOR', 'CONSULTA');
 
 -- Event/Expedient status phases
-CREATE TYPE event_status AS ENUM ('PLANIFICACION', 'PREPARACION', 'CONFIRMACION', 'CIERRE', 'CERRADO');
+CREATE TYPE event_status AS ENUM ('PLANNING', 'PREPARATION', 'CONFIRMATION', 'CLOSING', 'CLOSED');
 
 -- Event classifications
-CREATE TYPE event_type AS ENUM ('CABILDO', 'CULTOS', 'PROCESION', 'ENSAYO', 'OTRO');
+CREATE TYPE event_type AS ENUM ('CABILDO', 'CULTOS', 'PROCESION', 'ESTACION_PENITENCIA', 'ENSAYO', 'OTRO');
 
 -- Task completion states
 CREATE TYPE task_status AS ENUM ('PENDIENTE', 'CONFIRMADA', 'RECHAZADA');
@@ -23,7 +23,7 @@ CREATE TYPE hermandad_area AS ENUM ('MAYORDOMIA', 'SECRETARIA', 'PRIOSTIA', 'TES
 CREATE TYPE decision_status AS ENUM ('PENDIENTE', 'LISTA', 'RECHAZADA');
 
 -- Incident states
-CREATE TYPE incident_status AS ENUM ('ABIERTA', 'RESUELTA');
+CREATE TYPE incident_status AS ENUM ('OPEN', 'RESOLVED');
 
 
 -- === 2. SECURITY & USERS MODULE ===
@@ -65,7 +65,7 @@ CREATE TABLE events (
     event_date DATE NOT NULL,                  
     location VARCHAR(255),                     
     observations TEXT,                         
-    status event_status DEFAULT 'PLANIFICACION', 
+    status event_status DEFAULT 'PLANNING', 
     responsible_id INTEGER REFERENCES users(id), 
     is_locked_for_closing BOOLEAN DEFAULT FALSE, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -102,7 +102,7 @@ CREATE TABLE incidents (
     id SERIAL PRIMARY KEY,
     event_id INTEGER REFERENCES events(id) ON DELETE CASCADE,
     description TEXT NOT NULL,                 
-    status incident_status DEFAULT 'ABIERTA',
+    status incident_status DEFAULT 'OPEN',
     reported_by INTEGER REFERENCES users(id),  
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP

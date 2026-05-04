@@ -12,7 +12,10 @@
       <section class="act-detail__header-main">
         <h1 class="act-detail__title">{{ event.title }}</h1>
         <p class="act-detail__meta">
-          Ref: {{ event.reference }} · {{ getEventTypeLabel(event.eventType) }} · {{ formatDate(event.eventDate) }} · {{ event.location }} · {{ event.responsibleName || '—' }}
+          {{ formatDate(event.eventDate) }}
+        </p>
+        <p class="act-detail__meta">
+          {{ event.location }} · {{ event.responsibleName || '—' }}
         </p>
       </section>
       <aside class="act-detail__header-side">
@@ -30,8 +33,15 @@
   @if (hasPendingItems) {
     <app-banner type="info" styleClass="act-detail__alert">
       <lucide-icon name="triangle-alert" class="act-detail__alert-icon" [size]="20" aria-hidden="true"></lucide-icon>
-      {{ pendingActionsText }} — Revisar antes del cierre
+      <span class="act-detail__alert-text">{{ pendingActionsText }}<span class="act-detail__alert-suffix"> — Revisar antes del cierre</span></span>
       <a class="act-detail__alert-link" (click)="selectedTab = 'Tareas'">Ver pendientes →</a>
+    </app-banner>
+  }
+
+  @if (actionError) {
+    <app-banner type="error" styleClass="act-detail__alert">
+      <span class="act-detail__alert-text">{{ actionError }}</span>
+      <a class="act-detail__alert-link" (click)="dismissActionError()">Cerrar</a>
     </app-banner>
   }
 
@@ -79,9 +89,9 @@
                       <small class="act-detail__task-desc">{{ task.description }}</small>
                     }
                   </td>
-                  <td>{{ task.assignedToName || '—' }}</td>
-                  <td><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
-                  <td class="act-detail__date">{{ formatDate(task.deadline) }}</td>
+                  <td data-label="Asignado a">{{ task.assignedToName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
+                  <td class="act-detail__date" data-label="Fecha límite">{{ formatDate(task.deadline) }}</td>
                   <td>
                     @if (!isEventClosed) {
                     <nav class="act-detail__row-actions" aria-label="Acciones de tarea">
@@ -159,9 +169,9 @@
               @for (decision of decisions; track decision.id) {
                 <tr>
                   <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
-                  <td>{{ decision.reviewedByName || '—' }}</td>
-                  <td><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
-                  <td>{{ getAreaLabel(decision.area) }}</td>
+                  <td data-label="Revisado por">{{ decision.reviewedByName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
+                  <td data-label="Área">{{ getAreaLabel(decision.area) }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de decisión">
                       @if (!isEventClosed && decision.status === 'PENDING' && auth.canManageAct(event)) {
@@ -203,13 +213,13 @@
               @for (incident of incidents; track incident.id) {
                 <tr>
                   <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
-                  <td>{{ incident.reportedByName || '—' }}</td>
-                  <td><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
-                  <td>{{ incident.resolvedByName || '—' }}</td>
+                  <td data-label="Reportado por">{{ incident.reportedByName || '—' }}</td>
+                  <td data-label="Estado"><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
+                  <td data-label="Resuelto por">{{ incident.resolvedByName || '—' }}</td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
                       @if (canActOnIncident(incident)) {
-                        @if (incident.status === 'ABIERTA') {
+                        @if (incident.status === 'OPEN') {
                           <a class="act-detail__row-link" (click)="resolveIncident(incident.id)">Resolver</a>
                         }
                         <a class="act-detail__row-link" (click)="deleteIncident(incident.id)">Eliminar</a>
@@ -222,7 +232,7 @@
           </table>
         </section>
       }
-      @case ('Historial del acto') {
+      @case ('Historial') {
         <section class="act-detail__panel" role="tabpanel" aria-label="Historial del acto">
           @if (historyEntries.length === 0 && !historyLoading) {
             <p class="act-detail__history-empty">No hay registros en el historial</p>
@@ -293,6 +303,16 @@
     [processing]="processingTaskId !== null"
     (cancelled)="onRejectCancelled()"
     (confirmed)="onRejectConfirmed($event)" />
+
+  @if (pendingDelete) {
+    <app-confirm-dialog
+      title="Eliminar elemento"
+      [message]="pendingDeleteMessage"
+      confirmLabel="Eliminar"
+      cancelLabel="Cancelar"
+      (confirmed)="confirmPendingDelete()"
+      (cancelled)="cancelPendingDelete()" />
+  }
 </section>
 
 @if (showExportModal) {
@@ -363,6 +383,10 @@
           <small class="form-field__error" role="alert">Selecciona al menos una sección</small>
         }
       </fieldset>
+
+      @if (exportError) {
+        <small class="form-field__error" role="alert">{{ exportError }}</small>
+      }
     </section>
 
     <footer class="modal__footer">

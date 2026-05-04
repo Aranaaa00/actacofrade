@@ -10,6 +10,7 @@
         type="text"
         formControlName="fullName"
         autocomplete="name"
+        appAutofocus
         maxlength="150">
     </app-form-field>
 
@@ -31,7 +32,7 @@
           autocomplete="new-password">
       </app-form-field>
 
-      <app-form-field label="Confirmar contraseña" fieldId="register-confirm" [hasError]="hasError('confirmPassword')" [errorMessage]="hasError('confirmPassword') ? getError('confirmPassword') : ''">
+      <app-form-field label="Confirmar" fieldId="register-confirm" [hasError]="hasError('confirmPassword')" [errorMessage]="hasError('confirmPassword') ? getError('confirmPassword') : ''">
         <input id="register-confirm"
           type="password"
           formControlName="confirmPassword"
@@ -70,7 +71,7 @@
       </footer>
 
       <p class="register__login-link">
-        ¿Ya tienes cuenta? <a class="login__register" routerLink="/login">Acceda aquí</a>
+        ¿Ya tienes cuenta? <a class="login__register" routerLink="/login">Inicia sesión</a>
       </p>
     }
   </form>
@@ -96,17 +97,18 @@
       <aside class="login__sidebar" aria-label="Identidad de ActaCofrade">
         <img class="login__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="192" height="192">
         <h2 class="login__brand">ActaCofrade</h2>
-        <p class="login__tagline">"Custodiando la memoria y el protocolo de nuestras hermandades."</p>
-        <p class="login__version">Secretaría General V2.4</p>
+        <p class="login__tagline">Gestión de actos y decisiones</p>
       </aside>
 
       <section class="login__main">
-        <h1 class="login__heading" id="register-heading">Crear Cuenta</h1>
+        <h1 class="login__heading" id="register-heading">Crear cuenta</h1>
         <ng-container [ngTemplateOutlet]="formFields" />
 
         <section class="login__legal" aria-label="Aviso de privacidad">
-          <p class="register__legal-title">Privacidad y protección de datos</p>
-          <p>De conformidad con el RGPD, los datos facilitados serán tratados por la Secretaría General de ActaCofrade con la única finalidad de gestión institucional y protocolos internos.</p>
+          <details class="login__privacy">
+            <summary>Privacidad</summary>
+            <p>Tus datos se tratan según el RGPD únicamente para la gestión interna de la hermandad.</p>
+          </details>
         </section>
       </section>
     </article>

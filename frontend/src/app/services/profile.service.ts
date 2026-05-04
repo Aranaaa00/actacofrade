@@ -52,6 +52,7 @@ export class ProfileService {
     if (file.size > AVATAR_MAX_BYTES) {
       return throwError(() => new AvatarValidationError('SIZE', 'La imagen supera el tamaño máximo de 2 MB.'));
     }
+    // build a multipart form so the backend receives the file with its original metadata
     const form = new FormData();
     form.append('file', file);
     return this.http.post<UserResponse>(`${this.baseUrl}/avatar`, form);
@@ -64,6 +65,7 @@ export class ProfileService {
 
   // Downloads the avatar binary and exposes it as a local object URL.
   loadAvatar(userId: number): Observable<string> {
+    // fetch the avatar as a blob and turn it into an object url usable by img src
     return this.http
       .get(`${this.baseUrl}/avatar/${userId}`, { responseType: 'blob' })
       .pipe(map((blob) => URL.createObjectURL(blob)));

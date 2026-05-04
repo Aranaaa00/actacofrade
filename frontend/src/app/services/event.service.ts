@@ -15,6 +15,7 @@ export class EventService {
   }
 
   filter(params: { eventType?: string; status?: string; eventDate?: string; search?: string; page?: number; size?: number }): Observable<EventPage> {
+    // optional fields are appended only when provided so the backend can ignore unset filters
     let httpParams = new HttpParams();
     if (params.eventType) { httpParams = httpParams.set('eventType', params.eventType); }
     if (params.status) { httpParams = httpParams.set('status', params.status); }
@@ -70,6 +71,7 @@ export class EventService {
   }
 
   export(id: number, format: string, selectedSections: string[]): Observable<Blob> {
-    return this.http.post(`${this.baseUrl}/${id}/export`, { format, selectedSections }, { responseType: 'blob' });
+    // request the file as a binary blob so it can be passed straight to download
+    return this.http.post(`${this.baseUrl}/${id}/export`, { format, selectedSections }, { responseType: 'blob' as const });
   }
 }

@@ -61,7 +61,7 @@ public final class TestFixtures {
         e.setTitle("Acto " + id);
         e.setEventType(EventType.CABILDO);
         e.setEventDate(LocalDate.now().plusDays(30));
-        e.setStatus(EventStatus.PLANIFICACION);
+        e.setStatus(EventStatus.PLANNING);
         e.setHermandad(hermandad);
         e.setResponsible(responsible);
         e.setIsLockedForClosing(false);

@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Injectable, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Meta, Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { BehaviorSubject, Observable, filter } from 'rxjs';
 
@@ -13,15 +14,20 @@ export interface AppNavigatedDetail {
   title: string;
 }
 
-// Centralizes browser-level side effects: title, scroll, online status, keyboard.
+// Default description used when a route does not declare one.
+const DEFAULT_DESCRIPTION =
+  'ActaCofrade gestiona los actos de tu hermandad: tareas, decisiones e incidencias.';
+
+// Centralizes browser-level side effects: meta description, scroll, online status, keyboard.
 @Injectable({ providedIn: 'root' })
 export class BrowserService {
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly meta = inject(Meta);
+  private readonly titleService = inject(Title);
 
   private readonly online$ = new BehaviorSubject<boolean>(this.window.navigator.onLine);
-  private readonly defaultTitle = 'ActaCofrade';
   private initialized = false;
 
   // Observable view of navigator.onLine, updated by browser events.
@@ -51,31 +57,30 @@ export class BrowserService {
     });
   }
 
-  // Updates document.title, scrolls to top and broadcasts a custom event.
+  // Updates description meta, scrolls to top and broadcasts a custom event.
   private onNavigationEnd(url: string): void {
-    const routeTitle = this.collectRouteTitle();
-    const fullTitle = routeTitle ? `${routeTitle} – ${this.defaultTitle}` : this.defaultTitle;
-    this.document.title = fullTitle;
+    const description = this.collectRouteDescription();
+    this.meta.updateTag({ name: 'description', content: description });
     this.window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     const event = new CustomEvent<AppNavigatedDetail>(APP_NAVIGATED_EVENT, {
-      detail: { url, title: fullTitle },
+      detail: { url, title: this.titleService.getTitle() },
       bubbles: false,
     });
     this.document.dispatchEvent(event);
   }
 
-  // Walks the active route tree and returns the deepest title metadata.
-  private collectRouteTitle(): string {
+  // Walks the active route tree and returns the deepest description metadata.
+  private collectRouteDescription(): string {
     let route = this.router.routerState.snapshot.root;
-    let title = '';
+    let description = DEFAULT_DESCRIPTION;
     while (route.firstChild) {
       route = route.firstChild;
-      const data = route.data['title'];
+      const data = route.data['description'];
       if (typeof data === 'string' && data.length > 0) {
-        title = data;
+        description = data;
       }
     }
-    return title;
+    return description;
   }
 
   // Forwards Escape keypresses as a custom DOM event for modal consumers.

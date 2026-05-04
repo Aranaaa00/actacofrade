@@ -7,6 +7,7 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
+import { Banner } from '../../shared/components/banner/banner';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
@@ -22,7 +23,7 @@ import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown, Banner],
   templateUrl: './act-list.html',
 })
 export class ActList implements OnInit, OnDestroy {
@@ -43,6 +44,7 @@ export class ActList implements OnInit, OnDestroy {
   filterDate = '';
   searchQuery = '';
   loading = true;
+  // user-facing message shown when an action fails
   errorMessage = '';
   availableDates: string[] = [];
 
@@ -149,20 +151,23 @@ export class ActList implements OnInit, OnDestroy {
   }
 
   cloneAct(act: EventResponse): void {
+    // reset previous error before request
+    this.errorMessage = '';
     this.eventService.clone(act.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.loadAvailableDates();
         this.loadEvents();
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo clonar el acto.');
+        this.errorMessage = extractErrorMessage(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
       }
     });
   }
 
   private loadAvailableDates(): void {
     this.eventService.availableDates().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (dates) => { this.availableDates = dates; }
+      next: (dates) => { this.availableDates = dates; },
+      error: () => { this.availableDates = []; }
     });
   }
 

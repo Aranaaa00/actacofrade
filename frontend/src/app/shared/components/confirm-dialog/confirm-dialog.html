@@ -1,0 +1,10 @@
+<app-modal-overlay [titleId]="titleId" (closed)="cancelled.emit()">
+  <h2 [id]="titleId" modalTitle class="modal__title">{{ title }}</h2>
+  <section class="modal__body">
+    <p>{{ message }}</p>
+  </section>
+  <footer class="modal__footer">
+    <button class="button button--secondary" type="button" (click)="cancelled.emit()">{{ cancelLabel }}</button>
+    <button [class]="'button button--' + variant" type="button" autofocus (click)="confirmed.emit()">{{ confirmLabel }}</button>
+  </footer>
+</app-modal-overlay>

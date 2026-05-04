@@ -62,10 +62,11 @@ public class EventExportService {
 
     private static String eventStatusLabel(String raw) {
         return switch (raw.toUpperCase()) {
-            case "PLANIFICACION" -> "Planificación";
-            case "PREPARACION" -> "Preparación";
-            case "CONFIRMACION" -> "Confirmación";
-            case "CERRADO" -> "Cerrado";
+            case "PLANNING" -> "Planificación";
+            case "PREPARATION" -> "Preparación";
+            case "CONFIRMATION" -> "Confirmación";
+            case "CLOSING" -> "En cierre";
+            case "CLOSED" -> "Cerrado";
             default -> raw;
         };
     }
@@ -93,8 +94,8 @@ public class EventExportService {
 
     private static String incidentStatusLabel(String raw) {
         return switch (raw.toUpperCase()) {
-            case "ABIERTA" -> "Abierta";
-            case "RESUELTA" -> "Resuelta";
+            case "OPEN" -> "Abierta";
+            case "RESOLVED" -> "Resuelta";
             default -> raw;
         };
     }

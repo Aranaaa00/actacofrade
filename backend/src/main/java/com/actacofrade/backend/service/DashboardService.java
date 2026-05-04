@@ -97,7 +97,7 @@ public class DashboardService {
         List<Task> tasks = taskRepository.findByAssignedToIdAndStatusInAndEventHermandadIdOrderByCreatedAtDesc(
                 userId, ACTIVE_TASK_STATUSES, hermandadId);
         List<Incident> incidents = incidentRepository.findByReportedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(
-                userId, IncidentStatus.ABIERTA, hermandadId);
+                userId, IncidentStatus.OPEN, hermandadId);
         List<Decision> decisions = decisionRepository.findByReviewedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(
                 userId, DecisionStatus.PENDING, hermandadId);
 
@@ -123,7 +123,7 @@ public class DashboardService {
     private long countReadyToCloseEvents(Integer hermandadId) {
         Specification<Event> spec = Specification
                 .where(EventSpecification.hasHermandad(hermandadId))
-                .and((root, query, cb) -> cb.equal(root.get("status"), EventStatus.CIERRE));
+                .and((root, query, cb) -> cb.equal(root.get("status"), EventStatus.CLOSING));
         return eventRepository.count(spec);
     }
 

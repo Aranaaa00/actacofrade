@@ -31,6 +31,7 @@ export class Settings implements OnInit {
   successMessage = '';
 
   ngOnInit(): void {
+    // build the brotherhood form with size and pattern validators that mirror the backend
     this.form = this.fb.group({
       nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200), noHtmlValidator()]],
       descripcion: ['', [Validators.maxLength(500), noHtmlValidator()]],
@@ -42,6 +43,7 @@ export class Settings implements OnInit {
     });
 
     if (!this.canEdit) {
+      // non admin users keep the form visible but in read only mode
       this.form.disable({ emitEvent: false });
     }
 
@@ -69,6 +71,7 @@ export class Settings implements OnInit {
   }
 
   onSubmit(): void {
+    // ignore re-submissions while a previous save is still pending
     if (!this.canEdit || this.saving) {
       return;
     }

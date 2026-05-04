@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Role } from '../shared/constants/roles.const';
 
-// Allows navigation only if the user owns at least one of the given roles.
+// Factory guard that checks whether the current user owns any of the allowed roles.
 export const roleGuard = (roles: ReadonlyArray<Role | string>): CanActivateFn => () => {
   const authService = inject(AuthService);
   const router = inject(Router);

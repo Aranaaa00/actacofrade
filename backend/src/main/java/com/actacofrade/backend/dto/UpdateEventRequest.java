@@ -11,7 +11,7 @@ public record UpdateEventRequest(
         @Pattern(regexp = "^[^<>]*$", message = "El nombre contiene caracteres no permitidos")
         String title,
 
-        @Pattern(regexp = "CABILDO|CULTOS|PROCESION|ENSAYO|OTRO", message = "Tipo de acto no v\u00e1lido")
+        @Pattern(regexp = "CABILDO|CULTOS|PROCESION|ESTACION_PENITENCIA|ENSAYO|OTRO", message = "Tipo de acto no v\u00e1lido")
         String eventType,
 
         LocalDate eventDate,

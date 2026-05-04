@@ -12,6 +12,23 @@ export class AuthService {
   private readonly baseUrl = '/api/auth';
   private readonly tokenKey = 'auth_token';
   private readonly userKey = 'auth_user';
+  private readonly storage: Storage = typeof sessionStorage !== 'undefined' ? sessionStorage : localStorage;
+
+  constructor() {
+    // migrate pre-existing session data out of persistent localStorage to sessionStorage
+    try {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem(this.tokenKey)) {
+        const legacyToken = localStorage.getItem(this.tokenKey);
+        const legacyUser = localStorage.getItem(this.userKey);
+        if (legacyToken) this.storage.setItem(this.tokenKey, legacyToken);
+        if (legacyUser) this.storage.setItem(this.userKey, legacyUser);
+        localStorage.removeItem(this.tokenKey);
+        localStorage.removeItem(this.userKey);
+      }
+    } catch {
+      // browsers may throw in private mode or when storage is full
+    }
+  }
 
   // Sends credentials and persists the session on success.
   login(request: LoginRequest): Observable<AuthResponse> {
@@ -29,12 +46,12 @@ export class AuthService {
 
   // Removes both token and user payload from local storage.
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem(this.userKey);
+    this.storage.removeItem(this.tokenKey);
+    this.storage.removeItem(this.userKey);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return this.storage.getItem(this.tokenKey);
   }
 
   isAuthenticated(): boolean {
@@ -43,7 +60,7 @@ export class AuthService {
 
   // Returns the cached user; clears storage if the payload is corrupt.
   getUser(): AuthResponse | null {
-    const raw = localStorage.getItem(this.userKey);
+    const raw = this.storage.getItem(this.userKey);
     if (!raw) {
       return null;
     }
@@ -57,7 +74,7 @@ export class AuthService {
 
   // Persists the freshly updated user payload (e.g. after profile edit).
   updateStoredUser(user: AuthResponse): void {
-    localStorage.setItem(this.userKey, JSON.stringify(user));
+    this.storage.setItem(this.userKey, JSON.stringify(user));
   }
 
   // Returns true when the current user holds the given role.
@@ -96,7 +113,7 @@ export class AuthService {
   }
 
   private storeSession(response: AuthResponse): void {
-    localStorage.setItem(this.tokenKey, response.token);
-    localStorage.setItem(this.userKey, JSON.stringify(response));
+    this.storage.setItem(this.tokenKey, response.token);
+    this.storage.setItem(this.userKey, JSON.stringify(response));
   }
 }

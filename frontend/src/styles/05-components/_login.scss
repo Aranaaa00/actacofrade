@@ -35,20 +35,25 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: $space-48 $space-32;
+  padding: $space-24 $space-24;
   background-color: var(--nav-bg);
   color: var(--text-on-dark);
   border-radius: 0.5rem 0.5rem 0 0;
 
   @include from-tablet {
     flex: 0 0 22rem;
+    padding: $space-48 $space-32;
     border-radius: 0.5rem 0 0 0.5rem;
   }
 }
 
 .login__logo {
-  width: 8rem;
+  width: 5rem;
   height: auto;
+
+  @include from-tablet {
+    width: 8rem;
+  }
 }
 
 .login__brand {
@@ -68,23 +73,13 @@
   line-height: 1.6;
 }
 
-.login__version {
-  margin-top: auto;
-  padding-top: $space-48;
-  font-size: $text-paragraph;
-  font-weight: $weight-semibold;
-  color: var(--text-on-dark-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
 // Panel principal con formulario de acceso
 .login__main {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: $space-48 $space-32;
+  padding: $space-24 $space-16;
   background-color: var(--bg-surface);
   border-radius: 0 0 0.5rem 0.5rem;
 
@@ -95,12 +90,17 @@
 }
 
 .login__heading {
-  @include heading($text-h1);
+  @include heading($text-h3);
   font-weight: $weight-bold;
   text-decoration: underline;
   text-underline-offset: $space-8;
   text-decoration-thickness: $border-2;
-  margin-bottom: $space-32;
+  margin-bottom: $space-24;
+
+  @include from-tablet {
+    font-size: $text-h1;
+    margin-bottom: $space-32;
+  }
 }
 
 .login__form {
@@ -161,4 +161,17 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   line-height: 1.6;
+}
+
+.login__privacy {
+  summary {
+    cursor: pointer;
+    font-weight: $weight-semibold;
+  }
+
+  p {
+    margin-top: $space-8;
+    text-transform: none;
+    letter-spacing: normal;
+  }
 }

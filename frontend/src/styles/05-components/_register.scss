@@ -4,7 +4,7 @@
 // Modificador para compactar el modal de registro sin scroll
 .login--register {
   & .login__main {
-    padding: $space-24 $space-32;
+    padding: $space-16 $space-16;
 
     @include from-tablet {
       padding: $space-24 $space-48;
@@ -68,12 +68,6 @@
   & .login__register {
     font-weight: $weight-semibold;
   }
-}
-
-// Titulo de privacidad en seccion legal
-.register__legal-title {
-  font-weight: $weight-semibold;
-  margin-bottom: $space-8;
 }
 
 // Modal embebido (creacion de usuario desde gestion de usuarios)

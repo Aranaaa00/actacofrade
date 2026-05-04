@@ -37,7 +37,7 @@
 .act-history__date-range-panel {
   position: absolute;
   top: 100%;
-  inset-inline-start: 0;
+  inset-inline-end: 0;
   z-index: 20;
   display: flex;
   flex-direction: column;
@@ -48,7 +48,14 @@
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-  min-width: 14rem;
+  width: max-content;
+  max-width: calc(100vw - #{$space-32});
+
+  @include from-tablet {
+    inset-inline-start: 0;
+    inset-inline-end: auto;
+    min-width: 14rem;
+  }
 }
 
 .act-history__date-range-row {
@@ -130,12 +137,17 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2rem;
+  width: 2.5rem;
   background-color: $color-wood;
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
-  padding-block: $space-16;
+  padding-inline: $space-16;
+
+  @include from-tablet {
+    width: 2.75rem;
+    padding-inline: $space-24;
+  }
 }
 
 .act-history__type-label {
@@ -144,7 +156,7 @@
   font-weight: $weight-bold;
   color: var(--text-on-dark);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   white-space: nowrap;
 }
 
@@ -153,9 +165,14 @@
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  gap: $space-16;
-  padding: $space-16 $space-24;
+  gap: $space-12;
+  padding: $space-16;
   flex-wrap: wrap;
+
+  @include from-tablet {
+    gap: $space-16;
+    padding: $space-16 $space-24;
+  }
 }
 
 .act-history__item-info {
@@ -188,18 +205,16 @@
   }
 }
 
-.act-history__item-ref {
-  font-size: $text-label;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .act-history__item-actions {
   display: flex;
   align-items: center;
-  gap: $space-24;
+  gap: $space-16;
   flex-shrink: 0;
+  flex-wrap: wrap;
+
+  @include from-tablet {
+    gap: $space-24;
+  }
 }
 
 .act-history__manage-link {

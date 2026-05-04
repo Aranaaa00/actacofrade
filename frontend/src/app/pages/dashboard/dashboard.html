@@ -9,7 +9,7 @@
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
     @if (!isConsulta) {
-      <p class="dashboard__summary">Tienes <strong>{{ alertCount }} alertas</strong> en total.</p>
+      <p class="dashboard__summary">Tienes {{ alertCount }} pendientes.</p>
     }
   </header>
 
@@ -21,7 +21,7 @@
       </li>
       <li class="dashboard__stat">
         <strong class="dashboard__stat-number">{{ alertCount }}</strong>
-        <p class="dashboard__stat-label">Alertas</p>
+        <p class="dashboard__stat-label">Pendientes</p>
       </li>
       <li class="dashboard__stat">
         <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>

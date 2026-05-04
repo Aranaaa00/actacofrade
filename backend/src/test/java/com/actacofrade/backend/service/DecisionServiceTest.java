@@ -130,7 +130,7 @@ class DecisionServiceTest {
 
     @Test
     void create_eventClosed_throws() {
-        event.setStatus(EventStatus.CERRADO);
+        event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         mockEvent();
         CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", null);

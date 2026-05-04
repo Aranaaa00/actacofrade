@@ -2,6 +2,7 @@ package com.actacofrade.backend.controller;
 
 import com.actacofrade.backend.dto.AuthResponse;
 import com.actacofrade.backend.exception.GlobalExceptionHandler;
+import com.actacofrade.backend.security.LoginRateLimiter;
 import com.actacofrade.backend.service.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MockMvc;
@@ -18,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -30,10 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * de excepciones a través del GlobalExceptionHandler.
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AuthControllerIntegrationTest {
 
     @Mock
     private AuthService authService;
+
+    @Mock
+    private LoginRateLimiter loginRateLimiter;
 
     @InjectMocks
     private AuthController authController;
@@ -47,6 +55,7 @@ class AuthControllerIntegrationTest {
                 .standaloneSetup(authController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
+        given(loginRateLimiter.tryAcquire(anyString())).willReturn(true);
     }
 
     @Test

@@ -4,6 +4,7 @@ import { AuthService } from '../services/auth.service';
 
 // Adds the Bearer token to every outgoing request when available.
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  // attach the bearer token to every outgoing request when the user is signed in
   const authService = inject(AuthService);
   const token = authService.getToken();
 

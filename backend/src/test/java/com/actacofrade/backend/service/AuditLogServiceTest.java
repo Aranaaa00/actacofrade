@@ -123,4 +123,56 @@ class AuditLogServiceTest {
         assertThat(result.getContent().get(0).performedById()).isNull();
         assertThat(result.getContent().get(0).performedByName()).isNull();
     }
+
+    @Test
+    void changeSetBuilder_emptyByDefault() {
+        AuditLogService.ChangeSetBuilder cs = new AuditLogService.ChangeSetBuilder();
+        assertThat(cs.isEmpty()).isTrue();
+        assertThat(cs.toJson()).isNull();
+    }
+
+    @Test
+    void changeSetBuilder_skipsEqualValues() {
+        AuditLogService.ChangeSetBuilder cs = new AuditLogService.ChangeSetBuilder();
+        cs.track("name", "a", "a");
+        cs.track("nullSame", null, null);
+        assertThat(cs.isEmpty()).isTrue();
+    }
+
+    @Test
+    void changeSetBuilder_tracksDifferences() {
+        AuditLogService.ChangeSetBuilder cs = new AuditLogService.ChangeSetBuilder();
+        cs.track("name", "old", "new");
+        cs.track("count", 1, 2);
+        assertThat(cs.isEmpty()).isFalse();
+        String json = cs.toJson();
+        assertThat(json).contains("\"name\":{\"oldValue\":\"old\",\"newValue\":\"new\"}");
+        assertThat(json).contains("\"count\":{\"oldValue\":\"1\",\"newValue\":\"2\"}");
+    }
+
+    @Test
+    void changeSetBuilder_handlesNullValues() {
+        AuditLogService.ChangeSetBuilder cs = new AuditLogService.ChangeSetBuilder();
+        cs.track("a", null, "x");
+        cs.track("b", "y", null);
+        String json = cs.toJson();
+        assertThat(json).contains("\"a\":{\"oldValue\":null,\"newValue\":\"x\"}");
+        assertThat(json).contains("\"b\":{\"oldValue\":\"y\",\"newValue\":null}");
+    }
+
+    @Test
+    void changeSetBuilder_escapesSpecialChars() {
+        AuditLogService.ChangeSetBuilder cs = new AuditLogService.ChangeSetBuilder();
+        cs.track("f", "old", "a\"b\\c\nd\re\tf\u0001g");
+        String json = cs.toJson();
+        assertThat(json).contains("\\\"").contains("\\\\").contains("\\n").contains("\\r").contains("\\t").contains("\\u0001");
+    }
+
+    @Test
+    void log_withChanges_persistsChangesField() {
+        service.log(event, "EVENT", 10, "UPDATE", admin, "details", "{\"a\":1}");
+        ArgumentCaptor<AuditLog> captor = ArgumentCaptor.forClass(AuditLog.class);
+        verify(auditLogRepository).save(captor.capture());
+        assertThat(captor.getValue().getChanges()).isEqualTo("{\"a\":1}");
+    }
 }

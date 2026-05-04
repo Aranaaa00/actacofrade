@@ -66,18 +66,18 @@ export class ElementForm implements OnInit {
 
   get titleLabel(): string {
     const labels: Record<ElementTab, string> = {
-      task: 'Descripción de la tarea',
-      decision: 'Título de la decisión',
-      incident: 'Descripción de la incidencia'
+      task: 'Tarea',
+      decision: 'Decisión',
+      incident: 'Incidencia'
     };
     return labels[this.activeTab];
   }
 
   get titlePlaceholder(): string {
     const placeholders: Record<ElementTab, string> = {
-      task: 'Escriba el título de la tarea...',
-      decision: 'Escriba el título de la decisión...',
-      incident: 'Describa la incidencia...'
+      task: 'Título de la tarea…',
+      decision: 'Título de la decisión…',
+      incident: 'Describe la incidencia…'
     };
     return placeholders[this.activeTab];
   }
@@ -95,6 +95,7 @@ export class ElementForm implements OnInit {
   }
 
   ngOnInit(): void {
+    // edit mode reuses the same form to update tasks decisions or incidents
     this.activeTab = this.editData?.type || this.initialTab;
 
     this.form = this.fb.group({
@@ -121,7 +122,8 @@ export class ElementForm implements OnInit {
   private loadUsers(): void {
     if (this.canManageThisEvent()) {
       this.userService.findAssignable().subscribe({
-        next: (users) => this.users = users
+        next: (users) => this.users = users,
+        error: () => { this.users = []; }
       });
     } else {
       const authUser = this.auth.getUser();
@@ -158,6 +160,7 @@ export class ElementForm implements OnInit {
   }
 
   onSubmit(): void {
+    // block submission until every field validator passes
     if (this.form.invalid) {
       this.form.markAllAsTouched();
     } else {

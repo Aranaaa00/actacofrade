@@ -1,4 +1,4 @@
-import { Component, inject, ElementRef, ViewChild, AfterViewInit, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { UserResponse } from '../../models/user.model';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
@@ -15,23 +16,21 @@ import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, Banner, FormField, ModalOverlay],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, Banner, FormField, ModalOverlay, AutofocusDirective],
   templateUrl: './register.html',
 })
-export class Register implements OnInit, AfterViewInit {
+export class Register implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
-
-  @ViewChild('fullNameInput') fullNameInput?: ElementRef<HTMLInputElement>;
 
   @Input() embedded = false;
   @Output() userCreated = new EventEmitter<UserResponse>();
   @Output() dialogClosed = new EventEmitter<void>();
 
   form: FormGroup = this.fb.group({
-    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'-]{3,150}$/u)]],
+    fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(/^[\p{L}\p{M} .'·-]{3,150}$/u)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],
@@ -55,11 +54,11 @@ export class Register implements OnInit, AfterViewInit {
   }
 
   get hermandadLabel(): string {
-    return this.isAdmin ? 'Nombre de tu hermandad (nueva)' : 'Hermandad a la que perteneces';
+    return this.isAdmin ? 'Hermandad (nueva)' : 'Hermandad';
   }
 
   get hermandadPlaceholder(): string {
-    return this.isAdmin ? 'Hermandad de la Macarena...' : 'Nombre exacto de tu hermandad';
+    return this.isAdmin ? 'Ej. Hermandad de la Macarena' : 'Nombre de tu hermandad';
   }
 
   get availableRoles() {
@@ -79,6 +78,7 @@ export class Register implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    // when used inside the users modal hermandad name is not asked again
     if (this.embedded) {
       const hermandadControl = this.form.get('hermandadNombre');
       hermandadControl?.clearValidators();
@@ -86,11 +86,8 @@ export class Register implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    this.fullNameInput?.nativeElement.focus();
-  }
-
   onSubmit(): void {
+    // mark form as submitted to enable error display
     this.submitted = true;
     if (this.form.invalid || !this.passwordsMatch()) {
       this.form.markAllAsTouched();
@@ -150,6 +147,7 @@ export class Register implements OnInit, AfterViewInit {
     return this.form.get('password')?.value === this.form.get('confirmPassword')?.value;
   }
 
+  // composite error check that also considers password confirmation mismatch
   hasError(field: string): boolean {
     let showError = hasFieldError(this.form, field, this.submitted);
     if (field === 'confirmPassword' && this.submitted && !this.passwordsMatch()) {
@@ -177,6 +175,9 @@ export class Register implements OnInit, AfterViewInit {
     if (errors['tooShort']) {
       missing.push('mínimo 8 caracteres');
     }
+    if (errors['tooLong']) {
+      missing.push('máximo 100 caracteres');
+    }
     if (errors['noUppercase']) {
       missing.push('una mayúscula');
     }
@@ -188,6 +189,9 @@ export class Register implements OnInit, AfterViewInit {
     }
     if (errors['noSpecial']) {
       missing.push('un carácter especial (@$!%*?&.#_-)');
+    }
+    if (errors['invalidChars']) {
+      missing.push('solo caracteres permitidos (letras, dígitos y @$!%*?&.#_-)');
     }
     return 'Falta: ' + missing.join(', ') + '.';
   }
