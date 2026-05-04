@@ -6,6 +6,7 @@ import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,7 @@ export class Login implements AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  @ViewChild('loginModal') loginModal!: ElementRef<HTMLElement>;
+  @ViewChild('emailInput') emailInput?: ElementRef<HTMLInputElement>;
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
@@ -30,8 +31,7 @@ export class Login implements AfterViewInit {
   submitted = false;
 
   ngAfterViewInit(): void {
-    const firstInput = this.loginModal.nativeElement.querySelector<HTMLInputElement>('#login-email');
-    firstInput?.focus();
+    this.emailInput?.nativeElement.focus();
   }
 
   onSubmit(): void {
@@ -51,11 +51,7 @@ export class Login implements AfterViewInit {
         },
         error: (err) => {
           this.loading = false;
-          if (err.status === 0 || err.status >= 500) {
-            this.errorMessage = 'Error del servidor. Inténtalo de nuevo más tarde.';
-          } else {
-            this.errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
-          }
+          this.errorMessage = extractErrorMessage(err, 'Credenciales incorrectas. Inténtalo de nuevo.');
         }
       });
     }

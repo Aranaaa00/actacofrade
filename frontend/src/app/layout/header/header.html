@@ -3,4 +3,7 @@
     [sidebarOpen]="sidebarOpen"
     [user]="user"
     (toggledSidebar)="toggledSidebar.emit()" />
+  @if ((online$ | async) === false) {
+    <app-banner type="warning" role="status" ariaLive="polite">Sin conexión. Algunos cambios pueden no guardarse.</app-banner>
+  }
 </header>

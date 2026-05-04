@@ -6,6 +6,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()" [class]="bodyClass" [attr.aria-label]="formAriaLabel">
     <app-form-field label="Nombre completo" fieldId="register-name" [hasError]="hasError('fullName')" [errorMessage]="hasError('fullName') ? getError('fullName') : ''">
       <input id="register-name"
+        #fullNameInput
         type="text"
         formControlName="fullName"
         autocomplete="name"

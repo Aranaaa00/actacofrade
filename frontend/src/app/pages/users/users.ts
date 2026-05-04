@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Subject, Subscription, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
@@ -11,20 +12,8 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { RoleStatsResponse, UserResponse } from '../../models/user.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-
-const ROLE_LABELS: Record<string, string> = {
-  ADMINISTRADOR: 'Administrador',
-  RESPONSABLE: 'Responsable',
-  COLABORADOR: 'Colaborador',
-  CONSULTA: 'Consulta',
-};
-
-const ROLE_BADGE_VARIANTS: Record<string, string> = {
-  ADMINISTRADOR: 'confirmed',
-  RESPONSABLE: 'wood',
-  COLABORADOR: 'neutral',
-  CONSULTA: 'neutral',
-};
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
+import { ROLE_BADGE_VARIANTS, ROLE_LABELS, ROLES_ALL } from '../../shared/constants/roles.const';
 
 interface PermissionColumn {
   key: string;
@@ -47,16 +36,14 @@ const PERMISSION_COLUMNS: PermissionColumn[] = [
 export class Users implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly pageSize = 5;
   readonly permissionColumns = PERMISSION_COLUMNS;
 
   readonly roleOptions = [
     { value: '', label: 'Todos' },
-    { value: 'ADMINISTRADOR', label: 'Administrador' },
-    { value: 'RESPONSABLE', label: 'Responsable' },
-    { value: 'COLABORADOR', label: 'Colaborador' },
-    { value: 'CONSULTA', label: 'Consulta' },
+    ...ROLES_ALL.map((code) => ({ value: code, label: ROLE_LABELS[code] })),
   ];
 
   readonly statusOptions = [
@@ -176,12 +163,13 @@ export class Users implements OnInit, OnDestroy {
 
   toggleActive(user: UserResponse): void {
     this.processingUserId = user.id;
-    this.userService.toggleActive(user.id).subscribe({
+    this.userService.toggleActive(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
         this.processingUserId = null;
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo actualizar el estado del usuario.');
         this.processingUserId = null;
       },
     });
@@ -203,7 +191,7 @@ export class Users implements OnInit, OnDestroy {
     }
     const id = this.editingUser.id;
     this.processingUserId = id;
-    this.userService.update(id, { roleCode }).subscribe({
+    this.userService.update(id, { roleCode }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
         this.processingUserId = null;
@@ -211,7 +199,8 @@ export class Users implements OnInit, OnDestroy {
         this.editingUser = null;
         this.refreshStats();
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo actualizar el rol del usuario.');
         this.processingUserId = null;
       },
     });
@@ -233,7 +222,7 @@ export class Users implements OnInit, OnDestroy {
 
   deleteUser(user: UserResponse): void {
     this.processingUserId = user.id;
-    this.userService.delete(user.id).subscribe({
+    this.userService.delete(user.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.users = this.users.filter((u) => u.id !== user.id);
         this.processingUserId = null;
@@ -242,7 +231,8 @@ export class Users implements OnInit, OnDestroy {
           this.currentPage = this.totalPages;
         }
       },
-      error: () => {
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo eliminar el usuario.');
         this.processingUserId = null;
       },
     });
@@ -285,21 +275,21 @@ export class Users implements OnInit, OnDestroy {
     forkJoin({
       users: this.userService.findAll(),
       stats: this.userService.getStats(),
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.users = data.users;
         this.stats = data.stats;
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'No se pudieron cargar los usuarios. Inténtalo de nuevo más tarde.';
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar los usuarios. Inténtalo de nuevo más tarde.');
         this.loading = false;
       },
     });
   }
 
   private refreshStats(): void {
-    this.userService.getStats().subscribe({
+    this.userService.getStats().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (stats) => {
         this.stats = stats;
       },

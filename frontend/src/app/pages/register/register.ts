@@ -11,6 +11,7 @@ import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overla
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-register',
@@ -23,7 +24,7 @@ export class Register implements OnInit, AfterViewInit {
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
 
-  @ViewChild('registerModal') registerModal?: ElementRef<HTMLElement>;
+  @ViewChild('fullNameInput') fullNameInput?: ElementRef<HTMLInputElement>;
 
   @Input() embedded = false;
   @Output() userCreated = new EventEmitter<UserResponse>();
@@ -86,8 +87,7 @@ export class Register implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    const firstInput = this.registerModal?.nativeElement.querySelector<HTMLInputElement>('#register-name');
-    firstInput?.focus();
+    this.fullNameInput?.nativeElement.focus();
   }
 
   onSubmit(): void {
@@ -108,7 +108,7 @@ export class Register implements OnInit, AfterViewInit {
             this.userCreated.emit(created);
           },
           error: (err) => {
-            this.errorMessage = err.error?.message || 'No se pudo crear el usuario. Inténtalo de nuevo.';
+            this.errorMessage = extractErrorMessage(err, 'No se pudo crear el usuario. Inténtalo de nuevo.');
             this.loading = false;
           }
         });
@@ -123,7 +123,7 @@ export class Register implements OnInit, AfterViewInit {
             this.router.navigate(['/dashboard']);
           },
           error: (err) => {
-            this.errorMessage = err.error?.message || 'No se pudo crear la cuenta. Inténtalo de nuevo.';
+            this.errorMessage = extractErrorMessage(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
             this.loading = false;
           }
         });
