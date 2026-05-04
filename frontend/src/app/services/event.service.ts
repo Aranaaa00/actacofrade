@@ -2,14 +2,16 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EventResponse, EventPage, CreateEventRequest, UpdateEventRequest } from '../models/event.model';
+import { retryReads } from '../shared/utils/retry.utils';
 
+// CRUD facade for the event entity. Read endpoints retry transient failures.
 @Injectable({ providedIn: 'root' })
 export class EventService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api/events';
 
   findAll(): Observable<EventResponse[]> {
-    return this.http.get<EventResponse[]>(this.baseUrl);
+    return this.http.get<EventResponse[]>(this.baseUrl).pipe(retryReads());
   }
 
   filter(params: { eventType?: string; status?: string; eventDate?: string; search?: string; page?: number; size?: number }): Observable<EventPage> {
@@ -20,7 +22,7 @@ export class EventService {
     if (params.search) { httpParams = httpParams.set('search', params.search); }
     if (params.page !== undefined) { httpParams = httpParams.set('page', params.page.toString()); }
     if (params.size !== undefined) { httpParams = httpParams.set('size', params.size.toString()); }
-    return this.http.get<EventPage>(`${this.baseUrl}/filter`, { params: httpParams });
+    return this.http.get<EventPage>(`${this.baseUrl}/filter`, { params: httpParams }).pipe(retryReads());
   }
 
   history(params: { eventType?: string; responsibleId?: number; dateFrom?: string; dateTo?: string; search?: string; page?: number; size?: number }): Observable<EventPage> {
@@ -32,15 +34,15 @@ export class EventService {
     if (params.search) { httpParams = httpParams.set('search', params.search); }
     if (params.page !== undefined) { httpParams = httpParams.set('page', params.page.toString()); }
     if (params.size !== undefined) { httpParams = httpParams.set('size', params.size.toString()); }
-    return this.http.get<EventPage>(`${this.baseUrl}/history`, { params: httpParams });
+    return this.http.get<EventPage>(`${this.baseUrl}/history`, { params: httpParams }).pipe(retryReads());
   }
 
   availableDates(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/available-dates`);
+    return this.http.get<string[]>(`${this.baseUrl}/available-dates`).pipe(retryReads());
   }
 
   findById(id: number): Observable<EventResponse> {
-    return this.http.get<EventResponse>(`${this.baseUrl}/${id}`);
+    return this.http.get<EventResponse>(`${this.baseUrl}/${id}`).pipe(retryReads());
   }
 
   create(request: CreateEventRequest): Observable<EventResponse> {

@@ -2,18 +2,20 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { DecisionResponse, CreateDecisionRequest, UpdateDecisionRequest } from '../models/decision.model';
+import { retryReads } from '../shared/utils/retry.utils';
 
+// CRUD facade for the decisions taken inside an event.
 @Injectable({ providedIn: 'root' })
 export class DecisionService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/api/events';
 
   findByEventId(eventId: number): Observable<DecisionResponse[]> {
-    return this.http.get<DecisionResponse[]>(`${this.baseUrl}/${eventId}/decisions`);
+    return this.http.get<DecisionResponse[]>(`${this.baseUrl}/${eventId}/decisions`).pipe(retryReads());
   }
 
   findById(eventId: number, decisionId: number): Observable<DecisionResponse> {
-    return this.http.get<DecisionResponse>(`${this.baseUrl}/${eventId}/decisions/${decisionId}`);
+    return this.http.get<DecisionResponse>(`${this.baseUrl}/${eventId}/decisions/${decisionId}`).pipe(retryReads());
   }
 
   create(eventId: number, request: CreateDecisionRequest): Observable<DecisionResponse> {
