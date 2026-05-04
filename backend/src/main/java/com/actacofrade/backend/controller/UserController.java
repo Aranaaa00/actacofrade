@@ -25,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Users", description = "Gestión de usuarios de la hermandad")
 public class UserController {
 
     private final UserService userService;

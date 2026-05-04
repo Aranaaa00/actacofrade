@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/dashboard")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Dashboard", description = "Métricas agregadas para la hermandad")
 public class DashboardController {
 
     private final DashboardService dashboardService;

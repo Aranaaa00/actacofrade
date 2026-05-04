@@ -27,6 +27,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/me")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Me", description = "Operaciones del usuario autenticado")
 public class MeController {
 
     private final MeService meService;

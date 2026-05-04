@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/roles")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Roles", description = "Catálogo de roles disponibles")
 public class RoleController {
 
     private final RoleRepository roleRepository;

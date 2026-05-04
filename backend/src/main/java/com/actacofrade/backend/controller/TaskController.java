@@ -25,6 +25,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/events/{eventId}/tasks")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Tasks", description = "Tareas asociadas a un acto")
 public class TaskController {
 
     private final TaskService taskService;

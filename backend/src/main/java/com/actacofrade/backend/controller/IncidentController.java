@@ -22,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/events/{eventId}/incidents")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Incidents", description = "Incidencias detectadas durante un acto")
 public class IncidentController {
 
     private final IncidentService incidentService;

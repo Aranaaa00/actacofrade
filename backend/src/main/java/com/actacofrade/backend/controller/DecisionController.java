@@ -24,6 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/events/{eventId}/decisions")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Decisions", description = "Decisiones tomadas por la junta sobre un acto")
 public class DecisionController {
 
     private final DecisionService decisionService;

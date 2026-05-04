@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/events")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Export", description = "Exportación de actos a PDF/CSV")
 public class EventExportController {
 
     private final EventExportService eventExportService;

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/hermandades")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Hermandad", description = "Datos y configuración de la hermandad")
 public class HermandadController {
 
     private final HermandadService hermandadService;

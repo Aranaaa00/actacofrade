@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/my-tasks")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "My Tasks", description = "Tareas asignadas al usuario autenticado")
 public class MyTaskController {
 
     private final TaskService taskService;
