@@ -17,10 +17,10 @@ import java.util.List;
 /**
  * OpenAPI 3 (Swagger) configuration.
  *
- * Endpoints expuestos:
- *   - /v3/api-docs           — definición OpenAPI JSON
- *   - /swagger-ui.html       — UI interactiva
- *   - /swagger-ui/index.html — UI directa
+ * Exposed endpoints:
+ *   - /v3/api-docs           - OpenAPI JSON definition
+ *   - /swagger-ui.html       - Interactive UI
+ *   - /swagger-ui/index.html - Direct UI entry
  */
 @Configuration
 public class OpenApiConfig {

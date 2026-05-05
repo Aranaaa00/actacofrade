@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -24,8 +24,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: actacofrade_backend
-    expose:
-      - "8080"
+    # Backend port is intentionally not published to the host: the frontend
+    # reaches it via the internal Docker network through the nginx proxy.
     environment:
       # Override env vars to use the database container
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
@@ -33,6 +33,14 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      AVATAR_MAX_SIZE: ${AVATAR_MAX_SIZE}
+      AVATAR_MAX_BYTES: ${AVATAR_MAX_BYTES}
+      AVATAR_ALLOWED_TYPES: ${AVATAR_ALLOWED_TYPES}
+      # Super admin credentials (created on first start if missing)
+      SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL}
+      SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
+      SUPERADMIN_FULL_NAME: ${SUPERADMIN_FULL_NAME}
     depends_on:
       db:
         condition: service_healthy
