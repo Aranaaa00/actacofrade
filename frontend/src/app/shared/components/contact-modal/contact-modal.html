@@ -1,0 +1,54 @@
+@if (show) {
+  <section class="modal-overlay" role="presentation" (click)="onClose()">
+    <article class="modal contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" (click)="$event.stopPropagation()">
+      <header class="modal__header">
+        <h2 id="contactModalTitle" class="modal__title">Solicitar cambio de administrador</h2>
+        <button class="modal__close" type="button" (click)="onClose()" aria-label="Cerrar" [disabled]="submitting">
+          <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
+        </button>
+      </header>
+    <section class="modal__body contact-modal__body">
+      <p class="contact-modal__intro">
+        Envía una solicitud al equipo de ActaCofrade indicando el motivo del cambio de administrador en tu hermandad.
+      </p>
+
+      <article class="contact-modal__hermandad" aria-label="Hermandad">
+        <lucide-icon name="building-2" class="contact-modal__icon" [size]="22" aria-hidden="true"></lucide-icon>
+        <div class="contact-modal__hermandad-info">
+          <p class="contact-modal__eyebrow">Hermandad</p>
+          <strong class="contact-modal__name">{{ hermandadName || 'Sin hermandad asignada' }}</strong>
+        </div>
+      </article>
+
+      @if (errorMessage) {
+        <app-banner type="danger">{{ errorMessage }}</app-banner>
+      }
+      @if (successMessage) {
+        <app-banner type="success">{{ successMessage }}</app-banner>
+      }
+
+      <form class="contact-modal__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <app-form-field label="Motivo de la solicitud" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
+          <textarea
+            id="contactMessage"
+            class="contact-modal__textarea"
+            formControlName="message"
+            rows="6"
+            maxlength="2000"
+            placeholder="Explica brevemente por qué necesitas un cambio de administrador en tu hermandad."
+            aria-describedby="contactCounter"></textarea>
+          <small id="contactCounter" class="contact-modal__counter">{{ remainingChars }} caracteres restantes</small>
+        </app-form-field>
+      </form>
+    </section>
+
+    <footer class="modal__footer">
+      <button class="button button--secondary" type="button" (click)="onClose()" [disabled]="submitting">Cerrar</button>
+      <button class="button button--primary" type="button" (click)="onSubmit()" [disabled]="submitting || form.invalid">
+        <lucide-icon name="send" class="button__icon" [size]="18" aria-hidden="true"></lucide-icon>
+        {{ submitting ? 'Enviando…' : 'Enviar solicitud' }}
+      </button>
+    </footer>
+    </article>
+  </section>
+}
