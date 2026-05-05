@@ -9,41 +9,43 @@
   </header>
 
   <ul class="sidebar__nav" role="list">
-    <li>
-      <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
-        <lucide-icon name="house" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
-        Inicio
-      </a>
-    </li>
-    <li>
-      <button class="sidebar__link sidebar__link--parent" type="button" (click)="toggleActsMenu()" [attr.aria-expanded]="actsMenuOpen">
-        <lucide-icon name="file-text" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
-        Actos
-        <lucide-icon name="chevron-down" class="sidebar__chevron" [class.sidebar__chevron--open]="actsMenuOpen" [size]="16" aria-hidden="true"></lucide-icon>
-      </button>
-      @if (actsMenuOpen) {
-        <ul class="sidebar__submenu" role="list">
-          <li>
-            <a class="sidebar__sublink" routerLink="/events" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
-              Registro de Actos
-            </a>
-          </li>
-          @if (!auth.isConsulta()) {
+    @if (!auth.isSuperAdmin()) {
+      <li>
+        <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+          <lucide-icon name="house" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Inicio
+        </a>
+      </li>
+      <li>
+        <button class="sidebar__link sidebar__link--parent" type="button" (click)="toggleActsMenu()" [attr.aria-expanded]="actsMenuOpen">
+          <lucide-icon name="file-text" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Actos
+          <lucide-icon name="chevron-down" class="sidebar__chevron" [class.sidebar__chevron--open]="actsMenuOpen" [size]="16" aria-hidden="true"></lucide-icon>
+        </button>
+        @if (actsMenuOpen) {
+          <ul class="sidebar__submenu" role="list">
             <li>
-              <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
-                Mis Tareas
+              <a class="sidebar__sublink" routerLink="/events" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+                Registro de Actos
               </a>
             </li>
-          }
-        </ul>
-      }
-    </li>
-    <li>
-      <a class="sidebar__link" routerLink="/history" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
-        <lucide-icon name="clock" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
-        Historial
-      </a>
-    </li>
+            @if (!auth.isConsulta()) {
+              <li>
+                <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+                  Mis Tareas
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </li>
+      <li>
+        <a class="sidebar__link" routerLink="/history" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+          <lucide-icon name="clock" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Historial
+        </a>
+      </li>
+    }
     @if (auth.isAdmin()) {
       <li>
         <a class="sidebar__link" routerLink="/users" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
@@ -52,12 +54,30 @@
         </a>
       </li>
     }
-    <li>
-      <a class="sidebar__link" routerLink="/settings" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
-        <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
-        Configuración
-      </a>
-    </li>
+    @if (auth.isSuperAdmin()) {
+      <li>
+        <a class="sidebar__link" routerLink="/super-admin" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+          <lucide-icon name="shield" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Solicitudes
+        </a>
+      </li>
+    }
+    @if (!auth.isSuperAdmin()) {
+      <li>
+        <a class="sidebar__link" routerLink="/settings" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+          <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Configuración
+        </a>
+      </li>
+    }
+    @if (showContact) {
+      <li>
+        <button class="sidebar__link" type="button" (click)="contactRequested.emit(); closed.emit()">
+          <lucide-icon name="user-cog" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Cambio de admin
+        </button>
+      </li>
+    }
   </ul>
 
   <footer class="sidebar__footer">

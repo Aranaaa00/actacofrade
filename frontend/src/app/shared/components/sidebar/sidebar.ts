@@ -4,6 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { AuthResponse } from '../../../models/auth.model';
 import { AuthService } from '../../../services/auth.service';
 import { ProfileService } from '../../../services/profile.service';
+import { ROLE_LABELS } from '../../constants/roles.const';
 
 @Component({
   selector: 'app-sidebar',
@@ -21,6 +22,7 @@ export class Sidebar implements OnInit, OnChanges, OnDestroy {
   @Output() closed = new EventEmitter<void>();
   @Output() loggedOut = new EventEmitter<void>();
   @Output() profileEditRequested = new EventEmitter<void>();
+  @Output() contactRequested = new EventEmitter<void>();
 
   readonly avatarObjectUrl = signal<string | null>(null);
   actsMenuOpen = false;
@@ -44,15 +46,14 @@ export class Sidebar implements OnInit, OnChanges, OnDestroy {
     this.actsMenuOpen = !this.actsMenuOpen;
   }
 
+  // Show the contact link only for hermandad members (super admin has no hermandad).
+  get showContact(): boolean {
+    return !!this.user?.hermandadNombre && !this.auth.isSuperAdmin();
+  }
+
   get roleLabel(): string {
     const code = this.user?.roles?.[0];
-    switch (code) {
-      case 'ADMINISTRADOR': return 'Administrador';
-      case 'RESPONSABLE': return 'Responsable';
-      case 'COLABORADOR': return 'Colaborador';
-      case 'CONSULTA': return 'Consulta';
-      default: return '';
-    }
+    return code ? (ROLE_LABELS[code] ?? '') : '';
   }
 
   private refreshAvatar(): void {
