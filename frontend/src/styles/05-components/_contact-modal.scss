@@ -1,0 +1,78 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.contact-modal {
+  max-width: 36rem;
+}
+
+.contact-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+}
+
+.contact-modal__intro {
+  font-size: $text-body;
+  color: var(--text-secondary);
+}
+
+.contact-modal__hermandad {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+  padding: $space-12;
+  background-color: var(--bg-base);
+  border: $border-1 solid var(--border-default);
+  border-left: $border-2 solid var(--nav-bg);
+  border-radius: $radius-2;
+}
+
+.contact-modal__icon {
+  color: var(--nav-bg);
+  flex-shrink: 0;
+}
+
+.contact-modal__eyebrow {
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.contact-modal__name {
+  font-family: $font-heading;
+  font-size: $text-h4;
+  color: var(--text-primary);
+}
+
+.contact-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-12;
+}
+
+.contact-modal__textarea {
+  width: 100%;
+  padding: $space-12;
+  font-family: inherit;
+  font-size: $text-body;
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+  border: $border-1 solid var(--border-default);
+  border-radius: $radius-2;
+  resize: vertical;
+  min-height: 140px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--nav-bg);
+  }
+}
+
+.contact-modal__counter {
+  display: block;
+  margin-top: $space-4;
+  font-size: $text-meta;
+  color: var(--text-secondary);
+}
