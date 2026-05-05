@@ -8,7 +8,7 @@ import { BrowserService } from './shared/services/browser.service';
   templateUrl: './app.html'
 })
 export class App {
-  // Bootstraps document-level side effects (description, scroll, key listeners).
+  // Initialises document-level side effects: meta description, scroll restore and global key listeners.
   constructor() {
     inject(BrowserService).init();
   }

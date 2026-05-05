@@ -85,6 +85,7 @@ export class FilterDropdown {
     }
   }
 
+  // Native focus() is required to move accessible focus between menu options for keyboard navigation.
   private focusOption(index: number): void {
     const item = this.optionItems?.toArray()[index];
     item?.nativeElement.focus();

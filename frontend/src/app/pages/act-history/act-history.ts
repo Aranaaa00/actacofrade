@@ -205,6 +205,7 @@ export class ActHistory implements OnInit, OnDestroy {
     this.loadEvents();
   }
 
+  // Standard outside-click pattern: native contains() is the canonical way to detect clicks outside the host.
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.el.nativeElement.contains(event.target)) {
