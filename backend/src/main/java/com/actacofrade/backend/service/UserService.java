@@ -116,6 +116,16 @@ public class UserService {
         }
         if (request.roleCode() != null) {
             RoleCode roleCode = RoleCode.valueOf(request.roleCode());
+            // Block privilege escalation: ADMINISTRADOR cannot be assigned via update.
+            if (roleCode == RoleCode.ADMINISTRADOR) {
+                throw new IllegalStateException("No se puede asignar el rol ADMINISTRADOR");
+            }
+            // Block demoting an ADMINISTRADOR (must be done by SUPER_ADMIN flow if exists).
+            boolean isCurrentlyAdmin = user.getRoles().stream()
+                    .anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR);
+            if (isCurrentlyAdmin) {
+                throw new AccessDeniedException("No se puede modificar el rol de un ADMINISTRADOR");
+            }
             Role role = roleRepository.findByCode(roleCode)
                     .orElseThrow(() -> new IllegalArgumentException("Role not found: " + request.roleCode()));
             user.setRoles(new HashSet<>(Set.of(role)));
@@ -129,6 +139,10 @@ public class UserService {
         Integer hermandadId = resolveHermandadId(authenticatedEmail);
         User user = userRepository.findByIdAndHermandadId(id, hermandadId)
                 .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado o no pertenece a tu hermandad"));
+        // Block self-deactivation: an admin must not lock themselves out.
+        if (user.getEmail().equalsIgnoreCase(authenticatedEmail)) {
+            throw new AccessDeniedException("No puedes desactivar tu propia cuenta");
+        }
 
         user.setActive(!user.getActive());
         userRepository.save(user);

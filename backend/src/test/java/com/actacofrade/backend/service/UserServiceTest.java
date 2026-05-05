@@ -145,32 +145,62 @@ class UserServiceTest {
 
     @Test
     void update_changesAllFields() {
+        User target = TestFixtures.user(2, "old@e.com", hermandad, RoleCode.COLABORADOR);
         when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
-        when(userRepository.findByIdAndHermandadId(1, 1)).thenReturn(Optional.of(admin));
+        when(userRepository.findByIdAndHermandadId(2, 1)).thenReturn(Optional.of(target));
         Role role = TestFixtures.role(2, RoleCode.RESPONSABLE);
         when(roleRepository.findByCode(RoleCode.RESPONSABLE)).thenReturn(Optional.of(role));
 
         UserUpdateRequest req = new UserUpdateRequest("Nuevo Nombre", "Nuevo@E.com", "RESPONSABLE");
-        UserResponse res = service.update(1, req, "admin@e.com");
+        UserResponse res = service.update(2, req, "admin@e.com");
         assertThat(res.email()).isEqualTo("nuevo@e.com");
         assertThat(res.fullName()).isEqualTo("Nuevo Nombre");
     }
 
     @Test
     void update_unknownRole_throws() {
+        User target = TestFixtures.user(2, "x@e.com", hermandad, RoleCode.COLABORADOR);
         when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
-        when(userRepository.findByIdAndHermandadId(1, 1)).thenReturn(Optional.of(admin));
+        when(userRepository.findByIdAndHermandadId(2, 1)).thenReturn(Optional.of(target));
         when(roleRepository.findByCode(RoleCode.RESPONSABLE)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.update(1, new UserUpdateRequest(null, null, "RESPONSABLE"), "admin@e.com"))
+        assertThatThrownBy(() -> service.update(2, new UserUpdateRequest(null, null, "RESPONSABLE"), "admin@e.com"))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void toggleActive_flipsValue() {
+    void update_assignAdministrador_isBlocked() {
+        User target = TestFixtures.user(2, "x@e.com", hermandad, RoleCode.COLABORADOR);
+        when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
+        when(userRepository.findByIdAndHermandadId(2, 1)).thenReturn(Optional.of(target));
+        UserUpdateRequest req = new UserUpdateRequest(null, null, "ADMINISTRADOR");
+        assertThatThrownBy(() -> service.update(2, req, "admin@e.com"))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    void update_changeRoleOfAdministrador_isBlocked() {
         when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
         when(userRepository.findByIdAndHermandadId(1, 1)).thenReturn(Optional.of(admin));
-        UserResponse res = service.toggleActive(1, "admin@e.com");
+        UserUpdateRequest req = new UserUpdateRequest(null, null, "COLABORADOR");
+        assertThatThrownBy(() -> service.update(1, req, "admin@e.com"))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void toggleActive_flipsValue() {
+        User target = TestFixtures.user(2, "o@e.com", hermandad, RoleCode.COLABORADOR);
+        when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
+        when(userRepository.findByIdAndHermandadId(2, 1)).thenReturn(Optional.of(target));
+        UserResponse res = service.toggleActive(2, "admin@e.com");
         assertThat(res.active()).isFalse();
+    }
+
+    @Test
+    void toggleActive_self_denied() {
+        when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
+        when(userRepository.findByIdAndHermandadId(1, 1)).thenReturn(Optional.of(admin));
+        assertThatThrownBy(() -> service.toggleActive(1, "admin@e.com"))
+                .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test

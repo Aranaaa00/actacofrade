@@ -138,9 +138,23 @@ class MeServiceTest {
     void uploadAvatar_validFile_persists() {
         when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
         when(userAvatarRepository.findByUserId(1)).thenReturn(Optional.empty());
-        MockMultipartFile file = new MockMultipartFile("avatar", "x.png", "image/png", new byte[]{1, 2, 3});
+        // Use real PNG signature bytes to pass magic byte validation.
+        byte[] png = new byte[]{
+                (byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A,
+                0, 0, 0, 0
+        };
+        MockMultipartFile file = new MockMultipartFile("avatar", "x.png", "image/png", png);
         service.uploadAvatar(file, "admin@e.com");
         verify(userAvatarRepository).save(any(UserAvatar.class));
+    }
+
+    @Test
+    void uploadAvatar_spoofedContentType_throws() {
+        when(userRepository.findByEmail("admin@e.com")).thenReturn(Optional.of(admin));
+        // Declared as PNG but contents are not a real PNG.
+        MockMultipartFile file = new MockMultipartFile("avatar", "x.png", "image/png", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
+        assertThatThrownBy(() -> service.uploadAvatar(file, "admin@e.com"))
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test

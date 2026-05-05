@@ -123,6 +123,48 @@ public class MeService {
         if (contentType == null || !allowedAvatarTypes.contains(contentType)) {
             throw new IllegalStateException("Tipo de archivo no permitido");
         }
+        // Check the real file signature so a renamed file cannot bypass the MIME check.
+        try {
+            byte[] head = readMagicBytes(file);
+            if (!matchesDeclaredType(contentType, head)) {
+                throw new IllegalStateException("El contenido del archivo no coincide con su tipo");
+            }
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("No se pudo leer el archivo de imagen");
+        }
+    }
+
+    private byte[] readMagicBytes(MultipartFile file) throws java.io.IOException {
+        try (java.io.InputStream in = file.getInputStream()) {
+            byte[] buf = new byte[12];
+            int read = in.readNBytes(buf, 0, buf.length);
+            if (read < buf.length) {
+                byte[] partial = new byte[read];
+                System.arraycopy(buf, 0, partial, 0, read);
+                return partial;
+            }
+            return buf;
+        }
+    }
+
+    private boolean matchesDeclaredType(String contentType, byte[] head) {
+        if (head.length < 3) {
+            return false;
+        }
+        return switch (contentType) {
+            case "image/png" -> head.length >= 8
+                    && (head[0] & 0xFF) == 0x89 && head[1] == 'P' && head[2] == 'N' && head[3] == 'G'
+                    && (head[4] & 0xFF) == 0x0D && (head[5] & 0xFF) == 0x0A
+                    && (head[6] & 0xFF) == 0x1A && (head[7] & 0xFF) == 0x0A;
+            case "image/jpeg" -> (head[0] & 0xFF) == 0xFF && (head[1] & 0xFF) == 0xD8 && (head[2] & 0xFF) == 0xFF;
+            case "image/gif" -> head.length >= 6
+                    && head[0] == 'G' && head[1] == 'I' && head[2] == 'F' && head[3] == '8'
+                    && (head[4] == '7' || head[4] == '9') && head[5] == 'a';
+            case "image/webp" -> head.length >= 12
+                    && head[0] == 'R' && head[1] == 'I' && head[2] == 'F' && head[3] == 'F'
+                    && head[8] == 'W' && head[9] == 'E' && head[10] == 'B' && head[11] == 'P';
+            default -> false;
+        };
     }
 
     private User loadUser(String authenticatedEmail) {
