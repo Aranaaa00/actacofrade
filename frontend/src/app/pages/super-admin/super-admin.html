@@ -1,0 +1,46 @@
+<section class="super-admin" aria-labelledby="super-admin-title">
+
+  <header class="super-admin__header">
+    <hgroup class="super-admin__heading">
+      <h1 id="super-admin-title" class="super-admin__title">Panel del super administrador</h1>
+      <p class="super-admin__subtitle">
+        Gestiona las solicitudes de cambio de administrador enviadas por las hermandades.
+      </p>
+    </hgroup>
+    <span class="super-admin__counter" aria-live="polite">
+      <lucide-icon name="inbox" [size]="18" aria-hidden="true"></lucide-icon>
+      {{ pendingCount }} pendientes
+    </span>
+  </header>
+
+  @if (errorMessage) {
+    <app-banner type="danger">{{ errorMessage }}</app-banner>
+  }
+  @if (successMessage) {
+    <app-banner type="success">{{ successMessage }}</app-banner>
+  }
+
+  @if (loading) {
+    <p class="super-admin__placeholder" role="status">Cargando solicitudes…</p>
+  } @else {
+    <div class="super-admin__layout">
+      <aside class="super-admin__panel" aria-label="Solicitudes recibidas">
+        <app-request-list
+          [requests]="requests"
+          [selectedId]="selected?.id ?? null"
+          (selected)="onSelectRequest($event)" />
+      </aside>
+
+      <section class="super-admin__panel super-admin__panel--detail" aria-label="Detalle de la solicitud">
+        <app-request-detail
+          [request]="selected"
+          [candidates]="candidates"
+          [processing]="processing"
+          [loadingCandidates]="loadingCandidates"
+          (approved)="onApprove($event)"
+          (rejected)="onReject()" />
+      </section>
+    </div>
+  }
+
+</section>
