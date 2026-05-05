@@ -253,7 +253,7 @@
   }
 }
 
-// Mobile: tablas en formato tarjeta para evitar scroll horizontal
+// Mobile: tables as cards to avoid horizontal scroll
 @media (max-width: 47.9375rem) {
   .users-table,
   .users-table tbody {
@@ -301,7 +301,7 @@
     flex-shrink: 0;
   }
 
-  // Primera celda: usuario destacado, separado del resto
+  // First cell: user highlighted, separated from the rest
   .users-table__row td:first-child {
     justify-content: flex-start;
     padding-bottom: $space-12;
@@ -318,7 +318,7 @@
     font-size: $text-h4;
   }
 
-  // Acciones agrupadas en su propia fila
+  // Actions grouped on their own row
   .users-table:not(.users-table--permissions) .users-table__row td:last-child {
     padding-top: $space-12;
     border-top: $border-1 solid var(--border-default);
@@ -334,7 +334,7 @@
     justify-content: center;
   }
 
-  // Tabla de permisos: cada usuario en su tarjeta
+  // Permissions table: each user in its own card
   .users-table--permissions .users-table__row td:first-child {
     justify-content: flex-start;
   }

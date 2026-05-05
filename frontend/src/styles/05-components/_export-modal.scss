@@ -5,7 +5,7 @@
   margin-bottom: $space-24;
 }
 
-// Miniatura del acto dentro del modal
+// Event thumbnail inside the modal
 .export-modal__act-card {
   display: flex;
   background-color: var(--nav-bg);
@@ -14,14 +14,14 @@
   min-height: 4rem;
 }
 
-// Banda lateral con texto vertical (mismo patron que .act-detail__type-band)
+// Side band with vertical text (same pattern as .act-detail__type-band)
 .export-modal__act-band {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 2.25rem;
   flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: var(--overlay-soft);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
   padding-inline: $space-16;
@@ -68,7 +68,7 @@
   text-overflow: ellipsis;
 }
 
-// Fieldsets de seleccion (reset de estilos del navegador)
+// Selection fieldsets (browser style reset)
 .export-modal__fieldset {
   border: none;
   padding: 0;
@@ -84,7 +84,7 @@
   }
 }
 
-// Leyendas de seccion en color dorado
+// Section legends in gold color
 .export-modal__legend {
   display: block;
   width: 100%;
@@ -98,14 +98,14 @@
   letter-spacing: 0.06em;
 }
 
-// Grid de tarjetas de formato (apilado vertical, coherente con el resto del modal)
+// Format card grid (vertical stack, consistent with the modal)
 .export-modal__formats {
   display: flex;
   flex-direction: column;
   gap: $space-8;
 }
 
-// Tarjeta de formato (boton role=radio)
+// Format card (button with role=radio)
 .export-modal__format-card {
   @include focus-visible;
   @include transition(border-color);
@@ -133,7 +133,7 @@
   }
 }
 
-// Circulo visual tipo radio (borde reforzado para visibilidad)
+// Visual radio circle (strong border for visibility)
 .export-modal__format-radio {
   display: flex;
   align-items: center;
@@ -152,7 +152,7 @@
   }
 }
 
-// Contenedor de texto de cada tarjeta de formato
+// Text container for each format card
 .export-modal__format-body {
   display: flex;
   flex-direction: column;
@@ -175,7 +175,7 @@
   line-height: 1.3;
 }
 
-// Lista de secciones seleccionables (apilado vertical para coherencia visual)
+// Selectable sections list (vertical stack for visual consistency)
 .export-modal__items {
   display: flex;
   flex-direction: column;
@@ -188,7 +188,7 @@
   border-bottom: $border-1 solid var(--border-default);
 }
 
-// Fila de seccion (boton role=checkbox)
+// Section row (button with role=checkbox)
 .export-modal__item-label {
   @include focus-visible;
   display: flex;
@@ -205,7 +205,7 @@
   cursor: pointer;
 }
 
-// Nombre de la seccion
+// Section name
 .export-modal__item-name {
   font-family: $font-body;
   font-size: $text-paragraph;
@@ -217,7 +217,7 @@
   }
 }
 
-// Cuadrado visual tipo checkbox (borde reforzado para visibilidad)
+// Visual checkbox square (strong border for visibility)
 .export-modal__item-check {
   display: flex;
   align-items: center;

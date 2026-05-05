@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Overlay oscuro que cubre toda la pantalla
+// Dark overlay covering the whole screen
 .login-overlay {
   position: fixed;
   inset: 0;
@@ -13,7 +13,7 @@
   padding: $space-16;
 }
 
-// Contenedor del modal con sidebar + formulario
+// Modal container with sidebar + form
 .login {
   display: flex;
   flex-direction: column;
@@ -22,7 +22,7 @@
   max-height: 90vh;
   overflow-y: auto;
   border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
 
   @include from-tablet {
     flex-direction: row;
@@ -30,7 +30,7 @@
   }
 }
 
-// Panel lateral izquierdo con identidad de la cofradia
+// Left side panel with brotherhood identity
 .login__sidebar {
   display: flex;
   flex-direction: column;
@@ -73,7 +73,7 @@
   line-height: 1.6;
 }
 
-// Panel principal con formulario de acceso
+// Main panel with login form
 .login__main {
   flex: 1;
   display: flex;
@@ -110,7 +110,7 @@
   max-width: 32rem;
 }
 
-// Fila de opciones: recordar sesion
+// Options row: remember session
 .login__options {
   display: flex;
   align-items: center;

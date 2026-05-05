@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Modal de perfil: 2 columnas (avatar + formularios) sin scroll, centrado
+// Profile modal: 2 columns (avatar + forms), centered, no scroll
 .profile-modal__overlay {
   align-items: center;
   padding: $space-16;
@@ -42,7 +42,7 @@
   }
 }
 
-// Panel izquierdo: avatar + acciones
+// Left panel: avatar + actions
 .profile-modal__avatar-panel {
   display: flex;
   flex-direction: column;
@@ -136,7 +136,7 @@
   gap: $space-8;
 }
 
-// Panel derecho: forms
+// Right panel: forms
 .profile-modal__forms {
   display: flex;
   flex-direction: column;
@@ -183,7 +183,7 @@
   justify-content: flex-end;
 }
 
-// Botón compacto reusado dentro del modal: respeta tokens
+// Compact button reused inside the modal: respects tokens
 .profile-modal__btn {
   height: $size-input-height;
   padding-inline: $space-16;

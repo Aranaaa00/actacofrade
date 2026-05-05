@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Modificador para compactar el modal de registro sin scroll
+// Modifier to compact the register modal without scroll
 .login--register {
   & .login__main {
     padding: $space-16 $space-16;
@@ -28,7 +28,7 @@
   }
 }
 
-// Fila de dos columnas para contraseña y confirmacion
+// Two-column row for password and confirmation
 .register__row {
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@
   }
 }
 
-// Boton oscuro de crear cuenta
+// Dark create-account button
 .register__submit-button {
   background-color: var(--bg-inverse);
   color: var(--text-on-dark);
@@ -59,7 +59,7 @@
   }
 }
 
-// Enlace de retorno a login
+// Back-to-login link
 .register__login-link {
   font-size: $text-paragraph;
   color: var(--text-secondary);
@@ -70,7 +70,7 @@
   }
 }
 
-// Modal embebido (creacion de usuario desde gestion de usuarios)
+// Embedded modal (user creation from users management)
 .register-modal {
   max-width: 40rem;
   padding: $space-16 $space-24 $space-12;

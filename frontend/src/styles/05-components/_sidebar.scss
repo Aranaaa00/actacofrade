@@ -8,7 +8,7 @@
   overflow: hidden;
 }
 
-// Overlay para cerrar sidebar en movil
+// Overlay to close sidebar on mobile
 .sidebar-overlay {
   position: fixed;
   inset: 0;
@@ -20,7 +20,7 @@
   }
 }
 
-// Sidebar de navegacion principal
+// Main navigation sidebar
 .sidebar {
   position: fixed;
   inset-block: 0;
@@ -273,7 +273,7 @@
   }
 }
 
-// Topbar superior con info contextual
+// Top bar with contextual info
 .topbar {
   display: flex;
   align-items: center;
@@ -302,7 +302,7 @@
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
   cursor: pointer;
 
-  // En movil/tablet flota abajo a la izquierda para no estorbar
+  // Floats bottom-left on mobile/tablet to avoid clutter
   position: fixed;
   inset-block-end: $space-16;
   inset-inline-start: $space-16;
@@ -361,7 +361,7 @@
   overflow-x: hidden;
   overscroll-behavior: contain;
 
-  // Reserva espacio inferior en movil/tablet para el boton hamburguesa flotante
+  // Reserves bottom space on mobile/tablet for the floating hamburger button
   padding-block-end: 5rem;
 
   @include from-desktop {
