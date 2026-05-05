@@ -1,4 +1,4 @@
-﻿# ActaCofrade â€” Backend
+﻿# ActaCofrade Backend
 
 Spring Boot REST API for **ActaCofrade**, a tool that helps cofradÃ­as (Catholic
 brotherhoods) plan their events, follow up on the work of their members, and
