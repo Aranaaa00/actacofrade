@@ -1,9 +1,8 @@
 package com.actacofrade.backend.controller;
 
-import com.actacofrade.backend.entity.Role;
-import com.actacofrade.backend.entity.RoleCode;
+import com.actacofrade.backend.dto.RoleResponse;
 import com.actacofrade.backend.exception.GlobalExceptionHandler;
-import com.actacofrade.backend.repository.RoleRepository;
+import com.actacofrade.backend.service.RoleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class RoleControllerIntegrationTest {
 
     @Mock
-    private RoleRepository roleRepository;
+    private RoleService roleService;
 
     @InjectMocks
     private RoleController roleController;
@@ -44,9 +43,9 @@ class RoleControllerIntegrationTest {
 
     @Test
     void findAll_returns200WithRoles() throws Exception {
-        Role admin = new Role(1, RoleCode.ADMINISTRADOR, "Administrador");
-        Role responsable = new Role(2, RoleCode.RESPONSABLE, "Responsable");
-        given(roleRepository.findAll()).willReturn(List.of(admin, responsable));
+        RoleResponse admin = new RoleResponse(1, "ADMINISTRADOR", "Administrador");
+        RoleResponse responsable = new RoleResponse(2, "RESPONSABLE", "Responsable");
+        given(roleService.findAll()).willReturn(List.of(admin, responsable));
 
         mockMvc.perform(get("/api/roles"))
                 .andExpect(status().isOk())
@@ -57,7 +56,7 @@ class RoleControllerIntegrationTest {
 
     @Test
     void findAll_emptyList_returns200() throws Exception {
-        given(roleRepository.findAll()).willReturn(List.of());
+        given(roleService.findAll()).willReturn(List.of());
 
         mockMvc.perform(get("/api/roles"))
                 .andExpect(status().isOk())
