@@ -1,0 +1,25 @@
+<ul class="super-admin__list" role="list" aria-label="Listado de solicitudes">
+  @if (requests.length === 0) {
+    <li class="super-admin__empty">No hay solicitudes registradas.</li>
+  }
+  @for (request of requests; track trackById($index, request)) {
+    <li>
+      <button
+        type="button"
+        class="super-admin__item"
+        [class.super-admin__item--active]="selectedId === request.id"
+        (click)="onSelect(request)">
+        <header class="super-admin__item-head">
+          <strong class="super-admin__item-title">{{ request.hermandadNombre }}</strong>
+          <app-badge [variant]="statusVariant(request.status)">{{ statusLabel(request.status) }}</app-badge>
+        </header>
+        <p class="super-admin__item-meta">
+          <span>{{ request.requesterFullName }}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ formattedDate(request.createdAt) }}</span>
+        </p>
+        <p class="super-admin__item-message">{{ request.message }}</p>
+      </button>
+    </li>
+  }
+</ul>
