@@ -12,6 +12,7 @@ import { FormField } from '../../shared/components/form-field/form-field';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeText } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -123,7 +124,12 @@ export class ElementForm implements OnInit {
     if (this.canManageThisEvent()) {
       this.userService.findAssignable().subscribe({
         next: (users) => this.users = users,
-        error: () => { this.users = []; }
+        error: (err) => {
+          // Keep the assignment list empty and surface the failure to the user.
+          console.error('Failed to load assignable users', err);
+          this.users = [];
+          this.errorMessage = extractErrorMessage(err, 'No se pudo cargar la lista de usuarios.');
+        }
       });
     } else {
       const authUser = this.auth.getUser();

@@ -11,7 +11,7 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="act-editor__body" aria-label="Formulario de acto">
     <app-form-field label="Nombre del acto" fieldId="act-title" [hasError]="hasError('title')" [errorMessage]="hasError('title') ? getError('title') : ''">
-      <input #titleInput id="act-title" type="text" formControlName="title" placeholder="Ej. Cabildo Extraordinario" maxlength="255">
+      <input id="act-title" type="text" formControlName="title" placeholder="Ej. Cabildo Extraordinario" maxlength="255" appAutofocus>
     </app-form-field>
 
     <section class="act-editor__row">

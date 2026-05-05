@@ -167,7 +167,11 @@ export class ActList implements OnInit, OnDestroy {
   private loadAvailableDates(): void {
     this.eventService.availableDates().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (dates) => { this.availableDates = dates; },
-      error: () => { this.availableDates = []; }
+      error: (err) => {
+        // Calendar filter is non-critical, log so QA can spot the issue.
+        console.error('Failed to load available dates', err);
+        this.availableDates = [];
+      }
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ElementRef, ViewChild, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, inject, Input, Output, EventEmitter } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
@@ -10,23 +10,23 @@ import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overla
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
+import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-act-editor',
-  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker],
+  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker, AutofocusDirective],
   templateUrl: './act-editor.html',
 })
-export class ActEditor implements OnInit, AfterViewInit {
+export class ActEditor implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly eventService = inject(EventService);
   private readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-
-  @ViewChild('titleInput') titleInput!: ElementRef<HTMLInputElement>;
 
   @Input() embedded = false;
   @Output() editorClosed = new EventEmitter<void>();
@@ -70,7 +70,12 @@ export class ActEditor implements OnInit, AfterViewInit {
     if (this.canPickResponsible) {
       this.userService.findAssignable().subscribe({
         next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE')),
-        error: () => { this.users = []; }
+        error: (err) => {
+          // Keep the form usable but warn the responsible user list could not be loaded.
+          console.error('Failed to load assignable users', err);
+          this.users = [];
+          this.errorMessage = extractErrorMessage(err, 'No se pudo cargar la lista de responsables.');
+        }
       });
     } else {
       const authUser = this.auth.getUser();
@@ -88,10 +93,6 @@ export class ActEditor implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    this.titleInput?.nativeElement.focus();
-  }
-
   private loadEvent(id: number): void {
     this.loading = true;
     this.eventService.findById(id).subscribe({
@@ -99,8 +100,8 @@ export class ActEditor implements OnInit, AfterViewInit {
         this.form.patchValue(event);
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'No se pudo cargar el acto.';
+      error: (err) => {
+        this.errorMessage = extractErrorMessage(err, 'No se pudo cargar el acto.');
         this.loading = false;
       }
     });
