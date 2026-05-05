@@ -11,6 +11,6 @@ export const roleGuard = (roles: ReadonlyArray<Role | string>): CanActivateFn =>
   if (authService.hasAnyRole(...roles)) {
     return true;
   }
-  router.navigate(['/dashboard']);
+  router.navigate([authService.isSuperAdmin() ? '/super-admin' : '/dashboard']);
   return false;
 };

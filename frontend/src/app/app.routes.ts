@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
-import { ROLES_ADMIN, ROLES_ALL, ROLES_MANAGE, ROLES_WRITE } from './shared/constants/roles.const';
+import { ROLES_ADMIN, ROLES_ALL, ROLES_MANAGE, ROLES_SUPER_ADMIN, ROLES_WRITE } from './shared/constants/roles.const';
 
 // suffix appended by the Title service to every page title
 const APP_NAME = 'ActaCofrade';
@@ -103,6 +103,13 @@ export const routes: Routes = [
         data: { description: 'Preferencias de cuenta y datos de la hermandad.' },
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/settings/settings').then(m => m.Settings)
+      },
+      {
+        path: 'super-admin',
+        title: pageTitle('Super administrador'),
+        data: { description: 'Gestion de solicitudes de cambio de administrador entre hermandades.' },
+        canActivate: [roleGuard(ROLES_SUPER_ADMIN)],
+        loadComponent: () => import('./pages/super-admin/super-admin').then(m => m.SuperAdmin)
       }
     ]
   },

@@ -61,7 +61,7 @@ export class Login {
       this.authService.login(credentials).subscribe({
         next: () => {
           this.loading = false;
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([this.authService.isSuperAdmin() ? '/super-admin' : '/dashboard']);
         },
         error: (err) => {
           this.loading = false;
