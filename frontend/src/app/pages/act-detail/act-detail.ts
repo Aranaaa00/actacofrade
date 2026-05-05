@@ -182,9 +182,8 @@ export class ActDetail implements OnInit {
       next: (cloned) => {
         this.router.navigate(['/events', cloned.id]);
       },
-      error: () => {
-        // notify user when cloning fails
-        this.actionError = 'No se pudo clonar el acto. Inténtalo de nuevo.';
+      error: (err) => {
+        this.actionError = extractErrorMessage(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
       }
     });
   }
@@ -235,10 +234,10 @@ export class ActDetail implements OnInit {
         this.exportLoading = false;
         this.closeExportModal();
       },
-      error: () => {
+      error: (err) => {
         // show error inside modal so the user can retry
         this.exportLoading = false;
-        this.exportError = 'No se pudo generar el archivo. Inténtalo de nuevo.';
+        this.exportError = extractErrorMessage(err, 'No se pudo generar el archivo. Inténtalo de nuevo.');
       }
     });
   }
@@ -370,8 +369,10 @@ export class ActDetail implements OnInit {
         onSuccess?.();
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
         this.processingTaskId = null;
+        // Surface the failure so the user knows the action did not apply.
+        this.actionError = extractErrorMessage(err, 'No se pudo actualizar la tarea. Inténtalo de nuevo.');
       }
     });
   }
@@ -442,9 +443,9 @@ export class ActDetail implements OnInit {
     else request$ = this.incidentService.delete(this.eventId, id);
     this.bind(request$).subscribe({
       next: () => this.loadData(),
-      error: () => {
+      error: (err) => {
         // surface deletion failure to the user
-        this.actionError = 'No se pudo eliminar el elemento. Inténtalo de nuevo.';
+        this.actionError = extractErrorMessage(err, 'No se pudo eliminar el elemento. Inténtalo de nuevo.');
       }
     });
   }
@@ -452,8 +453,8 @@ export class ActDetail implements OnInit {
   acceptDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.accept(this.eventId, decision.id)).subscribe({
       next: () => this.loadData(),
-      error: () => {
-        this.actionError = 'No se pudo aceptar la decisión. Inténtalo de nuevo.';
+      error: (err) => {
+        this.actionError = extractErrorMessage(err, 'No se pudo aceptar la decisión. Inténtalo de nuevo.');
       }
     });
   }
@@ -461,8 +462,8 @@ export class ActDetail implements OnInit {
   rejectDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.reject(this.eventId, decision.id)).subscribe({
       next: () => this.loadData(),
-      error: () => {
-        this.actionError = 'No se pudo rechazar la decisión. Inténtalo de nuevo.';
+      error: (err) => {
+        this.actionError = extractErrorMessage(err, 'No se pudo rechazar la decisión. Inténtalo de nuevo.');
       }
     });
   }
@@ -470,8 +471,8 @@ export class ActDetail implements OnInit {
   resolveIncident(incidentId: number): void {
     this.bind(this.incidentService.resolve(this.eventId, incidentId)).subscribe({
       next: () => this.loadData(),
-      error: () => {
-        this.actionError = 'No se pudo resolver la incidencia. Inténtalo de nuevo.';
+      error: (err) => {
+        this.actionError = extractErrorMessage(err, 'No se pudo resolver la incidencia. Inténtalo de nuevo.');
       }
     });
   }
@@ -498,8 +499,9 @@ export class ActDetail implements OnInit {
         this.historyTotalPages = Math.max(1, data.totalPages);
         this.historyLoading = false;
       },
-      error: () => {
+      error: (err) => {
         this.historyLoading = false;
+        this.actionError = extractErrorMessage(err, 'No se pudo cargar el historial.');
       }
     });
   }
