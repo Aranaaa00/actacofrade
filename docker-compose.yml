@@ -1,3 +1,5 @@
+name: actacofrade
+
 services:
   db:
     image: postgres:15-alpine
@@ -6,8 +8,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "127.0.0.1:5432:5432"
+    # No `ports:` — the database is reachable only from the backend
+    # through the internal Docker network.
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -24,11 +26,10 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: actacofrade_backend
-    # Backend is also exposed on the host so the OpenAPI / Swagger UI are
-    # reachable directly at http://localhost:8080/swagger-ui.html.
-    # Bound to 127.0.0.1 to avoid publishing it on the public network.
-    ports:
-      - "127.0.0.1:8080:8080"
+    # No `ports:` — the backend is reachable only via the nginx reverse proxy
+    # in the `frontend` service (paths /api, /swagger-ui, /v3/api-docs).
+    expose:
+      - "8080"
     environment:
       # Override env vars to use the database container
       DB_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
@@ -55,7 +56,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 60s
 
   frontend:
     build:
