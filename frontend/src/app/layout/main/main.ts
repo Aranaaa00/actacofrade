@@ -4,11 +4,12 @@ import { AuthService } from '../../services/auth.service';
 import { AuthResponse } from '../../models/auth.model';
 import { Sidebar } from '../../shared/components/sidebar/sidebar';
 import { ProfileModal } from '../../shared/components/profile-modal/profile-modal';
+import { ContactModal } from '../../shared/components/contact-modal/contact-modal';
 import { Header } from '../header/header';
 
 @Component({
   selector: 'app-main',
-  imports: [RouterOutlet, Sidebar, Header, ProfileModal],
+  imports: [RouterOutlet, Sidebar, Header, ProfileModal, ContactModal],
   templateUrl: './main.html',
 })
 export class Main {
@@ -17,6 +18,7 @@ export class Main {
 
   sidebarOpen = false;
   readonly profileModalOpen = signal(false);
+  readonly contactModalOpen = signal(false);
   readonly currentUser = signal<AuthResponse | null>(this.authService.getUser());
 
   get user(): AuthResponse | null {
@@ -51,6 +53,14 @@ export class Main {
 
   closeProfile(): void {
     this.profileModalOpen.set(false);
+  }
+
+  openContact(): void {
+    this.contactModalOpen.set(true);
+  }
+
+  closeContact(): void {
+    this.contactModalOpen.set(false);
   }
 
   onProfileUpdated(updated: AuthResponse): void {
