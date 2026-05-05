@@ -152,8 +152,19 @@ its part of the project changes:
   `ng build`, uploads the `dist/` artifact, and builds the frontend
   Docker image.
 
-The pipelines do not need any secret to run. They use only public
+The pipelines do not need any external secret. They use only public
 images and a throw-away `JWT_SECRET` defined inside the runner.
+
+On every successful run on `main`, both workflows push the resulting
+Docker images to the **GitHub Container Registry** using the built-in
+`GITHUB_TOKEN`:
+
+* `ghcr.io/aranaaa00/actacofrade-backend:latest`
+* `ghcr.io/aranaaa00/actacofrade-frontend:latest`
+
+Each image is also tagged with the commit SHA so any past build can be
+pulled (`...:<sha>`). The packages page lists every published image:
+<https://github.com/Aranaaa00?tab=packages>.
 
 ---
 
