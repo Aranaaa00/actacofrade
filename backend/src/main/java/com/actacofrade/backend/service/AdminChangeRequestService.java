@@ -3,6 +3,7 @@ package com.actacofrade.backend.service;
 import com.actacofrade.backend.dto.AdminChangeRequestApprove;
 import com.actacofrade.backend.dto.AdminChangeRequestCreate;
 import com.actacofrade.backend.dto.AdminChangeRequestResponse;
+import com.actacofrade.backend.dto.UserResponse;
 import com.actacofrade.backend.entity.AdminChangeRequest;
 import com.actacofrade.backend.entity.AdminChangeRequestStatus;
 import com.actacofrade.backend.entity.Hermandad;
@@ -19,11 +20,15 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Business logic for admin change requests.
+ * Members create requests; the super admin lists, approves or rejects them.
+ */
 @Service
 @Transactional
 public class AdminChangeRequestService {
@@ -42,6 +47,7 @@ public class AdminChangeRequestService {
         this.roleRepository = roleRepository;
     }
 
+    /** Create a new admin change request after sanitizing the message. */
     public AdminChangeRequestResponse create(AdminChangeRequestCreate request, String authenticatedEmail) {
         User requester = userRepository.findByEmail(authenticatedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + authenticatedEmail));
@@ -58,7 +64,7 @@ public class AdminChangeRequestService {
         entity.setRequester(requester);
         entity.setMessage(SanitizationUtils.sanitize(request.message()));
         entity.setStatus(AdminChangeRequestStatus.PENDING);
-        entity.setCreatedAt(LocalDateTime.now());
+        entity.setCreatedAt(OffsetDateTime.now());
 
         requestRepository.save(entity);
         log.info("Solicitud de cambio de admin creada id={} hermandad={} solicitante={}",
@@ -66,6 +72,7 @@ public class AdminChangeRequestService {
         return toResponse(entity);
     }
 
+    /** List all requests, newest first. Super admin only. */
     @Transactional(readOnly = true)
     public List<AdminChangeRequestResponse> findAll() {
         return requestRepository.findAllByOrderByCreatedAtDesc().stream()
@@ -73,30 +80,27 @@ public class AdminChangeRequestService {
                 .toList();
     }
 
+    /** Find a single request by id. */
     @Transactional(readOnly = true)
     public AdminChangeRequestResponse findById(Integer id) {
         return toResponse(getOrThrow(id));
     }
 
+    /** Return active members of the same hermandad who can become the new admin. */
     @Transactional(readOnly = true)
-    public List<com.actacofrade.backend.dto.UserResponse> findCandidates(Integer requestId) {
+    public List<UserResponse> findCandidates(Integer requestId) {
         AdminChangeRequest request = getOrThrow(requestId);
         Integer hermandadId = request.getHermandad().getId();
+        // Any active member of the hermandad except the current admin and the super admin can be promoted.
         return userRepository.findByHermandadId(hermandadId).stream()
                 .filter(u -> Boolean.TRUE.equals(u.getActive()))
-                .filter(u -> u.getRoles().stream().noneMatch(r -> r.getCode() == RoleCode.SUPER_ADMIN))
-                .map(u -> new com.actacofrade.backend.dto.UserResponse(
-                        u.getId(),
-                        u.getFullName(),
-                        u.getEmail(),
-                        u.getRoles().stream().map(r -> r.getCode().name()).toList(),
-                        u.getActive(),
-                        u.getLastLogin(),
-                        false
-                ))
+                .filter(u -> !hasSuperAdminRole(u))
+                .filter(u -> !hasAdminRole(u))
+                .map(this::toCandidateResponse)
                 .toList();
     }
 
+    /** Approve a pending request and grant the ADMINISTRADOR role to the chosen user. */
     public AdminChangeRequestResponse approve(Integer id, AdminChangeRequestApprove payload, String authenticatedEmail) {
         AdminChangeRequest request = getOrThrow(id);
         ensurePending(request);
@@ -125,13 +129,14 @@ public class AdminChangeRequestService {
         request.setStatus(AdminChangeRequestStatus.APPROVED);
         request.setNewAdmin(newAdmin);
         request.setResolvedBy(resolver);
-        request.setResolvedAt(LocalDateTime.now());
+        request.setResolvedAt(OffsetDateTime.now());
 
         log.warn("Solicitud {} APROBADA por={} nuevoAdmin={} hermandad={}",
                 id, authenticatedEmail, newAdmin.getEmail(), request.getHermandad().getId());
         return toResponse(request);
     }
 
+    /** Reject a pending request without changing any user roles. */
     public AdminChangeRequestResponse reject(Integer id, String authenticatedEmail) {
         AdminChangeRequest request = getOrThrow(id);
         ensurePending(request);
@@ -139,7 +144,7 @@ public class AdminChangeRequestService {
         User resolver = userRepository.findByEmail(authenticatedEmail).orElse(null);
         request.setStatus(AdminChangeRequestStatus.REJECTED);
         request.setResolvedBy(resolver);
-        request.setResolvedAt(LocalDateTime.now());
+        request.setResolvedAt(OffsetDateTime.now());
 
         log.warn("Solicitud {} RECHAZADA por={} hermandad={}",
                 id, authenticatedEmail, request.getHermandad().getId());
@@ -161,6 +166,24 @@ public class AdminChangeRequestService {
         return user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.SUPER_ADMIN);
     }
 
+    private boolean hasAdminRole(User user) {
+        return user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR);
+    }
+
+    /** Map a candidate user without exposing the avatar flag. */
+    private UserResponse toCandidateResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRoles().stream().map(r -> r.getCode().name()).toList(),
+                user.getActive(),
+                user.getLastLogin(),
+                false
+        );
+    }
+
+    /** Map the entity to its public DTO. */
     private AdminChangeRequestResponse toResponse(AdminChangeRequest entity) {
         Hermandad hermandad = entity.getHermandad();
         User requester = entity.getRequester();
