@@ -1,0 +1,88 @@
+@if (!request) {
+  <p class="super-admin__placeholder" role="status">Selecciona una solicitud para ver el detalle.</p>
+} @else {
+  <article class="super-admin__detail" aria-labelledby="request-detail-title">
+    <header class="super-admin__detail-head">
+      <hgroup class="super-admin__detail-titles">
+        <h2 id="request-detail-title" class="super-admin__detail-title">{{ request.hermandadNombre }}</h2>
+        <p class="super-admin__detail-subtitle">
+          Solicitada por
+          <strong>{{ request.requesterFullName }}</strong>
+          ({{ request.requesterEmail }})
+        </p>
+      </hgroup>
+      <app-badge [variant]="statusVariant(request.status)">{{ statusLabel(request.status) }}</app-badge>
+    </header>
+
+    <dl class="super-admin__detail-meta">
+      <dt>Fecha de envío</dt>
+      <dd>{{ formattedDate(request.createdAt) }}</dd>
+      @if (request.resolvedAt) {
+        <dt>Fecha de resolución</dt>
+        <dd>{{ formattedDate(request.resolvedAt) }}</dd>
+      }
+      @if (request.newAdminFullName) {
+        <dt>Nuevo administrador</dt>
+        <dd>{{ request.newAdminFullName }}</dd>
+      }
+    </dl>
+
+    <section class="super-admin__detail-section" aria-label="Mensaje del solicitante">
+      <h3 class="super-admin__detail-section-title">Mensaje</h3>
+      <p class="super-admin__detail-message">{{ request.message }}</p>
+    </section>
+
+    @if (isPending) {
+      <section class="super-admin__detail-section" aria-label="Asignar nuevo administrador">
+        <h3 class="super-admin__detail-section-title">Asignar nuevo administrador</h3>
+        @if (loadingCandidates) {
+          <p class="super-admin__placeholder" role="status">Cargando candidatos…</p>
+        } @else if (candidates.length === 0) {
+          <p class="super-admin__placeholder">
+            No hay miembros disponibles en esta hermandad. Solo se listan usuarios activos
+            distintos del solicitante y del administrador actual.
+          </p>
+        } @else {
+          <fieldset class="super-admin__candidates">
+            <legend class="super-admin__candidates-legend">Selecciona un nuevo administrador</legend>
+            @for (candidate of candidates; track candidate.id) {
+              <label
+                class="super-admin__candidate"
+                [class.super-admin__candidate--selected]="selectedCandidateId === candidate.id">
+                <input
+                  type="radio"
+                  class="super-admin__candidate-input"
+                  name="candidate"
+                  [value]="candidate.id"
+                  [(ngModel)]="selectedCandidateId" />
+                <span class="super-admin__candidate-info">
+                  <strong>{{ candidate.fullName }}</strong>
+                  <small>{{ candidate.email }}</small>
+                </span>
+              </label>
+            }
+          </fieldset>
+        }
+      </section>
+
+      <footer class="super-admin__detail-actions">
+        <button
+          class="button button--secondary"
+          type="button"
+          (click)="onReject()"
+          [disabled]="processing">
+          <lucide-icon name="x" class="button__icon" [size]="18" aria-hidden="true"></lucide-icon>
+          Rechazar
+        </button>
+        <button
+          class="button button--primary"
+          type="button"
+          (click)="onApprove()"
+          [disabled]="processing || selectedCandidateId === null">
+          <lucide-icon name="check" class="button__icon" [size]="18" aria-hidden="true"></lucide-icon>
+          Aprobar y asignar
+        </button>
+      </footer>
+    }
+  </article>
+}
