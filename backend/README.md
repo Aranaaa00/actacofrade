@@ -228,3 +228,91 @@ Migrations live in `src/main/resources/db/migration`.
 
 ## 7. Configuration (environment variables)
 
+The defaults are tuned for local development with Docker Compose. In
+production every value with a `${VAR}` placeholder must come from the
+environment.
+
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `DB_URL` | no | `jdbc:postgresql://localhost:5432/actacofrade` | JDBC URL for PostgreSQL. |
+| `DB_USER` / `DB_PASSWORD` | yes | â€” | Database credentials. |
+| `JWT_SECRET` | **yes** | â€” | Signing key, â‰¥ 32 bytes. The application refuses to start otherwise. |
+| `JWT_EXPIRATION_MS` | no | `86400000` | Token lifetime in milliseconds. |
+| `CORS_ALLOWED_ORIGINS` | no | `http://localhost:4200` | Comma-separated origins allowed by CORS. Add the deployed frontend origin here. |
+| `AVATAR_MAX_SIZE` | no | `2MB` | Multipart limit. |
+| `AVATAR_MAX_BYTES` | no | `2097152` | Hard byte limit checked in the service. |
+| `AVATAR_ALLOWED_TYPES` | no | `image/png,image/jpeg,image/webp,image/gif` | Allowed MIME types for avatars. |
+| `SUPERADMIN_EMAIL` / `SUPERADMIN_PASSWORD` / `SUPERADMIN_FULL_NAME` | no | empty | If all three are set, a `SUPER_ADMIN` user is created on first startup. |
+
+Multipart upload limits are also surfaced through
+`spring.servlet.multipart.max-file-size` and
+`spring.servlet.multipart.max-request-size`, both bound to `AVATAR_MAX_SIZE`.
+
+---
+
+## 8. How to run the backend
+
+### Option A â€” Docker Compose (recommended)
+
+From the **repository root**:
+
+```bash
+cp .env.example .env       # fill in DB_PASSWORD, JWT_SECRET, etc.
+docker compose up -d --build
+```
+
+This starts PostgreSQL on port `5432`, the backend on port `8080` (bound to
+`127.0.0.1`, so it is not exposed publicly) and the frontend on port `80`.
+Flyway runs every migration automatically on startup. The frontend
+container also runs an Nginx reverse proxy that exposes the API and the
+interactive documentation under the same origin as the website, so the
+deployed site serves Swagger UI without any extra configuration.
+
+### Option B â€” Maven, locally
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+A reachable PostgreSQL instance and the environment variables listed above
+are required.
+
+### Build and test
+
+```bash
+cd backend
+./mvnw clean verify
+```
+
+`verify` compiles, runs every unit and integration test, and enforces the
+JaCoCo line-coverage rule (â‰¥ 85 % on `service`, `controller`, `security` and
+`util`). The HTML coverage report is written to
+`target/site/jacoco/index.html`.
+
+To run only one test class:
+
+```bash
+./mvnw test -Dtest=EventServiceTest
+```
+
+---
+
+## 9. Quick health check
+
+After `docker compose up -d --build`:
+
+* `GET http://localhost:8080/v3/api-docs` â†’ returns the OpenAPI JSON.
+* `GET http://localhost:8080/swagger-ui.html` â†’ loads Swagger UI.
+* `POST http://localhost:8080/api/auth/login` with valid credentials â†’
+  returns a JWT.
+
+The same paths also work through the frontend's reverse proxy on port `80`
+(`http://localhost/swagger-ui.html`, `http://localhost/api/auth/login`,
+â€¦), which is the configuration used in production.
+
+If any of those calls fails, check the container logs:
+
+```bash
+docker compose logs -f backend
+```
