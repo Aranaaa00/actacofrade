@@ -90,4 +90,10 @@
 
   --badge-wood-bg: #{$color-wood};
   --badge-wood-text: #{$color-white};
+
+  // Shadows and overlays (kept as design tokens for consistency)
+  --shadow-sm: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+  --overlay-soft: rgba(0, 0, 0, 0.15);
 }

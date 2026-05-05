@@ -57,7 +57,7 @@
   transition-timing-function: $motion-ease;
 }
 
-// Accesibility
+// Accessibility
 @mixin visually-hidden {
   position: absolute;
   width: 0.0625rem;
