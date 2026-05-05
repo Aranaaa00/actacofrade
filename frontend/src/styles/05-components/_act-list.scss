@@ -37,7 +37,7 @@
   }
 }
 
-// Filtros
+// Filters
 .act-list__filters {
   display: flex;
   flex-wrap: wrap;
@@ -95,7 +95,7 @@
   background-color: var(--bg-surface);
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 
   & li {
     padding: $space-8 $space-12;
@@ -174,7 +174,7 @@
   }
 }
 
-// Tarjetas de actos
+// Event cards
 .act-list__cards {
   display: flex;
   flex-direction: column;
@@ -184,7 +184,7 @@
   overflow: hidden;
 }
 
-// Fila base (clara)
+// Base row (light)
 .act-card {
   display: flex;
   align-items: stretch;
@@ -196,7 +196,7 @@
   }
 }
 
-// Fila oscura (impares visualmente)
+// Dark row (visually odd)
 .act-card--dark {
   background-color: var(--bg-inverse);
 
@@ -333,7 +333,7 @@
   color: var(--text-primary);
 }
 
-// Barra de progreso con segmentos
+// Segmented progress bar
 .act-card__progress {
   display: none;
   align-items: center;

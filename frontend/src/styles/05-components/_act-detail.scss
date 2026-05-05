@@ -15,7 +15,7 @@
   }
 }
 
-// Cabecera con fondo oscuro
+// Header with dark background
 .act-detail__header {
   display: flex;
   background-color: var(--nav-bg);
@@ -28,7 +28,7 @@
   justify-content: center;
   width: 3rem;
   flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: var(--overlay-soft);
   writing-mode: vertical-lr;
   transform: rotate(180deg);
   padding-inline: $space-24;
@@ -135,7 +135,7 @@
   }
 }
 
-// Banner de alerta
+// Alert banner
 .act-detail__alert {
   display: flex;
   align-items: center;
@@ -201,7 +201,7 @@
   }
 }
 
-// Stepper de progreso
+// Progress stepper
 .act-detail__stepper {
   display: flex;
   gap: $space-4;
@@ -271,7 +271,7 @@
   hyphens: auto;
 }
 
-// Contenido de pestanas
+// Tab panels content
 .act-detail__tab-content {
   padding: $space-16 0 0;
 
@@ -392,7 +392,7 @@
   padding: $space-64 0;
 }
 
-// Pie con estadisticas y accion
+// Footer with stats and action
 .act-detail__footer {
   display: flex;
   align-items: center;
@@ -438,7 +438,7 @@
   }
 }
 
-// Historial del acto
+// Event history
 .act-detail__history-empty {
   padding: $space-48;
   font-size: $text-paragraph;
@@ -515,7 +515,7 @@
   letter-spacing: 0.02em;
 }
 
-// Mobile: tablas de detalle como tarjetas (sin scroll horizontal)
+// Mobile: detail tables as cards (no horizontal scroll)
 @media (max-width: 47.9375rem) {
   .act-detail__table,
   .act-detail__table tbody {
@@ -559,7 +559,7 @@
     flex-shrink: 0;
   }
 
-  // Primera celda (titulo) destacada arriba
+  // First cell (title) highlighted on top
   .act-detail__table tbody td:first-child {
     flex-direction: column;
     align-items: flex-start;

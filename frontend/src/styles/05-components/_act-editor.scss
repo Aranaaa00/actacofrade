@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Modal de creacion/edicion de actos
+// Create/edit modal for events
 .act-editor {
   max-width: 48rem;
   padding: $space-16 $space-24 $space-12;
@@ -48,7 +48,7 @@
   }
 }
 
-// Campos con borde completo (selects, date, textarea)
+// Fields with full border (selects, date, textarea)
 .act-editor__field--bordered {
   select,
   input[type='date'],

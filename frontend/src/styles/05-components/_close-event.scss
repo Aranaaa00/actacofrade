@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Titulo del modal en mayusculas
+// Modal title in uppercase
 .close-event {
   & .modal__title {
     display: flex;
@@ -12,14 +12,14 @@
   }
 }
 
-// Icono de candado en el titulo del modal
+// Lock icon in the modal title
 .close-event__icon {
   width: $size-icon-24;
   height: $size-icon-24;
   flex-shrink: 0;
 }
 
-// Banner de aviso con fondo madera
+// Notice banner with wood background
 .close-event__banner {
   background-color: var(--nav-bg);
   color: var(--text-on-dark);
@@ -37,14 +37,14 @@
   }
 }
 
-// Icono de triangulo de advertencia en el banner
+// Warning triangle icon in the banner
 .close-event__banner-icon {
   width: $size-icon-20;
   height: $size-icon-20;
   flex-shrink: 0;
 }
 
-// Texto de carga
+// Loading text
 .close-event__loading {
   @include body-text($text-paragraph);
   padding: $space-32 0;
@@ -52,14 +52,14 @@
   color: var(--text-secondary);
 }
 
-// Etiqueta de tipo en la lista de bloqueos
+// Type label in the blockers list
 .close-event__type-badge {
   background-color: transparent;
   color: var(--text-primary);
   border: $border-1 solid var(--border-strong);
 }
 
-// Lista de elementos que bloquean el cierre
+// List of items that block closing
 .close-event__list {
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@
   }
 }
 
-// Texto de ayuda debajo de la lista
+// Helper text below the list
 .close-event__help {
   font-size: $text-paragraph;
   font-style: italic;
@@ -112,13 +112,13 @@
   margin-bottom: $space-16;
 }
 
-// Footer con boton bloqueado
+// Footer with blocked button
 .close-event__footer {
   flex-direction: column;
   align-items: stretch;
 }
 
-// Icono de candado en el boton bloqueado
+// Lock icon in the blocked button
 .close-event__lock-icon {
   width: $size-icon-20;
   height: $size-icon-20;
@@ -139,12 +139,12 @@
   margin-top: $space-8;
 }
 
-// Banner cuando el acto SE PUEDE cerrar
+// Banner when the event CAN be closed
 .close-event__banner--ready {
   background-color: var(--badge-confirmed-bg);
 }
 
-// Estado abierto: texto confirmacion y botones
+// Open state: confirmation text and buttons
 .close-event__confirm-text {
   font-size: $text-paragraph;
   font-style: italic;

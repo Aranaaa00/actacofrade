@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Panel principal
+// Main panel
 .dashboard {
   display: flex;
   flex-direction: column;
@@ -17,7 +17,7 @@
   }
 }
 
-// Saludo personal
+// Personal greeting
 .dashboard__greeting {
   display: flex;
   flex-direction: column;
@@ -47,7 +47,7 @@
   }
 }
 
-// Fila de metricas
+// Metrics row
 .dashboard__stats {
   display: grid;
   grid-template-columns: 1fr;
@@ -95,7 +95,7 @@
   letter-spacing: 0.06em;
 }
 
-// Grid: eventos + alertas
+// Grid: events + alerts
 .dashboard__grid {
   display: grid;
   gap: $space-24;
@@ -106,7 +106,7 @@
   }
 }
 
-// Titulo de seccion
+// Section title
 .dashboard__section-title {
   display: flex;
   align-items: center;
@@ -127,7 +127,7 @@
   border-radius: 50%;
 }
 
-// Lista de actos (filas compactas)
+// Events list (compact rows)
 .dashboard__event-list {
   display: flex;
   flex-direction: column;
@@ -193,7 +193,7 @@
   }
 }
 
-// Alertas recientes
+// Recent alerts
 .dashboard__alerts {
   background-color: var(--bg-surface);
   border: $border-1 solid var(--border-default);
