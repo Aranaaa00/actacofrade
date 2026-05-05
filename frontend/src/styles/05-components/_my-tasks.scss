@@ -23,6 +23,7 @@
   gap: $space-16;
 }
 
+// Inline error banner shown above the task list when an action fails.
 .my-tasks__alert {
   display: flex;
   align-items: center;
@@ -30,6 +31,7 @@
   flex-wrap: wrap;
 }
 
+// Truncated error description that adapts size on larger screens.
 .my-tasks__alert-text {
   flex: 1;
   min-width: 0;
@@ -40,6 +42,7 @@
   }
 }
 
+// Dismiss control rendered as a link button next to the alert text.
 .my-tasks__alert-link {
   @include focus-visible;
   @include transition(color);

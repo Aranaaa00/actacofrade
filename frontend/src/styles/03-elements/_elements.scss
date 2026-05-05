@@ -55,7 +55,8 @@ label {
   letter-spacing: 0.05em;
 }
 
-input,
+// Base styles for text inputs, textareas and selects, kept low specificity so component classes can override.
+input:where(:not([type='checkbox']):not([type='radio']):not([type='file'])),
 textarea,
 select {
   @include transition(border-color, background-color);
