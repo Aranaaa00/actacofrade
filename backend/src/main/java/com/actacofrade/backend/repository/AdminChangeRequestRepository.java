@@ -1,16 +1,13 @@
 package com.actacofrade.backend.repository;
 
 import com.actacofrade.backend.entity.AdminChangeRequest;
-import com.actacofrade.backend.entity.AdminChangeRequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
+/** Data access for admin change requests. */
 public interface AdminChangeRequestRepository extends JpaRepository<AdminChangeRequest, Integer> {
 
+    /** Returns every request ordered by creation date (newest first). */
     List<AdminChangeRequest> findAllByOrderByCreatedAtDesc();
-
-    List<AdminChangeRequest> findByStatusOrderByCreatedAtDesc(AdminChangeRequestStatus status);
-
-    boolean existsByHermandadIdAndStatus(Integer hermandadId, AdminChangeRequestStatus status);
 }

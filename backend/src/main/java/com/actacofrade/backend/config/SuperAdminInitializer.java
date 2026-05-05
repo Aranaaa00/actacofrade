@@ -12,14 +12,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Crea el usuario super administrador en el primer arranque si no existe.
- * Las credenciales se cargan desde variables de entorno y, en su defecto,
- * caen sobre valores de desarrollo. La contraseña debe rotarse en produccion.
+ * Create the super admin user on first startup if it does not exist yet.
+ * Credentials come only from environment variables; without them this runner is skipped.
  */
 @Component
 public class SuperAdminInitializer implements CommandLineRunner {
@@ -30,13 +30,13 @@ public class SuperAdminInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${superadmin.email:superadmin@actacofrade.local}")
+    @Value("${superadmin.email:}")
     private String email;
 
-    @Value("${superadmin.password:SuperAdmin1!}")
+    @Value("${superadmin.password:}")
     private String password;
 
-    @Value("${superadmin.full-name:Super Administrador}")
+    @Value("${superadmin.full-name:}")
     private String fullName;
 
     public SuperAdminInitializer(UserRepository userRepository,
@@ -50,6 +50,10 @@ public class SuperAdminInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        if (!StringUtils.hasText(email) || !StringUtils.hasText(password) || !StringUtils.hasText(fullName)) {
+            log.info("Variables de super administrador no configuradas. Inicializacion omitida.");
+            return;
+        }
         if (userRepository.findByEmail(email).isPresent()) {
             return;
         }
@@ -66,6 +70,6 @@ public class SuperAdminInitializer implements CommandLineRunner {
         superAdmin.setRoles(roles);
         userRepository.save(superAdmin);
 
-        log.info("Usuario super administrador creado: {}", email);
+        log.info("Usuario super administrador creado");
     }
 }

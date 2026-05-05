@@ -21,6 +21,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * REST endpoints for admin change requests.
+ * Members create requests; only SUPER_ADMIN can list, approve or reject.
+ */
 @RestController
 @RequestMapping("/api/admin-change-requests")
 @io.swagger.v3.oas.annotations.tags.Tag(

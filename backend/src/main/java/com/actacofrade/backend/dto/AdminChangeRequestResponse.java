@@ -1,7 +1,8 @@
 package com.actacofrade.backend.dto;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
+/** Public view of an admin change request. */
 public record AdminChangeRequestResponse(
         Integer id,
         Integer hermandadId,
@@ -14,6 +15,6 @@ public record AdminChangeRequestResponse(
         Integer newAdminUserId,
         String newAdminFullName,
         Integer resolvedByUserId,
-        LocalDateTime resolvedAt,
-        LocalDateTime createdAt
+        OffsetDateTime resolvedAt,
+        OffsetDateTime createdAt
 ) {}
