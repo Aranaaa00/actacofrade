@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { EventResponse } from '../models/event.model';
-import { ROLES_ADMIN, ROLES_MANAGE, ROLES_WRITE, Role } from '../shared/constants/roles.const';
+import { ROLES_ADMIN, ROLES_MANAGE, ROLES_SUPER_ADMIN, ROLES_WRITE, Role } from '../shared/constants/roles.const';
 
 // Authentication facade: login, registration, session storage and role checks.
 @Injectable({ providedIn: 'root' })
@@ -97,6 +97,10 @@ export class AuthService {
 
   isAdmin(): boolean {
     return this.hasAnyRole(...ROLES_ADMIN);
+  }
+
+  isSuperAdmin(): boolean {
+    return this.hasAnyRole(...ROLES_SUPER_ADMIN);
   }
 
   isConsulta(): boolean {
