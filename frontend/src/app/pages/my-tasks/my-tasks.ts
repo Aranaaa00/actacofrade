@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subject, Subscription, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
+import { Subject, Subscription, Observable, debounceTime, distinctUntilChanged, forkJoin } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import { Badge } from '../../shared/components/badge/badge';
+import { Banner } from '../../shared/components/banner/banner';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
@@ -11,12 +12,13 @@ import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 import { MyTaskResponse, MyTaskStats } from '../../models/task.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
+import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import { getEventTypeLabel, getSimplifiedTaskStatusLabel, getSimplifiedTaskBadgeVariant, EVENT_TYPE_OPTIONS } from '../../shared/utils/label-maps.utils';
 import { formatDateTime } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-my-tasks',
-  imports: [RouterLink, FormsModule, LucideAngularModule, Badge, Pagination, RejectModal, FilterDropdown],
+  imports: [RouterLink, FormsModule, LucideAngularModule, Badge, Banner, Pagination, RejectModal, FilterDropdown],
   templateUrl: './my-tasks.html',
 })
 export class MyTasks implements OnInit, OnDestroy {
@@ -48,6 +50,8 @@ export class MyTasks implements OnInit, OnDestroy {
   showRejectModal = false;
   rejectingTask: MyTaskResponse | null = null;
   processingTaskId: number | null = null;
+  // User-facing error message for failed task actions or list refresh.
+  errorMessage = '';
 
   private readonly searchSubject = new Subject<string>();
   private searchSubscription: Subscription | null = null;
@@ -123,55 +127,39 @@ export class MyTasks implements OnInit, OnDestroy {
   }
 
   confirmTask(task: MyTaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.accept(task.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task, this.taskService.accept(task.eventId, task.id), 'No se pudo confirmar la tarea.');
   }
 
   startPreparationTask(task: MyTaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.startPreparation(task.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+    this.runTaskAction(task, this.taskService.startPreparation(task.eventId, task.id), 'No se pudo iniciar la preparación.');
   }
 
   confirmProgressTask(task: MyTaskResponse): void {
+    this.runTaskAction(task, this.taskService.confirm(task.eventId, task.id), 'No se pudo confirmar el progreso de la tarea.');
+  }
+
+  completeTask(task: MyTaskResponse): void {
+    this.runTaskAction(task, this.taskService.complete(task.eventId, task.id), 'No se pudo completar la tarea.');
+  }
+
+  // Centralised handler for task state transitions to keep error feedback consistent.
+  private runTaskAction(task: MyTaskResponse, request$: Observable<unknown>, fallbackError: string): void {
+    this.errorMessage = '';
     this.processingTaskId = task.id;
-    this.taskService.confirm(task.eventId, task.id).subscribe({
+    request$.subscribe({
       next: () => {
         this.processingTaskId = null;
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
         this.processingTaskId = null;
+        this.errorMessage = extractErrorMessage(err, fallbackError);
       }
     });
   }
 
-  completeTask(task: MyTaskResponse): void {
-    this.processingTaskId = task.id;
-    this.taskService.complete(task.eventId, task.id).subscribe({
-      next: () => {
-        this.processingTaskId = null;
-        this.loadData();
-      },
-      error: () => {
-        this.processingTaskId = null;
-      }
-    });
+  dismissError(): void {
+    this.errorMessage = '';
   }
 
   canManageFromMyTasks(_task: MyTaskResponse): boolean {
@@ -192,6 +180,7 @@ export class MyTasks implements OnInit, OnDestroy {
     if (!this.rejectingTask) {
       return;
     }
+    this.errorMessage = '';
     this.processingTaskId = this.rejectingTask.id;
     this.taskService.reject(this.rejectingTask.eventId, this.rejectingTask.id, sanitizeText(reason)).subscribe({
       next: () => {
@@ -200,8 +189,9 @@ export class MyTasks implements OnInit, OnDestroy {
         this.rejectingTask = null;
         this.loadData();
       },
-      error: () => {
+      error: (err) => {
         this.processingTaskId = null;
+        this.errorMessage = extractErrorMessage(err, 'No se pudo rechazar la tarea.');
       }
     });
   }
@@ -224,8 +214,9 @@ export class MyTasks implements OnInit, OnDestroy {
         this.stats = data.stats;
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
+        this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar tus tareas.');
       }
     });
   }
@@ -245,8 +236,9 @@ export class MyTasks implements OnInit, OnDestroy {
         this.totalPages = Math.max(1, page.totalPages);
         this.refreshing = false;
       },
-      error: () => {
+      error: (err) => {
         this.refreshing = false;
+        this.errorMessage = extractErrorMessage(err, 'No se pudo actualizar la lista de tareas.');
       }
     });
   }

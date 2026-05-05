@@ -7,6 +7,13 @@
     <h1 class="my-tasks__title">Mis tareas</h1>
   </header>
 
+  @if (errorMessage) {
+    <app-banner type="error" styleClass="my-tasks__alert">
+      <span class="my-tasks__alert-text">{{ errorMessage }}</span>
+      <button type="button" class="my-tasks__alert-link" (click)="dismissError()">Cerrar</button>
+    </app-banner>
+  }
+
   <ul class="my-tasks__stats" role="list">
     <li class="my-tasks__stat">
       <strong class="my-tasks__stat-number">{{ stats.pendingCount }}</strong>

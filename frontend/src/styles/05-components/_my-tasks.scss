@@ -23,6 +23,48 @@
   gap: $space-16;
 }
 
+.my-tasks__alert {
+  display: flex;
+  align-items: center;
+  gap: $space-8;
+  flex-wrap: wrap;
+}
+
+.my-tasks__alert-text {
+  flex: 1;
+  min-width: 0;
+  font-size: $text-label;
+
+  @include from-tablet {
+    font-size: $text-paragraph;
+  }
+}
+
+.my-tasks__alert-link {
+  @include focus-visible;
+  @include transition(color);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: $text-label;
+  font-weight: $weight-bold;
+  color: var(--text-on-dark);
+  text-decoration: underline;
+  text-underline-offset: $space-4;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  @include from-tablet {
+    font-size: $text-paragraph;
+    margin-inline-start: auto;
+  }
+
+  &:hover {
+    color: var(--nav-active);
+  }
+}
+
 .my-tasks__title {
   font-family: $font-heading;
   font-size: $text-h2;
