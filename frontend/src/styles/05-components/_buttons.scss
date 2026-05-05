@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Botones de acciones principales, secundarias y peligrosas
+// Primary, secondary and danger action buttons
 .button {
   @include focus-visible;
   @include transition(background-color, color, border-color);
@@ -24,7 +24,7 @@
   }
 }
 
-// Boton principal: guardar, confirmar, enviar
+// Primary button: save, confirm, send
 .button--primary {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-text);
@@ -40,7 +40,7 @@
   }
 }
 
-// Boton secundario: cancelar, volver
+// Secondary button: cancel, back
 .button--secondary {
   background-color: var(--btn-secondary-bg);
   color: var(--btn-secondary-text);
@@ -57,7 +57,7 @@
   }
 }
 
-// Boton de eliminacion o acciones destructivas
+// Delete button or destructive actions
 .button--danger {
   background-color: var(--btn-danger-bg);
   color: var(--btn-danger-text);

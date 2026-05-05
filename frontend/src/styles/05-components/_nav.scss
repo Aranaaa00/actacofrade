@@ -1,7 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Barra de navegacion superior
+// Top navigation bar
 .navbar {
   display: flex;
   align-items: center;

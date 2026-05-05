@@ -1,6 +1,6 @@
 @use '../00-settings/variables' as *;
 
-// Etiquetas de estado: pendiente, confirmado, rechazado
+// Status labels: pending, confirmed, rejected
 .badge {
   display: inline-flex;
   align-items: center;
