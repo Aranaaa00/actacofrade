@@ -4,19 +4,18 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, ValidationErro
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { ToastService } from '../../services/toast.service';
 import { UserResponse } from '../../models/user.model';
-import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, Banner, FormField, ModalOverlay, AutofocusDirective],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, FormField, ModalOverlay, AutofocusDirective],
   templateUrl: './register.html',
 })
 export class Register implements OnInit {
@@ -24,6 +23,7 @@ export class Register implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   @Input() embedded = false;
   @Output() userCreated = new EventEmitter<UserResponse>();
@@ -39,8 +39,9 @@ export class Register implements OnInit {
   });
 
   loading = false;
-  errorMessage = '';
   submitted = false;
+  hermandadOptions: { id: number; nombre: string }[] = [];
+  loadingHermandades = false;
 
   readonly roles = [
     { code: 'COLABORADOR', label: 'Colaborador' },
@@ -83,7 +84,26 @@ export class Register implements OnInit {
       const hermandadControl = this.form.get('hermandadNombre');
       hermandadControl?.clearValidators();
       hermandadControl?.updateValueAndValidity();
+      return;
     }
+
+    // load hermandades once: the dropdown is shown when the role is not administrator
+    this.loadingHermandades = true;
+    this.authService.listHermandades().subscribe({
+      next: (options) => {
+        this.hermandadOptions = options;
+        this.loadingHermandades = false;
+      },
+      error: (err) => {
+        this.loadingHermandades = false;
+        this.toast.fromHttpError(err, 'No se pudieron cargar las hermandades disponibles.');
+      }
+    });
+
+    // reset the hermandad value whenever the user switches between admin and non-admin roles
+    this.form.get('roleCode')?.valueChanges.subscribe(() => {
+      this.form.get('hermandadNombre')?.setValue('');
+    });
   }
 
   onSubmit(): void {
@@ -91,9 +111,9 @@ export class Register implements OnInit {
     this.submitted = true;
     if (this.form.invalid || !this.passwordsMatch()) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de continuar.');
     } else {
       this.loading = true;
-      this.errorMessage = '';
 
       const { confirmPassword, hermandadNombre, ...rest } = this.form.value;
 
@@ -102,10 +122,11 @@ export class Register implements OnInit {
         this.userService.create(request).subscribe({
           next: (created) => {
             this.loading = false;
+            this.toast.success('Usuario creado correctamente.');
             this.userCreated.emit(created);
           },
           error: (err) => {
-            this.errorMessage = extractErrorMessage(err, 'No se pudo crear el usuario. Inténtalo de nuevo.');
+            this.toast.fromHttpError(err, 'No se pudo crear el usuario. Inténtalo de nuevo.');
             this.loading = false;
           }
         });
@@ -117,10 +138,11 @@ export class Register implements OnInit {
         this.authService.register(request).subscribe({
           next: () => {
             this.loading = false;
+            this.toast.success('Cuenta creada correctamente.');
             this.router.navigate(['/dashboard']);
           },
           error: (err) => {
-            this.errorMessage = extractErrorMessage(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+            this.toast.fromHttpError(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
             this.loading = false;
           }
         });

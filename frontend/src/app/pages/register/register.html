@@ -1,8 +1,4 @@
 <ng-template #formFields>
-  @if (errorMessage) {
-    <app-banner type="critical">{{ errorMessage }}</app-banner>
-  }
-
   <form [formGroup]="form" (ngSubmit)="onSubmit()" [class]="bodyClass" [attr.aria-label]="formAriaLabel">
     <app-form-field label="Nombre completo" fieldId="register-name" [hasError]="hasError('fullName')" [errorMessage]="hasError('fullName') ? getError('fullName') : ''">
       <input id="register-name"
@@ -51,12 +47,21 @@
 
     @if (!embedded) {
       <app-form-field [label]="hermandadLabel" fieldId="register-hermandad" [hasError]="hasError('hermandadNombre')" [errorMessage]="hasError('hermandadNombre') ? getError('hermandadNombre') : ''">
-        <input id="register-hermandad"
-          type="text"
-          formControlName="hermandadNombre"
-          [placeholder]="hermandadPlaceholder"
-          autocomplete="organization"
-          maxlength="200">
+        @if (isAdmin) {
+          <input id="register-hermandad"
+            type="text"
+            formControlName="hermandadNombre"
+            [placeholder]="hermandadPlaceholder"
+            autocomplete="organization"
+            maxlength="200">
+        } @else {
+          <select id="register-hermandad" formControlName="hermandadNombre">
+            <option value="" disabled>{{ loadingHermandades ? 'Cargando hermandades…' : 'Selecciona tu hermandad' }}</option>
+            @for (option of hermandadOptions; track option.id) {
+              <option [value]="option.nombre">{{ option.nombre }}</option>
+            }
+          </select>
+        }
       </app-form-field>
     }
 

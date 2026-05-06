@@ -3,11 +3,15 @@ package com.actacofrade.backend.service;
 import com.actacofrade.backend.dto.HermandadResponse;
 import com.actacofrade.backend.dto.HermandadUpdateRequest;
 import com.actacofrade.backend.entity.Hermandad;
+import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import com.actacofrade.backend.repository.AdminChangeRequestRepository;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.HermandadRepository;
+import com.actacofrade.backend.repository.UserAvatarRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.util.SanitizationUtils;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +24,19 @@ public class HermandadService {
     private final HermandadRepository hermandadRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final UserAvatarRepository userAvatarRepository;
+    private final AdminChangeRequestRepository adminChangeRequestRepository;
 
     public HermandadService(HermandadRepository hermandadRepository,
                             UserRepository userRepository,
-                            EventRepository eventRepository) {
+                            EventRepository eventRepository,
+                            UserAvatarRepository userAvatarRepository,
+                            AdminChangeRequestRepository adminChangeRequestRepository) {
         this.hermandadRepository = hermandadRepository;
         this.userRepository = userRepository;
         this.eventRepository = eventRepository;
+        this.userAvatarRepository = userAvatarRepository;
+        this.adminChangeRequestRepository = adminChangeRequestRepository;
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +66,33 @@ public class HermandadService {
 
         hermandadRepository.save(hermandad);
         return toResponse(hermandad);
+    }
+
+    public void deleteCurrent(String authenticatedEmail) {
+        User user = userRepository.findByEmail(authenticatedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + authenticatedEmail));
+        Hermandad hermandad = user.getHermandad();
+        if (hermandad == null) {
+            throw new IllegalStateException("El usuario no pertenece a ninguna hermandad");
+        }
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR);
+        if (!isAdmin) {
+            throw new AccessDeniedException("Solo el administrador puede eliminar la hermandad");
+        }
+        deleteHermandadCascade(hermandad);
+    }
+
+    /** Removes a hermandad and every record that depends on it in a deterministic order. */
+    public void deleteHermandadCascade(Hermandad hermandad) {
+        Integer hermandadId = hermandad.getId();
+        // Wipe operational data first so no row keeps a stale reference once the hermandad is gone.
+        adminChangeRequestRepository.deleteByHermandadId(hermandadId);
+        eventRepository.deleteByHermandadId(hermandadId);
+        userAvatarRepository.deleteByUserHermandadId(hermandadId);
+        userRepository.deleteByHermandadId(hermandadId);
+        hermandadRepository.deleteById(hermandadId);
+        // Force every DELETE to reach the database before the transaction returns.
+        hermandadRepository.flush();
     }
 
     private Hermandad resolveHermandad(String authenticatedEmail) {

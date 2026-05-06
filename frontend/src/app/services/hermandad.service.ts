@@ -17,4 +17,8 @@ export class HermandadService {
   updateCurrent(request: HermandadUpdateRequest): Observable<HermandadResponse> {
     return this.http.put<HermandadResponse>(`${this.baseUrl}/me`, request);
   }
+
+  deleteCurrent(): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/me`);
+  }
 }

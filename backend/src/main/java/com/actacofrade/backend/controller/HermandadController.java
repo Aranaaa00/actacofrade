@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,5 +37,12 @@ public class HermandadController {
     public ResponseEntity<HermandadResponse> updateCurrent(@Valid @RequestBody HermandadUpdateRequest request,
                                                            @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(hermandadService.updateCurrent(request, userDetails.getUsername()));
+    }
+
+    @DeleteMapping("/me")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public ResponseEntity<Void> deleteCurrent(@AuthenticationPrincipal UserDetails userDetails) {
+        hermandadService.deleteCurrent(userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }

@@ -44,6 +44,11 @@ export class AuthService {
     );
   }
 
+  // Lists existing hermandades so non-admin users can pick theirs at registration.
+  listHermandades(): Observable<{ id: number; nombre: string }[]> {
+    return this.http.get<{ id: number; nombre: string }[]>(`${this.baseUrl}/hermandades`);
+  }
+
   // Removes both token and user payload from local storage.
   logout(): void {
     this.storage.removeItem(this.tokenKey);

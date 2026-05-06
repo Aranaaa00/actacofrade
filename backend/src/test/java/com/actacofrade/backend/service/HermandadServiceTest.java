@@ -5,8 +5,10 @@ import com.actacofrade.backend.dto.HermandadUpdateRequest;
 import com.actacofrade.backend.entity.Hermandad;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import com.actacofrade.backend.repository.AdminChangeRequestRepository;
 import com.actacofrade.backend.repository.EventRepository;
 import com.actacofrade.backend.repository.HermandadRepository;
+import com.actacofrade.backend.repository.UserAvatarRepository;
 import com.actacofrade.backend.repository.UserRepository;
 import com.actacofrade.backend.support.TestFixtures;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +29,8 @@ class HermandadServiceTest {
     @Mock private HermandadRepository hermandadRepository;
     @Mock private UserRepository userRepository;
     @Mock private EventRepository eventRepository;
+    @Mock private UserAvatarRepository userAvatarRepository;
+    @Mock private AdminChangeRequestRepository adminChangeRequestRepository;
 
     private HermandadService service;
 
@@ -35,7 +39,8 @@ class HermandadServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new HermandadService(hermandadRepository, userRepository, eventRepository);
+        service = new HermandadService(hermandadRepository, userRepository, eventRepository,
+                userAvatarRepository, adminChangeRequestRepository);
         hermandad = TestFixtures.hermandad(1, "Original");
         admin = TestFixtures.user(1, "admin@e.com", hermandad, RoleCode.ADMINISTRADOR);
     }

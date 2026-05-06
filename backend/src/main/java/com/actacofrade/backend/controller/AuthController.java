@@ -1,6 +1,7 @@
 package com.actacofrade.backend.controller;
 
 import com.actacofrade.backend.dto.AuthResponse;
+import com.actacofrade.backend.dto.HermandadOption;
 import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
 import com.actacofrade.backend.security.LoginRateLimiter;
@@ -21,7 +22,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -53,6 +57,14 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Listar hermandades disponibles",
+            description = "Devuelve la lista de hermandades existentes para que un usuario no administrador pueda seleccionar la suya en el registro.")
+    @ApiResponse(responseCode = "200", description = "Lista de hermandades")
+    @GetMapping("/hermandades")
+    public ResponseEntity<List<HermandadOption>> listHermandades() {
+        return ResponseEntity.ok(authService.listHermandades());
     }
 
     @Operation(summary = "Iniciar sesión", description = "Autentica con email y contraseña y devuelve un JWT.")

@@ -1,6 +1,7 @@
 package com.actacofrade.backend.service;
 
 import com.actacofrade.backend.dto.AuthResponse;
+import com.actacofrade.backend.dto.HermandadOption;
 import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
 import com.actacofrade.backend.entity.Hermandad;
@@ -55,8 +56,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
-        String email = request.email().trim().toLowerCase();
+    public AuthResponse register(RegisterRequest request) {        String email = request.email().trim().toLowerCase();
         log.info("Intento de registro para email: {}", email);
 
         if (userRepository.existsByEmail(email)) {
@@ -102,6 +102,13 @@ public class AuthService {
 
         return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandad.getNombre(),
                 userAvatarRepository.existsByUserId(user.getId()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<HermandadOption> listHermandades() {
+        return hermandadRepository.findAllByOrderByNombreAsc().stream()
+                .map(h -> new HermandadOption(h.getId(), h.getNombre()))
+                .toList();
     }
 
     @Transactional
