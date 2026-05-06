@@ -37,7 +37,7 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         title: pageTitle('Panel'),
-        data: { description: 'Resumen de actos, alertas y tareas pendientes.' },
+        data: { description: 'Resumen de actos, alertas y acciones pendientes.' },
         canActivate: [roleGuard(ROLES_ALL)],
         loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard)
       },

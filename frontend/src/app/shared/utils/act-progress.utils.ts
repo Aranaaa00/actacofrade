@@ -2,7 +2,6 @@ import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 
-// progress weights mapped per status, used to turn a list of items into a percent
 const TASK_PROGRESS_WEIGHTS: Record<string, number> = {
   'PLANNED': 0,
   'ACCEPTED': 0.25,
@@ -47,7 +46,6 @@ export function calculateActProgress(
   decisions: DecisionResponse[],
   incidents: IncidentResponse[]
 ): ActProgress {
-  // weighted average of every action so the same scale works for tasks, decisions and incidents
   const total = tasks.length + decisions.length + incidents.length;
   if (total === 0) {
     return { total: 0, pending: 0, percent: 0 };
@@ -63,6 +61,8 @@ export function calculateActProgress(
   const percent = (sum / total) * 100;
   return { total, pending, percent };
 }
+
+export { isTaskPending, isDecisionPending, isIncidentPending };
 
 // Returns a friendly progress message tailored to the completion percentage.
 export function getProgressMessage(percent: number, total: number): string {
@@ -88,10 +88,7 @@ export function getPendingActionsText(pending: number): string {
   if (pending <= 0) {
     return 'Sin acciones pendientes';
   }
-  if (pending === 1) {
-    return 'Queda 1 acción';
-  }
-  return `Quedan ${pending} acciones`;
+  return `Quedan ${pending} acciones pendientes`;
 }
 
 export interface ActProgressStep {
@@ -112,7 +109,6 @@ const PROGRESS_STEPS: ReadonlyArray<{ key: string; label: string; threshold: num
 
 // Builds the four-step model used by the visual progress bar.
 export function buildProgressSteps(percent: number): ActProgressStep[] {
-  // turn the percent value into a list of steps with partial connectors for the timeline
   return PROGRESS_STEPS.map((s, i) => {
     const next = PROGRESS_STEPS[i + 1];
     let connectorFill = 0;
