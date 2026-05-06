@@ -233,7 +233,7 @@
   }
 
   & .act-card__step-bar {
-    background-color: rgba(255, 255, 255, 0.3);
+    background-color: var(--text-on-dark-disabled);
   }
 
   & .act-card__step--done .act-card__step-bar {
@@ -241,7 +241,7 @@
   }
 
   & .act-card__step-gem lucide-icon {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-on-dark-disabled);
   }
 
   & .act-card__step--done .act-card__step-gem lucide-icon {

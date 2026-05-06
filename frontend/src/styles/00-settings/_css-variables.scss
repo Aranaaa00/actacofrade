@@ -96,4 +96,15 @@
   --shadow-md: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
   --overlay-soft: rgba(0, 0, 0, 0.15);
+  --overlay-strong: rgba(0, 0, 0, 0.25);
+  --overlay-avatar: rgba(13, 13, 13, 0.7);
+
+  // Inverse surface interactive states
+  --surface-inverse-hover: rgba(255, 255, 255, 0.08);
+  --surface-inverse-active: rgba(255, 255, 255, 0.12);
+  --surface-inverse-divider: rgba(255, 255, 255, 0.1);
+  --text-on-dark-disabled: rgba(255, 255, 255, 0.3);
+
+  // Highlight pulse
+  --highlight-pulse: rgba(255, 215, 0, 0.35);
 }

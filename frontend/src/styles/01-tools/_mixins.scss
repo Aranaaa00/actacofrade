@@ -25,6 +25,12 @@
   }
 }
 
+@mixin until-tablet {
+  @media (max-width: ($breakpoint-tablet - 0.0625rem)) {
+    @content;
+  }
+}
+
 // Typography
 @mixin heading($size) {
   font-family: $font-heading;
