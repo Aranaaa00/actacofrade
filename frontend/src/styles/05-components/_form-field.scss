@@ -1,12 +1,34 @@
 @use '../00-settings/variables' as *;
 
+// Angular component host element. Without explicit display/min-width
+// it behaves as inline by default and ignores flex shrinking, which
+// breaks every form row that places <app-form-field> as direct flex/grid
+// child (the inner .form-field class is NOT a direct child).
+app-form-field {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+// Same applies to other custom inputs slotted into form fields.
+app-datepicker {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
 // Form layout
 .form {
   display: flex;
   flex-direction: column;
   gap: $space-16;
   margin-top: $space-24;
+  width: 100%;
   max-width: 36rem;
+  // Allow this form to shrink correctly when nested in flex parents
+  min-width: 0;
 }
 
 // Field wrapper: label + input + error message
@@ -14,6 +36,9 @@
   display: flex;
   flex-direction: column;
   gap: $space-4;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .form-field__label {
@@ -22,17 +47,34 @@
   color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  // Prevent very long labels from forcing horizontal overflow
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
+// Error messages must NEVER alter input/field width.
+// They flow below the input, wrap on word boundaries, and break long
+// unbreakable tokens (URLs, emails) so they cannot widen the column.
 .form-field__error {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   font-size: $text-meta;
+  line-height: 1.4;
   color: var(--border-error);
-  min-height: 1rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  hyphens: auto;
 }
 
 .form-field__hint {
+  display: block;
+  width: 100%;
   font-size: $text-meta;
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .form-field--error input,
@@ -44,6 +86,7 @@
 // Form actions: submit + cancel buttons
 .form__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: $space-12;
   margin-top: $space-8;
 }

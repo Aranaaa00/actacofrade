@@ -1,16 +1,13 @@
 import { FormGroup } from '@angular/forms';
 
 // True when the field should display its validation error in the UI.
+// Errors are revealed as soon as the control is touched/dirty (real-time UX),
+// or unconditionally after a submit attempt.
 export function hasFieldError(form: FormGroup, field: string, submitted?: boolean): boolean {
   const control = form.get(field);
   let showError = false;
   if (control && control.invalid) {
-    if (submitted !== undefined) {
-      const isRequired = !!control.errors?.['required'];
-      showError = isRequired ? submitted : (control.dirty || control.touched);
-    } else {
-      showError = control.touched;
-    }
+    showError = !!submitted || control.dirty || control.touched;
   }
   return showError;
 }
