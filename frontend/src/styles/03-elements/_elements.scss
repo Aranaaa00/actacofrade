@@ -62,6 +62,10 @@ select {
   @include transition(border-color, background-color);
   display: block;
   width: 100%;
+  // Critical for flex children: lets the field shrink below its
+  // intrinsic content width instead of forcing the parent to grow.
+  min-width: 0;
+  max-width: 100%;
   height: $size-input-height;
   padding: $space-8 $space-12;
   background-color: var(--input-bg);
@@ -69,6 +73,9 @@ select {
   border-bottom: $border-1 solid var(--border-default);
   font-size: $text-body;
   color: var(--input-text);
+  // Stop browsers (especially iOS Safari) from auto-zooming when the
+  // input is focused on small screens, which visually rescales the layout.
+  font-size: max(1rem, #{$text-body});
 
   &::placeholder {
     color: var(--input-placeholder);
@@ -95,6 +102,9 @@ textarea {
   height: auto;
   min-height: 6rem;
   resize: vertical;
+  // Long unbreakable content must not push the layout horizontally.
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 select {

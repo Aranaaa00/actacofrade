@@ -4,7 +4,10 @@
 // Shell: sidebar + main area
 .app-shell {
   display: flex;
+  width: 100%;
   height: 100dvh;
+  // Prevent the whole shell from ever overflowing horizontally; the
+  // main content area handles its own vertical scroll.
   overflow: hidden;
 }
 
@@ -20,25 +23,38 @@
   }
 }
 
-// Main navigation sidebar
+// Main navigation sidebar.
+// Width is fluid: capped at 16rem but never exceeds 85vw, so on very
+// narrow viewports or at high browser zoom (where the effective viewport
+// shrinks) the sidebar still leaves room for the close overlay/content.
 .sidebar {
   position: fixed;
   inset-block: 0;
   inset-inline-start: 0;
   display: flex;
   flex-direction: column;
-  width: 16rem;
+  width: min(16rem, 85vw);
+  max-width: 100%;
   background-color: var(--nav-bg);
   color: var(--text-on-dark);
   transform: translateX(-100%);
+  // Allow internal scrolling when content (nav + footer) exceeds height,
+  // e.g. at high zoom or short viewports.
+  overflow-y: auto;
+  overscroll-behavior: contain;
   z-index: 95;
 
   @include from-desktop {
     position: sticky;
     top: 0;
     height: 100vh;
+    width: min(16rem, 25vw);
     transform: none;
     flex-shrink: 0;
+  }
+
+  @include from-wide {
+    width: 16rem;
   }
 
   &--open {
