@@ -1,12 +1,20 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  inject,
+} from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { APP_ESCAPE_EVENT } from '../../services/browser.service';
+import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
 
-// Reusable modal frame: closes on overlay click and on the global escape event.
 @Component({
   selector: 'app-modal-overlay',
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, ModalA11yDirective],
   templateUrl: './modal-overlay.html',
 })
 export class ModalOverlay implements OnInit {
@@ -25,7 +33,6 @@ export class ModalOverlay implements OnInit {
     });
   }
 
-  // Closes the modal when the user releases overlay click on the backdrop.
   onOverlayClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-overlay')) {
       this.closed.emit();
@@ -36,3 +43,4 @@ export class ModalOverlay implements OnInit {
     this.closed.emit();
   };
 }
+
