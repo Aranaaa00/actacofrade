@@ -34,7 +34,7 @@
     <app-banner type="info" styleClass="act-detail__alert">
       <lucide-icon name="triangle-alert" class="act-detail__alert-icon" [size]="20" aria-hidden="true"></lucide-icon>
       <span class="act-detail__alert-text">{{ pendingActionsText }}<span class="act-detail__alert-suffix"> — Revisar antes del cierre</span></span>
-      <a class="act-detail__alert-link" (click)="selectedTab = 'Tareas'">Ver pendientes →</a>
+      <a class="act-detail__alert-link" (click)="goToFirstPendingAction()">Ver pendientes →</a>
     </app-banner>
   }
 
@@ -73,7 +73,9 @@
             </thead>
             <tbody class="table__body">
               @for (task of tasks; track task.id) {
-                <tr [class.act-detail__row--rejected]="task.status === 'REJECTED'">
+                <tr [attr.id]="'task-' + task.id"
+                    [class.act-detail__row--rejected]="task.status === 'REJECTED'"
+                    [class.act-detail__row--highlighted]="highlightedRowId === 'task-' + task.id">
                   <td>
                     <strong class="act-detail__task-title">{{ task.title }}</strong>
                     @if (task.status === 'REJECTED' && task.rejectionReason) {
@@ -160,7 +162,8 @@
             </thead>
             <tbody class="table__body">
               @for (decision of decisions; track decision.id) {
-                <tr>
+                <tr [attr.id]="'decision-' + decision.id"
+                    [class.act-detail__row--highlighted]="highlightedRowId === 'decision-' + decision.id">
                   <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
                   <td data-label="Revisado por">{{ decision.reviewedByName || '—' }}</td>
                   <td data-label="Estado"><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
@@ -204,7 +207,8 @@
             </thead>
             <tbody class="table__body">
               @for (incident of incidents; track incident.id) {
-                <tr>
+                <tr [attr.id]="'incident-' + incident.id"
+                    [class.act-detail__row--highlighted]="highlightedRowId === 'incident-' + incident.id">
                   <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
                   <td data-label="Reportado por">{{ incident.reportedByName || '—' }}</td>
                   <td data-label="Estado"><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>

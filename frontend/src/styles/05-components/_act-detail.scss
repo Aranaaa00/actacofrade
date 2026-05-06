@@ -341,6 +341,15 @@
   }
 }
 
+.act-detail__row--highlighted {
+  animation: act-detail-row-highlight 2.5s ease-out;
+}
+
+@keyframes act-detail-row-highlight {
+  0% { background-color: var(--surface-accent, rgba(255, 215, 0, 0.35)); }
+  100% { background-color: transparent; }
+}
+
 .act-detail__row-actions {
   display: flex;
   align-items: center;

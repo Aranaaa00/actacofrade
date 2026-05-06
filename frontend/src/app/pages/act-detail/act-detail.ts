@@ -37,7 +37,8 @@ import {
 import { formatDate, formatDateTime } from '../../shared/utils/date.utils';
 import {
   calculateActProgress, getProgressMessage, getPendingActionsText,
-  buildProgressSteps, ActProgressStep
+  buildProgressSteps, ActProgressStep,
+  isTaskPending, isDecisionPending, isIncidentPending
 } from '../../shared/utils/act-progress.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
@@ -156,6 +157,53 @@ export class ActDetail implements OnInit {
     return this.pendingActionsCount > 0;
   }
 
+  highlightedRowId: string | null = null;
+  private highlightTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  goToFirstPendingAction(): void {
+    const userId = this.auth.getUserId();
+    if (userId === null) {
+      return;
+    }
+
+    const task = this.tasks.find(t => t.assignedToId === userId && isTaskPending(t.status));
+    if (task) {
+      this.focusAction('Tareas', `task-${task.id}`);
+      return;
+    }
+
+    const decision = this.decisions.find(d => d.reviewedById === userId && isDecisionPending(d.status));
+    if (decision) {
+      this.focusAction('Decisiones', `decision-${decision.id}`);
+      return;
+    }
+
+    const incident = this.incidents.find(i => i.reportedById === userId && isIncidentPending(i.status));
+    if (incident) {
+      this.focusAction('Incidencias', `incident-${incident.id}`);
+      return;
+    }
+
+    this.toast.info('No tienes acciones pendientes asignadas en este acto.');
+  }
+
+  private focusAction(tab: string, rowId: string): void {
+    this.selectedTab = tab;
+    this.highlightedRowId = rowId;
+    if (this.highlightTimeout) {
+      clearTimeout(this.highlightTimeout);
+    }
+    setTimeout(() => {
+      const el = this.document.getElementById(rowId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 0);
+    this.highlightTimeout = setTimeout(() => {
+      this.highlightedRowId = null;
+      this.highlightTimeout = null;
+    }, 2500);
+  }
 
   ngOnInit(): void {
     this.eventId = Number(this.route.snapshot.paramMap.get('id'));
