@@ -1,5 +1,5 @@
 @if (show && user) {
-  <aside class="modal-overlay" role="presentation" (click)="onCancel()">
+  <aside class="modal-overlay" appModalA11y role="presentation" (click)="onCancel()" (keydown.escape)="onCancel()">
     <article class="modal" role="dialog" aria-modal="true" aria-labelledby="editUserTitle" (click)="$event.stopPropagation()">
       <header class="modal__header">
         <h2 id="editUserTitle" class="modal__title">Editar usuario</h2>

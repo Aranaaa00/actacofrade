@@ -1,21 +1,23 @@
 @if (show) {
-  <aside class="modal-overlay" (click)="onCancel()">
-    <article class="modal" (click)="$event.stopPropagation()" role="dialog" aria-label="Rechazar tarea">
+  <section class="modal-overlay" appModalA11y role="presentation" (click)="onCancel()" (keydown.escape)="onCancel()">
+    <article class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="rejectModalTitle">
       <header class="modal__header">
-        <h2 class="modal__title">Rechazar tarea</h2>
+        <h2 id="rejectModalTitle" class="modal__title">Rechazar tarea</h2>
         <button class="modal__close" type="button" (click)="onCancel()" aria-label="Cerrar">
-          <lucide-icon name="x" [size]="20"></lucide-icon>
+          <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
         </button>
       </header>
       <section class="modal__body">
-        <fieldset class="form-field">
+        <fieldset class="form-field" [class.form-field--error]="submitted && !reason.trim()">
           <label class="form-field__label" for="rejectionReason">Motivo</label>
           <textarea id="rejectionReason" class="input" rows="3"
             [(ngModel)]="reason"
             maxlength="500"
+            [attr.aria-invalid]="submitted && !reason.trim() ? 'true' : null"
+            [attr.aria-describedby]="submitted && !reason.trim() ? 'rejectionReason-error' : null"
             placeholder="Indica el motivo del rechazo…"></textarea>
           @if (submitted && !reason.trim()) {
-            <small class="form-field__error" role="alert">El motivo es obligatorio</small>
+            <small id="rejectionReason-error" class="form-field__error" role="alert">El motivo es obligatorio</small>
           }
         </fieldset>
       </section>
@@ -26,5 +28,5 @@
           (click)="onConfirm()">Rechazar</button>
       </footer>
     </article>
-  </aside>
+  </section>
 }

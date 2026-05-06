@@ -1,5 +1,5 @@
 @if (show && user) {
-  <section class="modal-overlay profile-modal__overlay" role="presentation" (click)="onCancel()">
+  <section class="modal-overlay profile-modal__overlay" appModalA11y role="presentation" (click)="onCancel()" (keydown.escape)="onCancel()">
     <article class="modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" (click)="$event.stopPropagation()">
       <header class="modal__header profile-modal__header">
         <h2 id="profileModalTitle" class="modal__title">Mi perfil</h2>
@@ -11,7 +11,7 @@
       <section class="profile-modal__body">
 
         <section class="profile-modal__avatar-panel" aria-label="Foto de perfil">
-          <div class="profile-modal__avatar-zone"
+          <figure class="profile-modal__avatar-zone"
                [class.profile-modal__avatar-zone--drag]="dragOver()"
                (dragover)="onDragOver($event)"
                (dragleave)="onDragLeave($event)"
@@ -26,16 +26,16 @@
               <span>Subir foto</span>
               <input class="profile-modal__avatar-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif" (change)="onFileSelected($event)">
             </label>
-          </div>
+          </figure>
           <p class="profile-modal__avatar-hint">PNG, JPG, WEBP o GIF · máx. 2 MB</p>
-          <div class="profile-modal__avatar-actions">
+          <menu class="profile-modal__avatar-actions">
             @if (hasPendingFile()) {
               <button class="button button--primary profile-modal__btn" type="button" [disabled]="avatarSaving()" (click)="onConfirmAvatar()">Guardar foto</button>
               <button class="button button--secondary profile-modal__btn" type="button" [disabled]="avatarSaving()" (click)="onDiscardAvatar()">Descartar</button>
             } @else if (user.hasAvatar) {
               <button class="button button--danger profile-modal__btn" type="button" [disabled]="avatarSaving()" (click)="onDeleteAvatar()">Eliminar foto</button>
             }
-          </div>
+          </menu>
         </section>
 
         <section class="profile-modal__forms">
@@ -57,9 +57,9 @@
               }
             </fieldset>
 
-            <div class="profile-modal__form-actions">
+            <footer class="profile-modal__form-actions">
               <button class="button button--primary profile-modal__btn" type="submit" [disabled]="profileForm.invalid || profileSaving()">Guardar cambios</button>
-            </div>
+            </footer>
           </form>
 
           <form class="profile-modal__form profile-modal__form--password" [formGroup]="passwordForm" (ngSubmit)="onSavePassword()" novalidate>
@@ -95,13 +95,13 @@
               <small class="form-field__error" role="alert">La nueva contraseña debe ser distinta de la actual</small>
             }
 
-            <div class="profile-modal__form-actions profile-modal__form-actions--split">
+            <footer class="profile-modal__form-actions profile-modal__form-actions--split">
               <button class="profile-modal__delete" type="button" [disabled]="accountDeleting()" (click)="onRequestDeleteAccount()">
                 <span class="profile-modal__delete-marker" aria-hidden="true"></span>
                 <span class="profile-modal__delete-label">{{ accountDeleting() ? 'eliminando cuenta…' : 'eliminar mi cuenta' }}</span>
               </button>
               <button class="button button--primary profile-modal__btn" type="submit" [disabled]="passwordForm.invalid || passwordSaving()">Actualizar contraseña</button>
-            </div>
+            </footer>
           </form>
         </section>
 

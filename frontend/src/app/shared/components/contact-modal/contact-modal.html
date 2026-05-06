@@ -1,5 +1,5 @@
 @if (show) {
-  <section class="modal-overlay" role="presentation" (click)="onClose()">
+  <section class="modal-overlay" appModalA11y role="presentation" (click)="onClose()" (keydown.escape)="onClose()">
     <article class="modal contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" (click)="$event.stopPropagation()">
       <header class="modal__header">
         <h2 id="contactModalTitle" class="modal__title">Solicitar cambio de administrador</h2>
@@ -14,10 +14,10 @@
 
       <article class="contact-modal__hermandad" aria-label="Hermandad">
         <lucide-icon name="building-2" class="contact-modal__icon" [size]="22" aria-hidden="true"></lucide-icon>
-        <div class="contact-modal__hermandad-info">
+        <section class="contact-modal__hermandad-info">
           <p class="contact-modal__eyebrow">Hermandad</p>
           <strong class="contact-modal__name">{{ hermandadName || 'Sin hermandad asignada' }}</strong>
-        </div>
+        </section>
       </article>
 
       <form class="contact-modal__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>

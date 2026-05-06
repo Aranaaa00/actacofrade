@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserResponse } from '../../../models/user.model';
+import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
 
 interface RoleOption {
   value: string;
@@ -10,7 +11,7 @@ interface RoleOption {
 
 @Component({
   selector: 'app-edit-user-modal',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, ModalA11yDirective],
   templateUrl: './edit-user-modal.html',
 })
 export class EditUserModal implements OnChanges {

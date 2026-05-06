@@ -8,11 +8,12 @@ import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { hasFieldError, getFieldError } from '../../utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../utils/sanitize.utils';
+import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
 
 // Reusable modal to send an admin change request from the sidebar.
 @Component({
   selector: 'app-contact-modal',
-  imports: [ReactiveFormsModule, LucideAngularModule, FormField],
+  imports: [ReactiveFormsModule, LucideAngularModule, FormField, ModalA11yDirective],
   templateUrl: './contact-modal.html',
 })
 export class ContactModal {

@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
+import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
 
 @Component({
   selector: 'app-reject-modal',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, ModalA11yDirective],
   templateUrl: './reject-modal.html',
 })
 export class RejectModal {
