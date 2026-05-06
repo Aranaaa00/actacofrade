@@ -129,7 +129,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (user of filteredUsers; track user.id) {
+        @for (user of permissionsPageUsers; track user.id) {
           <tr class="users-table__row">
             <td>
               <div class="users-table__user">
@@ -155,6 +155,8 @@
         }
       </tbody>
     </table>
+
+    <app-pagination [currentPage]="permissionsPage" [totalPages]="permissionsTotalPages" (pageChanged)="goToPermissionsPage($event)" />
   </section>
 
   }

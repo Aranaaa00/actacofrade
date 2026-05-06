@@ -66,6 +66,7 @@ export class Users implements OnInit, OnDestroy {
   filterStatus = '';
   searchQuery = '';
   currentPage = 1;
+  permissionsPage = 1;
   processingUserId: number | null = null;
 
   showEditModal = false;
@@ -84,6 +85,7 @@ export class Users implements OnInit, OnDestroy {
     ).subscribe((query) => {
       this.searchQuery = sanitizeText(query);
       this.currentPage = 1;
+      this.permissionsPage = 1;
     });
     this.loadData();
   }
@@ -118,6 +120,15 @@ export class Users implements OnInit, OnDestroy {
     return this.filteredUsers.slice(start, start + this.pageSize);
   }
 
+  get permissionsTotalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredUsers.length / this.pageSize));
+  }
+
+  get permissionsPageUsers(): UserResponse[] {
+    const start = (this.permissionsPage - 1) * this.pageSize;
+    return this.filteredUsers.slice(start, start + this.pageSize);
+  }
+
   get activeRoleLabel(): string {
     return this.filterRole ? ROLE_LABELS[this.filterRole] : 'Rol';
   }
@@ -143,6 +154,7 @@ export class Users implements OnInit, OnDestroy {
       this.filterStatus = value;
     }
     this.currentPage = 1;
+    this.permissionsPage = 1;
     this.openDropdown = null;
   }
 
@@ -155,12 +167,19 @@ export class Users implements OnInit, OnDestroy {
     this.filterStatus = '';
     this.searchQuery = '';
     this.currentPage = 1;
+    this.permissionsPage = 1;
     this.openDropdown = null;
   }
 
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+    }
+  }
+
+  goToPermissionsPage(page: number): void {
+    if (page >= 1 && page <= this.permissionsTotalPages) {
+      this.permissionsPage = page;
     }
   }
 
@@ -248,6 +267,9 @@ export class Users implements OnInit, OnDestroy {
         this.refreshStats();
         if (this.currentPage > this.totalPages) {
           this.currentPage = this.totalPages;
+        }
+        if (this.permissionsPage > this.permissionsTotalPages) {
+          this.permissionsPage = this.permissionsTotalPages;
         }
         this.toast.success('Usuario eliminado correctamente.');
       },
