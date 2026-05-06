@@ -1,13 +1,17 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Popup window for confirmation or quick forms
+body.modal-open {
+  overflow: hidden;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  padding: $space-16;
+  padding: max($space-16, env(safe-area-inset-top)) max($space-16, env(safe-area-inset-right))
+           max($space-16, env(safe-area-inset-bottom)) max($space-16, env(safe-area-inset-left));
   overflow-y: auto;
   background-color: var(--overlay-modal);
   z-index: 100;
@@ -19,7 +23,7 @@
 
 .modal {
   background-color: var(--bg-surface);
-  width: 100%;
+  width: min(32rem, 100%);
   max-width: 32rem;
   padding: $space-16;
 

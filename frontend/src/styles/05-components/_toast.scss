@@ -27,11 +27,11 @@ $toast-fibre:
 @mixin toast-roll($side) {
   content: '';
   position: absolute;
-  top: -1px;
-  bottom: -1px;
-  #{$side}: -4px;
-  width: 9px;
-  border-radius: 2px;
+  top: -0.0625rem;
+  bottom: -0.0625rem;
+  #{$side}: -0.25rem;
+  width: 0.5625rem;
+  border-radius: 0.125rem;
   pointer-events: none;
   background: linear-gradient(
     90deg,
@@ -44,9 +44,9 @@ $toast-fibre:
     $toast-paper-edge 100%
   );
   box-shadow:
-    0 2px 3px -1px rgba($toast-ink, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -1px 0 rgba($toast-ink, 0.22);
+    0 0.125rem 0.1875rem -0.0625rem rgba($toast-ink, 0.28),
+    inset 0 0.0625rem 0 rgba(255, 255, 255, 0.4),
+    inset 0 -0.0625rem 0 rgba($toast-ink, 0.22);
 }
 
 // =============================================================================
@@ -83,8 +83,8 @@ $toast-fibre:
   &__parchment {
     position: relative;
     overflow: hidden;
-    border: 1px solid $toast-rule;
-    border-radius: 2px;
+    border: 0.0625rem solid $toast-rule;
+    border-radius: 0.125rem;
     // Layered realism: highlight wash + edge vignette + warm body + paper fibre.
     background-color: $toast-paper-base;
     background-image:
@@ -106,15 +106,15 @@ $toast-fibre:
       ),
       $toast-fibre,
       linear-gradient(180deg, $toast-paper-base 0%, $toast-paper-mid 100%);
-    background-size: auto, auto, auto, 240px 240px, auto;
+    background-size: auto, auto, auto, 15rem 15rem, auto;
     background-blend-mode: normal, normal, normal, multiply, normal;
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.55) inset,
-      0 -1px 0 rgba($toast-paper-edge, 0.25) inset,
-      inset  6px 0 6px -6px rgba($toast-paper-edge, 0.45),
-      inset -6px 0 6px -6px rgba($toast-paper-edge, 0.45),
-      0 6px 14px -8px rgba($toast-ink, 0.35),
-      0 2px 4px -2px rgba($toast-ink, 0.18);
+      0 0.0625rem 0 rgba(255, 255, 255, 0.55) inset,
+      0 -0.0625rem 0 rgba($toast-paper-edge, 0.25) inset,
+      inset  0.375rem 0 0.375rem -0.375rem rgba($toast-paper-edge, 0.45),
+      inset -0.375rem 0 0.375rem -0.375rem rgba($toast-paper-edge, 0.45),
+      0 0.375rem 0.875rem -0.5rem rgba($toast-ink, 0.35),
+      0 0.125rem 0.25rem -0.125rem rgba($toast-ink, 0.18);
   }
 
   // ---------------------------------------------------------------------------
@@ -125,6 +125,7 @@ $toast-fibre:
     display: flex;
     align-items: flex-start;
     gap: $space-12;
+    margin: 0;
     padding: $space-12 $space-16;
   }
 
@@ -190,7 +191,7 @@ $toast-fibre:
     &:focus-visible {
       outline: none;
       color: $toast-ink;
-      box-shadow: 0 0 0 2px rgba($toast-paper-edge, 0.85);
+      box-shadow: 0 0 0 0.125rem rgba($toast-paper-edge, 0.85);
     }
   }
 

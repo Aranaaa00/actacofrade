@@ -108,12 +108,12 @@
   min-height: 3rem;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--surface-inverse-hover);
     color: var(--text-on-dark);
   }
 
   &--active {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: var(--surface-inverse-active);
     color: var(--nav-active);
     border-inline-start-color: var(--nav-active);
   }
@@ -160,23 +160,23 @@
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: var(--surface-inverse-hover);
     color: var(--text-on-dark);
   }
 
   &--active {
     color: var(--nav-active);
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: var(--surface-inverse-active);
     border-inline-start-color: var(--nav-active);
   }
 
   &--disabled {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-on-dark-disabled);
     cursor: default;
 
     &:hover {
       background-color: transparent;
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--text-on-dark-disabled);
     }
   }
 }
@@ -186,7 +186,7 @@
   align-items: center;
   gap: $space-12;
   padding: $space-16 $space-24;
-  border-top: $border-1 solid rgba(255, 255, 255, 0.1);
+  border-top: $border-1 solid var(--surface-inverse-divider);
 }
 
 .sidebar__avatar {
@@ -235,7 +235,14 @@
   display: flex;
   align-items: center;
   gap: $space-4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   flex-shrink: 0;
+
+  & > li {
+    display: contents;
+  }
 }
 
 .sidebar__edit-profile {
@@ -258,7 +265,7 @@
 
   &:hover {
     color: var(--nav-active);
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: var(--surface-inverse-active);
   }
 }
 
@@ -315,7 +322,7 @@
   color: var(--text-on-dark);
   background-color: var(--nav-bg);
   border-radius: 50%;
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.25);
+  box-shadow: 0 0.25rem 0.75rem var(--overlay-strong);
   cursor: pointer;
 
   // Floats bottom-left on mobile/tablet to avoid clutter

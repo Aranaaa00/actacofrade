@@ -134,6 +134,7 @@
   flex-direction: column;
   gap: $space-4;
   min-width: 0;
+  font-style: normal;
 }
 
 .users-table__name {
@@ -157,6 +158,9 @@
   display: flex;
   gap: $space-16;
   flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .users-table__action {

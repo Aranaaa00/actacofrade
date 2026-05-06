@@ -256,10 +256,10 @@
 
 .settings__danger-marker {
   display: inline-block;
-  width: 3px;
+  width: 0.1875rem;
   height: 0.95em;
   background-color: var(--btn-danger-bg);
-  border-radius: 1px;
+  border-radius: 0.0625rem;
 }
 
 .settings__danger-title {
@@ -303,7 +303,7 @@
 
 .settings__danger-action-label {
   border-bottom: $border-1 dashed currentColor;
-  padding-bottom: 2px;
+  padding-bottom: 0.125rem;
 }
 
 .settings__danger-action:hover:not(:disabled) {
@@ -314,7 +314,7 @@
   }
 
   .settings__danger-action-arrow {
-    transform: translateX(3px);
+    transform: translateX(0.1875rem);
   }
 }
 
