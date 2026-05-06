@@ -12,6 +12,7 @@ import { FormField } from '../../shared/components/form-field/form-field';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeText } from '../../shared/utils/sanitize.utils';
+import { AREA_OPTIONS } from '../../shared/constants/areas.const';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -51,13 +52,7 @@ export class ElementForm implements OnInit {
   activeTab: ElementTab = 'task';
   loading = false;
 
-  readonly areaOptions = [
-    { value: 'MAYORDOMIA', label: 'Mayordomía' },
-    { value: 'SECRETARIA', label: 'Secretaría' },
-    { value: 'PRIOSTIA', label: 'Priostía' },
-    { value: 'TESORERIA', label: 'Tesorería' },
-    { value: 'DIPUTACION_MAYOR', label: 'Diputación Mayor' }
-  ];
+  readonly areaOptions = AREA_OPTIONS;
 
   get isEditMode(): boolean {
     return this.editData !== null;
