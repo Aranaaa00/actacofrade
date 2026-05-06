@@ -19,8 +19,12 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { ProfileService } from '../../../services/profile.service';
+import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
+import { ConfirmDialog } from '../confirm-dialog/confirm-dialog';
 import { AuthResponse } from '../../../models/auth.model';
 import { passwordStrength } from '../../validators/password-strength.validator';
 import { sanitizeText, noHtmlValidator } from '../../utils/sanitize.utils';
@@ -38,7 +42,7 @@ const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 @Component({
   selector: 'app-profile-modal',
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, ConfirmDialog],
   templateUrl: './profile-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -50,6 +54,9 @@ export class ProfileModal implements OnChanges {
 
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   readonly profileForm: FormGroup = this.fb.nonNullable.group({
     fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150), Validators.pattern(NAME_PATTERN), noHtmlValidator()]],
@@ -68,8 +75,8 @@ export class ProfileModal implements OnChanges {
   readonly profileSaving = signal(false);
   readonly passwordSaving = signal(false);
   readonly avatarSaving = signal(false);
-  readonly errorMessage = signal('');
-  readonly successMessage = signal('');
+  readonly accountDeleting = signal(false);
+  readonly showDeleteAccountConfirm = signal(false);
   readonly previewUrl = signal<string | null>(null);
   readonly storedAvatarUrl = signal<string | null>(null);
   readonly dragOver = signal(false);
@@ -102,6 +109,7 @@ export class ProfileModal implements OnChanges {
     // block submission while a previous save is still pending
     if (this.profileForm.invalid || this.profileSaving()) {
       this.profileForm.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de guardar.');
       return;
     }
     // strip html and normalise the email before sending it to the api
@@ -111,17 +119,15 @@ export class ProfileModal implements OnChanges {
       email: sanitizeText(raw.email).toLowerCase(),
     };
     this.profileSaving.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
     this.profileService.updateProfile(payload).subscribe({
       next: (response) => {
         this.profileSaving.set(false);
-        this.successMessage.set('Perfil actualizado correctamente');
+        this.toast.success('Perfil actualizado correctamente.');
         this.emitUpdate({ fullName: response.fullName, email: response.email, hasAvatar: response.hasAvatar });
       },
       error: (err) => {
         this.profileSaving.set(false);
-        this.errorMessage.set(extractError(err));
+        this.toast.fromHttpError(err, 'No se pudo actualizar el perfil. Inténtalo de nuevo.');
       },
     });
   }
@@ -129,24 +135,23 @@ export class ProfileModal implements OnChanges {
   onSavePassword(): void {
     if (this.passwordForm.invalid || this.passwordSaving()) {
       this.passwordForm.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de guardar.');
       return;
     }
     const raw = this.passwordForm.getRawValue() as { currentPassword: string; newPassword: string };
     this.passwordSaving.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
     this.profileService.changePassword({
       currentPassword: raw.currentPassword,
       newPassword: raw.newPassword,
     }).subscribe({
       next: () => {
         this.passwordSaving.set(false);
-        this.successMessage.set('Contraseña actualizada correctamente');
+        this.toast.success('Contraseña actualizada correctamente.');
         this.passwordForm.reset();
       },
       error: (err) => {
         this.passwordSaving.set(false);
-        this.errorMessage.set(extractError(err));
+        this.toast.fromHttpError(err, 'No se pudo actualizar la contraseña. Inténtalo de nuevo.');
       },
     });
   }
@@ -186,19 +191,17 @@ export class ProfileModal implements OnChanges {
       return;
     }
     this.avatarSaving.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
     this.profileService.uploadAvatar(this.pendingFile).subscribe({
       next: (response) => {
         this.avatarSaving.set(false);
-        this.successMessage.set('Foto de perfil actualizada');
+        this.toast.success('Foto de perfil actualizada.');
         this.clearPreview();
         this.emitUpdate({ hasAvatar: response.hasAvatar });
         this.refreshStoredAvatar();
       },
       error: (err) => {
         this.avatarSaving.set(false);
-        this.errorMessage.set(extractError(err));
+        this.toast.fromHttpError(err, 'No se pudo subir la foto. Inténtalo de nuevo.');
       },
     });
   }
@@ -212,17 +215,49 @@ export class ProfileModal implements OnChanges {
       return;
     }
     this.avatarSaving.set(true);
-    this.errorMessage.set('');
     this.profileService.deleteAvatar().subscribe({
       next: () => {
         this.avatarSaving.set(false);
-        this.successMessage.set('Foto de perfil eliminada');
+        this.toast.success('Foto de perfil eliminada.');
         this.revokeStoredAvatar();
         this.emitUpdate({ hasAvatar: false });
       },
       error: (err) => {
         this.avatarSaving.set(false);
-        this.errorMessage.set(extractError(err));
+        this.toast.fromHttpError(err, 'No se pudo eliminar la foto. Inténtalo de nuevo.');
+      },
+    });
+  }
+
+  onRequestDeleteAccount(): void {
+    if (this.accountDeleting()) {
+      return;
+    }
+    this.showDeleteAccountConfirm.set(true);
+  }
+
+  onCancelDeleteAccount(): void {
+    this.showDeleteAccountConfirm.set(false);
+  }
+
+  onConfirmDeleteAccount(): void {
+    if (this.accountDeleting()) {
+      return;
+    }
+    this.showDeleteAccountConfirm.set(false);
+    this.accountDeleting.set(true);
+    this.profileService.deleteAccount().subscribe({
+      next: () => {
+        // session is invalid once the account is gone: drop credentials and redirect
+        this.accountDeleting.set(false);
+        this.authService.logout();
+        this.toast.success('Cuenta eliminada correctamente.');
+        this.closed.emit();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.accountDeleting.set(false);
+        this.toast.fromHttpError(err, 'No se pudo eliminar la cuenta. Inténtalo de nuevo.');
       },
     });
   }
@@ -259,14 +294,12 @@ export class ProfileModal implements OnChanges {
   }
 
   private handleFile(file: File): void {
-    this.errorMessage.set('');
-    this.successMessage.set('');
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-      this.errorMessage.set('Tipo de archivo no permitido. Usa PNG, JPG, WEBP o GIF.');
+      this.toast.warning('Tipo de archivo no permitido. Usa PNG, JPG, WEBP o GIF.');
       return;
     }
     if (file.size > MAX_AVATAR_BYTES) {
-      this.errorMessage.set('La imagen supera el tamaño máximo (2 MB).');
+      this.toast.warning('La imagen supera el tamaño máximo (2 MB).');
       return;
     }
     this.clearPreview();
@@ -284,8 +317,6 @@ export class ProfileModal implements OnChanges {
   }
 
   private resetForms(): void {
-    this.errorMessage.set('');
-    this.successMessage.set('');
     this.profileForm.reset({
       fullName: this.user?.fullName ?? '',
       email: this.user?.email ?? '',
@@ -337,9 +368,4 @@ function differentFromCurrent(group: AbstractControl): ValidationErrors | null {
   const current = group.get('currentPassword')?.value;
   const next = group.get('newPassword')?.value;
   return current && next && current === next ? { sameAsCurrent: true } : null;
-}
-
-function extractError(err: unknown): string {
-  const e = err as { error?: { message?: string } };
-  return e?.error?.message ?? 'No se pudo completar la operación. Inténtalo de nuevo.';
 }

@@ -1,29 +1,27 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule } from 'lucide-angular';
-import { Banner } from '../../shared/components/banner/banner';
 import { RequestList } from './request-list/request-list';
 import { RequestDetail } from './request-detail/request-detail';
 import { AdminChangeRequestService } from '../../services/admin-change-request.service';
 import { AdminChangeRequestResponse } from '../../models/admin-change-request.model';
 import { UserResponse } from '../../models/user.model';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
+import { ToastService } from '../../services/toast.service';
 
 // Super admin page: lists requests and handles approve/reject actions.
 @Component({
   selector: 'app-super-admin',
-  imports: [LucideAngularModule, Banner, RequestList, RequestDetail],
+  imports: [LucideAngularModule, RequestList, RequestDetail],
   templateUrl: './super-admin.html',
 })
 export class SuperAdmin implements OnInit {
   private readonly service = inject(AdminChangeRequestService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   loading = true;
   loadingCandidates = false;
   processing = false;
-  errorMessage = '';
-  successMessage = '';
 
   requests: AdminChangeRequestResponse[] = [];
   selected: AdminChangeRequestResponse | null = null;
@@ -39,8 +37,6 @@ export class SuperAdmin implements OnInit {
 
   onSelectRequest(request: AdminChangeRequestResponse): void {
     this.selected = request;
-    this.successMessage = '';
-    this.errorMessage = '';
     if (request.status === 'PENDING') {
       this.loadCandidates(request.id);
     } else {
@@ -54,19 +50,17 @@ export class SuperAdmin implements OnInit {
     }
     const id = this.selected.id;
     this.processing = true;
-    this.errorMessage = '';
-    this.successMessage = '';
     this.service.approve(id, { newAdminUserId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
           this.processing = false;
-          this.successMessage = 'Solicitud aprobada y administrador actualizado.';
+          this.toast.success('Solicitud aprobada y administrador actualizado.');
           this.applyUpdated(updated);
         },
         error: (err) => {
           this.processing = false;
-          this.errorMessage = extractErrorMessage(err, 'No se pudo aprobar la solicitud.');
+          this.toast.fromHttpError(err, 'No se pudo aprobar la solicitud.');
         },
       });
   }
@@ -77,26 +71,23 @@ export class SuperAdmin implements OnInit {
     }
     const id = this.selected.id;
     this.processing = true;
-    this.errorMessage = '';
-    this.successMessage = '';
     this.service.reject(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => {
           this.processing = false;
-          this.successMessage = 'Solicitud rechazada correctamente.';
+          this.toast.success('Solicitud rechazada correctamente.');
           this.applyUpdated(updated);
         },
         error: (err) => {
           this.processing = false;
-          this.errorMessage = extractErrorMessage(err, 'No se pudo rechazar la solicitud.');
+          this.toast.fromHttpError(err, 'No se pudo rechazar la solicitud.');
         },
       });
   }
 
   private loadRequests(): void {
     this.loading = true;
-    this.errorMessage = '';
     this.service.findAll()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -106,7 +97,7 @@ export class SuperAdmin implements OnInit {
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar las solicitudes.');
+          this.toast.fromHttpErrorSilencingAuth(err, 'No se pudieron cargar las solicitudes.');
         },
       });
   }
@@ -123,7 +114,7 @@ export class SuperAdmin implements OnInit {
         },
         error: (err) => {
           this.loadingCandidates = false;
-          this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar los candidatos.');
+          this.toast.fromHttpErrorSilencingAuth(err, 'No se pudieron cargar los candidatos.');
         },
       });
   }

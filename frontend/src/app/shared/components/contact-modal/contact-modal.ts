@@ -2,18 +2,17 @@ import { Component, DestroyRef, EventEmitter, Input, Output, inject } from '@ang
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
-import { Banner } from '../banner/banner';
 import { FormField } from '../form-field/form-field';
 import { AdminChangeRequestService } from '../../../services/admin-change-request.service';
 import { AuthService } from '../../../services/auth.service';
+import { ToastService } from '../../../services/toast.service';
 import { hasFieldError, getFieldError } from '../../utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../utils/sanitize.utils';
-import { extractErrorMessage } from '../../utils/http-error.utils';
 
 // Reusable modal to send an admin change request from the sidebar.
 @Component({
   selector: 'app-contact-modal',
-  imports: [ReactiveFormsModule, LucideAngularModule, Banner, FormField],
+  imports: [ReactiveFormsModule, LucideAngularModule, FormField],
   templateUrl: './contact-modal.html',
 })
 export class ContactModal {
@@ -21,6 +20,7 @@ export class ContactModal {
   private readonly requestService = inject(AdminChangeRequestService);
   private readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   @Input() show = false;
   @Output() closed = new EventEmitter<void>();
@@ -30,8 +30,6 @@ export class ContactModal {
   });
 
   submitting = false;
-  errorMessage = '';
-  successMessage = '';
 
   get hermandadName(): string {
     return this.auth.getUser()?.hermandadNombre ?? '';
@@ -55,8 +53,6 @@ export class ContactModal {
       return;
     }
     this.form.reset({ message: '' });
-    this.errorMessage = '';
-    this.successMessage = '';
     this.closed.emit();
   }
 
@@ -66,12 +62,11 @@ export class ContactModal {
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de enviar.');
       return;
     }
 
     this.submitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const payload = sanitizeFormValues(this.form.value) as { message: string };
     this.requestService.create(payload)
@@ -79,12 +74,13 @@ export class ContactModal {
       .subscribe({
         next: () => {
           this.submitting = false;
-          this.successMessage = 'Solicitud enviada correctamente. El equipo la revisará pronto.';
+          this.toast.success('Solicitud enviada correctamente. El equipo la revisará pronto.');
           this.form.reset({ message: '' });
+          this.closed.emit();
         },
         error: (err) => {
           this.submitting = false;
-          this.errorMessage = extractErrorMessage(err, 'No se pudo enviar la solicitud. Inténtalo de nuevo.');
+          this.toast.fromHttpError(err, 'No se pudo enviar la solicitud. Inténtalo de nuevo.');
         },
       });
   }

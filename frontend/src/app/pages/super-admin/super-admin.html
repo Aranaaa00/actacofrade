@@ -13,13 +13,6 @@
     </span>
   </header>
 
-  @if (errorMessage) {
-    <app-banner type="danger">{{ errorMessage }}</app-banner>
-  }
-  @if (successMessage) {
-    <app-banner type="success">{{ successMessage }}</app-banner>
-  }
-
   @if (loading) {
     <p class="super-admin__placeholder" role="status">Cargando solicitudes…</p>
   } @else {

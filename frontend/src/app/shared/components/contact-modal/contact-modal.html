@@ -20,13 +20,6 @@
         </div>
       </article>
 
-      @if (errorMessage) {
-        <app-banner type="danger">{{ errorMessage }}</app-banner>
-      }
-      @if (successMessage) {
-        <app-banner type="success">{{ successMessage }}</app-banner>
-      }
-
       <form class="contact-modal__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <app-form-field label="Motivo de la solicitud" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
           <textarea

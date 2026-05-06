@@ -39,12 +39,6 @@
         </section>
 
         <section class="profile-modal__forms">
-          @if (errorMessage()) {
-            <p class="profile-modal__alert profile-modal__alert--error" role="alert">{{ errorMessage() }}</p>
-          }
-          @if (successMessage()) {
-            <p class="profile-modal__alert profile-modal__alert--success" role="status">{{ successMessage() }}</p>
-          }
 
           <form class="profile-modal__form" [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" novalidate>
             <fieldset class="form-field" [class.form-field--error]="controlInvalid(profileForm, 'fullName')">
@@ -101,7 +95,11 @@
               <small class="form-field__error" role="alert">La nueva contraseña debe ser distinta de la actual</small>
             }
 
-            <div class="profile-modal__form-actions">
+            <div class="profile-modal__form-actions profile-modal__form-actions--split">
+              <button class="profile-modal__delete" type="button" [disabled]="accountDeleting()" (click)="onRequestDeleteAccount()">
+                <span class="profile-modal__delete-marker" aria-hidden="true"></span>
+                <span class="profile-modal__delete-label">{{ accountDeleting() ? 'eliminando cuenta…' : 'eliminar mi cuenta' }}</span>
+              </button>
               <button class="button button--primary profile-modal__btn" type="submit" [disabled]="passwordForm.invalid || passwordSaving()">Actualizar contraseña</button>
             </div>
           </form>
@@ -110,4 +108,14 @@
       </section>
     </article>
   </section>
+
+  @if (showDeleteAccountConfirm()) {
+    <app-confirm-dialog
+      title="Eliminar cuenta"
+      message="¿Seguro que deseas eliminar tu cuenta? Esta acción es permanente y cerrará tu sesión inmediatamente."
+      confirmLabel="Eliminar mi cuenta"
+      cancelLabel="Cancelar"
+      (confirmed)="onConfirmDeleteAccount()"
+      (cancelled)="onCancelDeleteAccount()" />
+  }
 }
