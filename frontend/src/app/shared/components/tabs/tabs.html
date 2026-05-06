@@ -1,11 +1,13 @@
 <nav class="tabs" role="tablist">
-  @for (tab of tabs; track tab) {
+  @for (tab of tabs; track tab; let i = $index) {
     <button class="tab"
       [class.tab--active]="tab === activeTab"
       type="button"
       role="tab"
       [attr.aria-selected]="tab === activeTab"
-      (click)="selectTab(tab)">
+      [attr.tabindex]="tab === activeTab ? 0 : -1"
+      (click)="selectTab(tab)"
+      (keydown)="onKeydown($event, i)">
       {{ tab }}
     </button>
   }

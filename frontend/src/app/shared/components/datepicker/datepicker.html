@@ -37,7 +37,8 @@
                       [class.datepicker__day--selected]="isSelected(cell)"
                       [disabled]="!isAvailable(cell)"
                       type="button"
-                      (click)="selectDate(cell)">
+                      (click)="selectDate(cell)"
+                      (keydown)="onDayKeydown($event)">
                       {{ cell }}
                     </button>
                   }

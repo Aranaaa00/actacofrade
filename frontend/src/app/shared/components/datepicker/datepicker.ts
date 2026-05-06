@@ -118,6 +118,46 @@ export class Datepicker {
     this.open = false;
   }
 
+  onDayKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.open = false;
+      return;
+    }
+    const target = event.target as HTMLElement;
+    const cell = target.closest('td');
+    if (!cell) {
+      return;
+    }
+    const row = cell.parentElement as HTMLElement | null;
+    const tbody = row?.parentElement as HTMLElement | null;
+    if (!row || !tbody) {
+      return;
+    }
+    const cells = Array.from(tbody.querySelectorAll('td'));
+    const currentIndex = cells.indexOf(cell);
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowRight') {
+      nextIndex = currentIndex + 1;
+    } else if (event.key === 'ArrowLeft') {
+      nextIndex = currentIndex - 1;
+    } else if (event.key === 'ArrowDown') {
+      nextIndex = currentIndex + 7;
+    } else if (event.key === 'ArrowUp') {
+      nextIndex = currentIndex - 7;
+    } else if (event.key === 'PageDown') {
+      this.nextMonth();
+      return;
+    } else if (event.key === 'PageUp') {
+      if (this.canGoPrev) { this.prevMonth(); }
+      return;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    const next = cells[nextIndex];
+    next?.querySelector<HTMLButtonElement>('button.datepicker__day')?.focus();
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     // close the dropdown when the user clicks outside of the host element

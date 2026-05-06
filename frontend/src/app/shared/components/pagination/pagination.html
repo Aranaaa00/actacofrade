@@ -1,9 +1,9 @@
 @if (totalPages > 1) {
   <nav class="pagination" aria-label="Navegación de páginas">
-    <button class="pagination__link" type="button" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">← Anterior</button>
+    <button class="pagination__link" type="button" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)" aria-label="Página anterior">← Anterior</button>
     @for (page of pages; track page) {
-      <button class="pagination__link" [class.pagination__link--active]="page === currentPage" type="button" [attr.aria-current]="page === currentPage ? 'page' : null" (click)="goToPage(page)">{{ page }}</button>
+      <button class="pagination__link" [class.pagination__link--active]="page === currentPage" type="button" [attr.aria-current]="page === currentPage ? 'page' : null" [attr.aria-label]="'Ir a la página ' + page" (click)="goToPage(page)">{{ page }}</button>
     }
-    <button class="pagination__link" type="button" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">Siguiente →</button>
+    <button class="pagination__link" type="button" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)" aria-label="Página siguiente">Siguiente →</button>
   </nav>
 }
