@@ -38,13 +38,6 @@
     </app-banner>
   }
 
-  @if (actionError) {
-    <app-banner type="error" styleClass="act-detail__alert">
-      <span class="act-detail__alert-text">{{ actionError }}</span>
-      <a class="act-detail__alert-link" (click)="dismissActionError()">Cerrar</a>
-    </app-banner>
-  }
-
   <nav class="act-detail__stepper" aria-label="Progreso del acto" [style.--stepper-progress]="progressPercent + '%'">
     @for (step of steps; track step.key) {
       <section class="act-detail__step"
@@ -383,10 +376,6 @@
           <small class="form-field__error" role="alert">Selecciona al menos una sección</small>
         }
       </fieldset>
-
-      @if (exportError) {
-        <small class="form-field__error" role="alert">{{ exportError }}</small>
-      }
     </section>
 
     <footer class="modal__footer">

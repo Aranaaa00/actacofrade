@@ -19,13 +19,13 @@ import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
 import { AuditLogService } from '../../services/audit-log.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { AuditLogResponse } from '../../models/audit-log.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import {
   getEventTypeLabel, getEventStatusLabel,
   getTaskStatusLabel, getTaskBadgeVariant,
@@ -68,6 +68,7 @@ export class ActDetail implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly renderer = inject(Renderer2);
   private readonly document = inject(DOCUMENT);
+  private readonly toast = inject(ToastService);
   readonly auth = inject(AuthService);
 
   eventId = 0;
@@ -79,7 +80,6 @@ export class ActDetail implements OnInit {
   elementEditData: EditData | null = null;
   showCloseEvent = false;
   loading = true;
-  errorMessage = '';
 
   showRejectModal = false;
   rejectingTaskId: number | null = null;
@@ -90,10 +90,6 @@ export class ActDetail implements OnInit {
   exportSections: string[] = ['TASKS', 'DECISIONS', 'INCIDENTS'];
   exportSubmitted = false;
   exportLoading = false;
-  exportError = '';
-
-  // global error message for header actions like clone
-  actionError = '';
 
   readonly exportSectionOptions = [
     { value: 'TASKS', label: 'Tareas y responsables' },
@@ -176,27 +172,21 @@ export class ActDetail implements OnInit {
   getAreaLabel = getAreaLabel;
 
   cloneAct(): void {
-    // reset previous error before request
-    this.actionError = '';
     this.bind(this.eventService.clone(this.eventId)).subscribe({
       next: (cloned) => {
+        this.toast.success('Acto clonado correctamente.');
         this.router.navigate(['/events', cloned.id]);
       },
       error: (err) => {
-        this.actionError = extractErrorMessage(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
       }
     });
-  }
-
-  dismissActionError(): void {
-    this.actionError = '';
   }
 
   openExportModal(): void {
     this.exportFormat = 'PDF';
     this.exportSections = ['TASKS', 'DECISIONS', 'INCIDENTS'];
     this.exportSubmitted = false;
-    this.exportError = '';
     this.showExportModal = true;
   }
 
@@ -224,20 +214,20 @@ export class ActDetail implements OnInit {
   doExport(): void {
     this.exportSubmitted = true;
     if (this.exportSections.length === 0) {
+      this.toast.warning('Selecciona al menos una sección para exportar.');
       return;
     }
     this.exportLoading = true;
-    this.exportError = '';
     this.bind(this.eventService.export(this.eventId, this.exportFormat, this.exportSections)).subscribe({
       next: (blob: Blob) => {
         this.triggerDownload(blob, `acto-${this.eventId}.${this.exportFormat.toLowerCase()}`);
         this.exportLoading = false;
+        this.toast.success('Acta exportada correctamente.');
         this.closeExportModal();
       },
       error: (err) => {
-        // show error inside modal so the user can retry
         this.exportLoading = false;
-        this.exportError = extractErrorMessage(err, 'No se pudo generar el archivo. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo generar el archivo. Inténtalo de nuevo.');
       }
     });
   }
@@ -366,13 +356,13 @@ export class ActDetail implements OnInit {
     request$.subscribe({
       next: () => {
         this.processingTaskId = null;
+        this.toast.success('Tarea actualizada.');
         onSuccess?.();
         this.loadData();
       },
       error: (err) => {
         this.processingTaskId = null;
-        // Surface the failure so the user knows the action did not apply.
-        this.actionError = extractErrorMessage(err, 'No se pudo actualizar la tarea. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo actualizar la tarea. Inténtalo de nuevo.');
       }
     });
   }
@@ -442,37 +432,48 @@ export class ActDetail implements OnInit {
     else if (type === 'decision') request$ = this.decisionService.delete(this.eventId, id);
     else request$ = this.incidentService.delete(this.eventId, id);
     this.bind(request$).subscribe({
-      next: () => this.loadData(),
+      next: () => {
+        this.toast.success('Elemento eliminado.');
+        this.loadData();
+      },
       error: (err) => {
-        // surface deletion failure to the user
-        this.actionError = extractErrorMessage(err, 'No se pudo eliminar el elemento. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo eliminar el elemento. Inténtalo de nuevo.');
       }
     });
   }
 
   acceptDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.accept(this.eventId, decision.id)).subscribe({
-      next: () => this.loadData(),
+      next: () => {
+        this.toast.success('Decisión aceptada.');
+        this.loadData();
+      },
       error: (err) => {
-        this.actionError = extractErrorMessage(err, 'No se pudo aceptar la decisión. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo aceptar la decisión. Inténtalo de nuevo.');
       }
     });
   }
 
   rejectDecision(decision: DecisionResponse): void {
     this.bind(this.decisionService.reject(this.eventId, decision.id)).subscribe({
-      next: () => this.loadData(),
+      next: () => {
+        this.toast.success('Decisión rechazada.');
+        this.loadData();
+      },
       error: (err) => {
-        this.actionError = extractErrorMessage(err, 'No se pudo rechazar la decisión. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo rechazar la decisión. Inténtalo de nuevo.');
       }
     });
   }
 
   resolveIncident(incidentId: number): void {
     this.bind(this.incidentService.resolve(this.eventId, incidentId)).subscribe({
-      next: () => this.loadData(),
+      next: () => {
+        this.toast.success('Incidencia resuelta.');
+        this.loadData();
+      },
       error: (err) => {
-        this.actionError = extractErrorMessage(err, 'No se pudo resolver la incidencia. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo resolver la incidencia. Inténtalo de nuevo.');
       }
     });
   }
@@ -501,7 +502,7 @@ export class ActDetail implements OnInit {
       },
       error: (err) => {
         this.historyLoading = false;
-        this.actionError = extractErrorMessage(err, 'No se pudo cargar el historial.');
+        this.toast.fromHttpError(err, 'No se pudo cargar el historial.');
       }
     });
   }
@@ -525,7 +526,7 @@ export class ActDetail implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo cargar el acto.');
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudo cargar el acto.');
         this.loading = false;
       }
     });

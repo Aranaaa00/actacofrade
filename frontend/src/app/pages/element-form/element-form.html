@@ -3,14 +3,6 @@
     {{ isEditMode ? 'Editar elemento' : 'Añadir elemento' }}
   </h1>
 
-  @if (errorMessage) {
-    <app-banner type="critical">{{ errorMessage }}</app-banner>
-  }
-
-  @if (successMessage) {
-    <app-banner type="info">{{ successMessage }}</app-banner>
-  }
-
   <nav class="element-form__tabs" role="tablist" aria-label="Tipo de elemento">
     <button class="element-form__tab element-form__tab--task"
       [class.element-form__tab--active]="activeTab === 'task'"

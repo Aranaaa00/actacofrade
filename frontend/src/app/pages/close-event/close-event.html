@@ -8,11 +8,7 @@
     <p class="close-event__loading" role="status" aria-live="polite">Cargando información del acto...</p>
   }
 
-  @if (successMessage) {
-    <app-banner type="info" role="status" ariaLive="polite">{{ successMessage }}</app-banner>
-  }
-
-  @if (!loading && !successMessage) {
+  @if (!loading) {
     <section class="modal__body">
       @if (isBlocked) {
         <app-banner styleClass="close-event__banner">
@@ -36,10 +32,6 @@
       }
 
       <p class="close-event__confirm-text">Este acto quedará registrado como cerrado de forma definitiva. Esta acción no se puede deshacer.</p>
-
-      @if (errorMessage) {
-        <app-banner type="critical">{{ errorMessage }}</app-banner>
-      }
     </section>
 
     <footer class="modal__footer close-event__footer">

@@ -6,6 +6,7 @@ import { EventService } from '../../services/event.service';
 import { TaskService } from '../../services/task.service';
 import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
+import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { TaskResponse } from '../../models/task.model';
 import { DecisionResponse } from '../../models/decision.model';
@@ -32,6 +33,7 @@ export class CloseEvent implements OnInit {
   private readonly taskService = inject(TaskService);
   private readonly decisionService = inject(DecisionService);
   private readonly incidentService = inject(IncidentService);
+  private readonly toast = inject(ToastService);
 
   @Input() embedded = false;
   @Input() inputEventId?: number;
@@ -41,8 +43,6 @@ export class CloseEvent implements OnInit {
   blockingItems: BlockingItem[] = [];
   loading = true;
   closing = false;
-  errorMessage = '';
-  successMessage = '';
 
   get isBlocked(): boolean {
     return this.blockingItems.length > 0;
@@ -59,16 +59,16 @@ export class CloseEvent implements OnInit {
     // close request is enabled only when there are no blocking items
     if (this.event && !this.closing) {
       this.closing = true;
-      this.errorMessage = '';
 
       this.eventService.close(this.event.id).subscribe({
         next: () => {
-          this.successMessage = 'El acto ha sido cerrado correctamente.';
           this.closing = false;
+          this.toast.success('El acto ha sido cerrado correctamente.');
+          this.goBack();
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Ha ocurrido un error al cerrar el acto.';
           this.closing = false;
+          this.toast.fromHttpError(err, 'Ha ocurrido un error al cerrar el acto.');
         }
       });
     }
@@ -96,7 +96,7 @@ export class CloseEvent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'No se pudo cargar la información del acto.';
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudo cargar la información del acto.');
         this.loading = false;
       }
     });

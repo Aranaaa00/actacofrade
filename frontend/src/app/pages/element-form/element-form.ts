@@ -5,14 +5,13 @@ import { DecisionService } from '../../services/decision.service';
 import { IncidentService } from '../../services/incident.service';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { UserResponse } from '../../models/user.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
-import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeText } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 type ElementTab = 'task' | 'decision' | 'incident';
 
@@ -28,7 +27,7 @@ interface EditData {
 
 @Component({
   selector: 'app-element-form',
-  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker],
+  imports: [ReactiveFormsModule, ModalOverlay, FormField, Datepicker],
   templateUrl: './element-form.html',
 })
 export class ElementForm implements OnInit {
@@ -38,6 +37,7 @@ export class ElementForm implements OnInit {
   private readonly incidentService = inject(IncidentService);
   private readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService);
 
   @Input() eventId!: number;
   @Input() eventResponsibleId: number | null = null;
@@ -50,8 +50,6 @@ export class ElementForm implements OnInit {
   users: UserResponse[] = [];
   activeTab: ElementTab = 'task';
   loading = false;
-  errorMessage = '';
-  successMessage = '';
 
   readonly areaOptions = [
     { value: 'MAYORDOMIA', label: 'Mayordomía' },
@@ -126,9 +124,8 @@ export class ElementForm implements OnInit {
         next: (users) => this.users = users,
         error: (err) => {
           // Keep the assignment list empty and surface the failure to the user.
-          console.error('Failed to load assignable users', err);
           this.users = [];
-          this.errorMessage = extractErrorMessage(err, 'No se pudo cargar la lista de usuarios.');
+          this.toast.fromHttpError(err, 'No se pudo cargar la lista de usuarios.');
         }
       });
     } else {
@@ -160,8 +157,6 @@ export class ElementForm implements OnInit {
     if (!this.isEditMode) {
       this.activeTab = tab;
       this.form.reset({ title: '', assignedToId: null, deadline: '', notes: '', area: 'MAYORDOMIA' });
-      this.errorMessage = '';
-      this.successMessage = '';
     }
   }
 
@@ -169,9 +164,9 @@ export class ElementForm implements OnInit {
     // block submission until every field validator passes
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de continuar.');
     } else {
       this.loading = true;
-      this.errorMessage = '';
       this.submitByTab();
     }
   }
@@ -256,11 +251,17 @@ export class ElementForm implements OnInit {
 
   private onSuccess(): void {
     this.loading = false;
+    const labels: Record<ElementTab, string> = {
+      task: this.isEditMode ? 'Tarea actualizada.' : 'Tarea creada.',
+      decision: this.isEditMode ? 'Decisión actualizada.' : 'Decisión creada.',
+      incident: this.isEditMode ? 'Incidencia actualizada.' : 'Incidencia creada.'
+    };
+    this.toast.success(labels[this.activeTab]);
     this.saved.emit();
   }
 
-  private onError(err: { error?: { message?: string } }): void {
-    this.errorMessage = err.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.';
+  private onError(err: unknown): void {
+    this.toast.fromHttpError(err, 'Ha ocurrido un error. Inténtalo de nuevo.');
     this.loading = false;
   }
 }

@@ -4,20 +4,19 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { UserResponse } from '../../models/user.model';
 import { EventResponse } from '../../models/event.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
-import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-act-editor',
-  imports: [ReactiveFormsModule, ModalOverlay, Banner, FormField, Datepicker, AutofocusDirective],
+  imports: [ReactiveFormsModule, ModalOverlay, FormField, Datepicker, AutofocusDirective],
   templateUrl: './act-editor.html',
 })
 export class ActEditor implements OnInit {
@@ -27,6 +26,7 @@ export class ActEditor implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   @Input() embedded = false;
   @Output() editorClosed = new EventEmitter<void>();
@@ -37,8 +37,6 @@ export class ActEditor implements OnInit {
   isEditMode = false;
   eventId: number | null = null;
   loading = false;
-  errorMessage = '';
-  successMessage = '';
 
   ngOnInit(): void {
     // build the reactive form with shared validators that block html injection
@@ -72,9 +70,8 @@ export class ActEditor implements OnInit {
         next: (users) => this.users = users.filter(u => u.roles.some(r => r === 'ADMINISTRADOR' || r === 'RESPONSABLE')),
         error: (err) => {
           // Keep the form usable but warn the responsible user list could not be loaded.
-          console.error('Failed to load assignable users', err);
           this.users = [];
-          this.errorMessage = extractErrorMessage(err, 'No se pudo cargar la lista de responsables.');
+          this.toast.fromHttpError(err, 'No se pudo cargar la lista de responsables.');
         }
       });
     } else {
@@ -101,7 +98,7 @@ export class ActEditor implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo cargar el acto.');
+        this.toast.fromHttpError(err, 'No se pudo cargar el acto.');
         this.loading = false;
       }
     });
@@ -110,10 +107,9 @@ export class ActEditor implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de continuar.');
     } else {
       this.loading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
 
       const sanitized = sanitizeFormValues(this.form.value);
       const request$ = this.isEditMode
@@ -122,16 +118,16 @@ export class ActEditor implements OnInit {
 
       request$.subscribe({
         next: (event) => {
-          // always reset loading regardless of mode to keep button enabled
           this.loading = false;
           if (this.isEditMode) {
-            this.successMessage = 'Acto actualizado correctamente.';
+            this.toast.success('Acto actualizado correctamente.');
           } else {
+            this.toast.success('Acto creado correctamente.');
             this.actCreated.emit(event);
           }
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'Ha ocurrido un error. Inténtalo de nuevo.';
+          this.toast.fromHttpError(err, 'Ha ocurrido un error. Inténtalo de nuevo.');
           this.loading = false;
         }
       });
