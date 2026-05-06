@@ -47,6 +47,12 @@ public class MeController {
         return ResponseEntity.ok(meService.updateProfile(request, userDetails.getUsername()));
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal UserDetails userDetails) {
+        meService.deleteAccount(userDetails.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/password")
     public ResponseEntity<Void> changePassword(@Valid @RequestBody ChangePasswordRequest request,
                                                @AuthenticationPrincipal UserDetails userDetails) {

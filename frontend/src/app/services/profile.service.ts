@@ -44,6 +44,11 @@ export class ProfileService {
     return this.http.patch<void>(`${this.baseUrl}/password`, payload);
   }
 
+  // Permanently deletes the account of the current user.
+  deleteAccount(): Observable<void> {
+    return this.http.delete<void>(this.baseUrl);
+  }
+
   // Validates MIME type and size before uploading.
   uploadAvatar(file: File): Observable<UserResponse> {
     if (!AVATAR_ALLOWED_TYPES.includes(file.type)) {

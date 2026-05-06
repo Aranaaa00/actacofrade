@@ -73,4 +73,8 @@ public interface EventRepository extends JpaRepository<Event, Integer>, JpaSpeci
     @Query(value = "SELECT DISTINCT event_date FROM events WHERE hermandad_id = :hermandadId ORDER BY event_date",
             nativeQuery = true)
     List<LocalDate> findDistinctEventDatesByHermandadId(@Param("hermandadId") Integer hermandadId);
+
+    @Modifying
+    @Query("DELETE FROM Event e WHERE e.hermandad.id = :hermandadId")
+    int deleteByHermandadId(@Param("hermandadId") Integer hermandadId);
 }

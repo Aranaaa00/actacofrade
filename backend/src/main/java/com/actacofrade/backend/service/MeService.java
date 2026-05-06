@@ -3,6 +3,8 @@ package com.actacofrade.backend.service;
 import com.actacofrade.backend.dto.ChangePasswordRequest;
 import com.actacofrade.backend.dto.UpdateProfileRequest;
 import com.actacofrade.backend.dto.UserResponse;
+import com.actacofrade.backend.entity.Hermandad;
+import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.entity.UserAvatar;
 import com.actacofrade.backend.repository.UserAvatarRepository;
@@ -27,17 +29,20 @@ public class MeService {
     private final UserRepository userRepository;
     private final UserAvatarRepository userAvatarRepository;
     private final PasswordEncoder passwordEncoder;
+    private final HermandadService hermandadService;
     private final long avatarMaxBytes;
     private final Set<String> allowedAvatarTypes;
 
     public MeService(UserRepository userRepository,
                      UserAvatarRepository userAvatarRepository,
                      PasswordEncoder passwordEncoder,
+                     HermandadService hermandadService,
                      @Value("${profile.avatar.max-bytes:2097152}") long avatarMaxBytes,
                      @Value("${profile.avatar.allowed-types:image/png,image/jpeg,image/webp,image/gif}") String allowedTypes) {
         this.userRepository = userRepository;
         this.userAvatarRepository = userAvatarRepository;
         this.passwordEncoder = passwordEncoder;
+        this.hermandadService = hermandadService;
         this.avatarMaxBytes = avatarMaxBytes;
         this.allowedAvatarTypes = Set.of(allowedTypes.split(","));
     }
@@ -99,6 +104,26 @@ public class MeService {
     public void deleteAvatar(String authenticatedEmail) {
         User user = loadUser(authenticatedEmail);
         userAvatarRepository.deleteByUserId(user.getId());
+    }
+
+    public void deleteAccount(String authenticatedEmail) {
+        User user = loadUser(authenticatedEmail);
+        boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR);
+        Hermandad hermandad = user.getHermandad();
+
+        if (isAdmin && hermandad != null) {
+            long totalUsers = userRepository.countByHermandadId(hermandad.getId());
+            if (totalUsers > 1) {
+                throw new IllegalStateException(
+                        "No puedes eliminar tu cuenta porque eres administrador y la hermandad tiene más miembros. "
+                                + "Asigna primero otro administrador y, si lo necesitas, contacta con el superadmin.");
+            }
+            // sole user of the hermandad: removing the account also wipes the brotherhood
+            hermandadService.deleteHermandadCascade(hermandad);
+            return;
+        }
+
+        userRepository.delete(user);
     }
 
     @Transactional(readOnly = true)

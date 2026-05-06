@@ -34,6 +34,7 @@ class MeServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private UserAvatarRepository userAvatarRepository;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private HermandadService hermandadService;
 
     private MeService service;
 
@@ -42,7 +43,7 @@ class MeServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new MeService(userRepository, userAvatarRepository, passwordEncoder, 1024L,
+        service = new MeService(userRepository, userAvatarRepository, passwordEncoder, hermandadService, 1024L,
                 "image/png,image/jpeg");
         hermandad = TestFixtures.hermandad(1, "H");
         admin = TestFixtures.user(1, "admin@e.com", hermandad, RoleCode.ADMINISTRADOR);

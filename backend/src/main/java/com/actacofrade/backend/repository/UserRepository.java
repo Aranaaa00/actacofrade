@@ -29,4 +29,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
            ")")
     List<User> findAssignableByHermandadId(@Param("hermandadId") Integer hermandadId,
                                            @Param("excludedRole") RoleCode excludedRole);
+
+    @Query("SELECT COUNT(DISTINCT u) FROM User u JOIN u.roles r " +
+           "WHERE u.hermandad.id = :hermandadId AND r.code = :roleCode")
+    long countByHermandadIdAndRoleCode(@Param("hermandadId") Integer hermandadId,
+                                       @Param("roleCode") RoleCode roleCode);
+
+    long countByHermandadId(Integer hermandadId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("DELETE FROM User u WHERE u.hermandad.id = :hermandadId")
+    int deleteByHermandadId(@Param("hermandadId") Integer hermandadId);
 }
