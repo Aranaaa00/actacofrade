@@ -44,10 +44,10 @@
       [isOpen]="openDropdown === 'status'"
       (toggled)="toggleDropdown('status')"
       (selected)="selectFilter('status', $event)" />
-    <div class="act-list__search-wrapper">
+    <search class="act-list__search-wrapper" aria-label="Buscar usuarios">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar" aria-label="Buscar" maxlength="200">
-    </div>
+    </search>
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()" aria-label="Limpiar filtros">Limpiar</button>
   </search>
 
@@ -65,10 +65,10 @@
       @for (user of pageUsers; track user.id) {
         <tr class="users-table__row">
           <td>
-            <div class="users-table__user">
+            <address class="users-table__user">
               <strong class="users-table__name">{{ user.fullName }}</strong>
               <small class="users-table__email">{{ user.email }}</small>
-            </div>
+            </address>
           </td>
           <td data-label="Rol">
             @if (getPrimaryRole(user)) {
@@ -80,7 +80,7 @@
           </td>
           <td class="users-table__date" data-label="Último acceso">{{ formatLastLogin(user.lastLogin) }}</td>
           <td>
-            <div class="users-table__actions">
+            <menu class="users-table__actions">
               <button class="users-table__action" type="button"
                 [disabled]="processingUserId === user.id"
                 (click)="openEdit(user)"
@@ -100,7 +100,7 @@
                   (click)="deleteUser(user)"
                   [attr.aria-label]="'Eliminar ' + user.fullName">Eliminar</button>
               }
-            </div>
+            </menu>
           </td>
         </tr>
       }
@@ -132,10 +132,10 @@
         @for (user of permissionsPageUsers; track user.id) {
           <tr class="users-table__row">
             <td>
-              <div class="users-table__user">
+              <address class="users-table__user">
                 <strong class="users-table__name">{{ user.fullName }}</strong>
                 <small class="users-table__email">{{ user.email }}</small>
-              </div>
+              </address>
             </td>
             @for (column of permissionColumns; track column.key) {
               <td class="users-table__perm" [attr.data-label]="column.label" [attr.aria-label]="(hasPermission(user, column) ? 'Puede ' : 'No puede ') + column.label.toLowerCase()">

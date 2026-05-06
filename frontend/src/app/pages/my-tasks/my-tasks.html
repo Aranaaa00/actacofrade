@@ -35,10 +35,10 @@
       [isOpen]="openDropdown === 'status'"
       (toggled)="toggleDropdown('status')"
       (selected)="selectFilter('status', $event)" />
-    <div class="act-list__search-wrapper">
+    <search class="act-list__search-wrapper" aria-label="Buscar tarea">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar tarea..." aria-label="Buscar tarea" maxlength="200">
-    </div>
+    </search>
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
   </search>
 

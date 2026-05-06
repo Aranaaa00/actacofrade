@@ -17,34 +17,34 @@
       (toggled)="toggleDropdown('responsible')"
       (selected)="selectFilter('responsible', $event)" />
 
-    <div class="act-list__filter-dropdown">
+    <nav class="act-list__filter-dropdown" aria-label="Rango de fechas">
       <button class="act-list__filter-btn" type="button" (click)="toggleDropdown('dateRange')">
         {{ activeDateRangeLabel }}
         <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>
       </button>
       @if (openDropdown === 'dateRange') {
-        <div class="act-history__date-range-panel" role="dialog" aria-label="Rango de fechas">
-          <div class="act-history__date-range-row">
+        <section class="act-history__date-range-panel" role="dialog" aria-modal="false" aria-label="Rango de fechas">
+          <p class="act-history__date-range-row">
             <span class="act-history__date-range-label">Desde</span>
             <app-datepicker
               [availableDates]="availableDates"
               [selectedDate]="filterDateFrom"
               placeholder="Desde"
               (dateSelected)="onDateFromChange($event)" />
-          </div>
-          <div class="act-history__date-range-row">
+          </p>
+          <p class="act-history__date-range-row">
             <span class="act-history__date-range-label">Hasta</span>
             <app-datepicker
               [availableDates]="availableDates"
               [selectedDate]="filterDateTo"
               placeholder="Hasta"
               (dateSelected)="onDateToChange($event)" />
-          </div>
-        </div>
+          </p>
+        </section>
       }
-    </div>
+    </nav>
 
-    <div class="act-list__search-wrapper">
+    <search class="act-list__search-wrapper" aria-label="Buscar en historial">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input
         class="act-list__filter-search"
@@ -54,7 +54,7 @@
         placeholder="Buscar"
         aria-label="Buscar"
         maxlength="200">
-    </div>
+    </search>
 
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
   </search>
@@ -66,19 +66,19 @@
       <p class="act-history__empty">No hay actos registrados.</p>
     } @else {
       @for (group of groupedEvents; track group.date) {
-        <div class="act-history__date-group">
-          <div class="act-history__date-header">
+        <article class="act-history__date-group">
+          <header class="act-history__date-header">
             <span class="act-history__dot" aria-hidden="true"></span>
             <time class="act-history__date-label" [attr.datetime]="group.date">{{ formatTimelineDate(group.date) }}</time>
-          </div>
+          </header>
           <ul class="act-history__items" role="list">
             @for (act of group.events; track act.id) {
               <li class="act-history__item">
                 <aside class="act-history__type-band" aria-hidden="true">
                   <span class="act-history__type-label">{{ getEventTypeLabel(act.eventType) }}</span>
                 </aside>
-                <div class="act-history__item-body">
-                  <div class="act-history__item-info">
+                <section class="act-history__item-body">
+                  <header class="act-history__item-info">
                     @if (isClosed(act)) {
                       <a class="act-history__item-link" [routerLink]="['/events', act.id]" aria-label="Ver detalle de {{ act.title }}">
                         <h2 class="act-history__item-title">{{ act.title }}</h2>
@@ -86,18 +86,18 @@
                     } @else {
                       <h2 class="act-history__item-title">{{ act.title }}</h2>
                     }
-                  </div>
-                  <div class="act-history__item-actions">
+                  </header>
+                  <footer class="act-history__item-actions">
                     <app-badge [variant]="getStatusBadgeVariant(act.status)">{{ getStatusLabel(act.status) }}</app-badge>
                     @if (!isClosed(act)) {
                       <a class="act-history__manage-link" [routerLink]="['/events', act.id]" aria-label="Gestionar {{ act.title }}">Gestionar →</a>
                     }
-                  </div>
-                </div>
+                  </footer>
+                </section>
               </li>
             }
           </ul>
-        </div>
+        </article>
       }
     }
   </section>

@@ -16,14 +16,14 @@
 
   <form class="settings__layout" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-    <div class="settings__form">
+    <section class="settings__form">
 
       <article class="settings__section">
         <header class="settings__section-header">
           <lucide-icon name="building-2" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
           <h2 class="settings__section-title">Identidad</h2>
         </header>
-        <div class="settings__grid">
+        <section class="settings__grid">
           <app-form-field label="Nombre" fieldId="nombre" [hasError]="hasError('nombre')" [errorMessage]="getError('nombre')" styleClass="settings__field--full">
             <input id="nombre" class="settings__input" type="text" formControlName="nombre" maxlength="200" autocomplete="organization" />
           </app-form-field>
@@ -33,7 +33,7 @@
           <app-form-field label="Año de fundación" fieldId="anioFundacion" [hasError]="hasError('anioFundacion')" [errorMessage]="getError('anioFundacion')">
             <input id="anioFundacion" class="settings__input" type="number" formControlName="anioFundacion" min="1000" max="2100" inputmode="numeric" />
           </app-form-field>
-        </div>
+        </section>
       </article>
 
       <article class="settings__section">
@@ -41,7 +41,7 @@
           <lucide-icon name="map-pin" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
           <h2 class="settings__section-title">Contacto y ubicación</h2>
         </header>
-        <div class="settings__grid">
+        <section class="settings__grid">
           <app-form-field label="Localidad" fieldId="localidad" [hasError]="hasError('localidad')" [errorMessage]="getError('localidad')">
             <input id="localidad" class="settings__input" type="text" formControlName="localidad" maxlength="120" autocomplete="address-level2" />
           </app-form-field>
@@ -54,7 +54,7 @@
           <app-form-field label="Teléfono de contacto" fieldId="telefonoContacto" [hasError]="hasError('telefonoContacto')" [errorMessage]="getError('telefonoContacto')">
             <input id="telefonoContacto" class="settings__input" type="tel" formControlName="telefonoContacto" maxlength="20" autocomplete="tel" />
           </app-form-field>
-        </div>
+        </section>
       </article>
 
       @if (canEdit) {
@@ -64,7 +64,7 @@
           </button>
         </footer>
       }
-    </div>
+    </section>
 
     <aside class="settings__aside" aria-label="Información del sistema">
 

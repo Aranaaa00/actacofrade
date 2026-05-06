@@ -90,13 +90,17 @@
       <strong class="sidebar__user-name">{{ user?.fullName }}</strong>
       <small class="sidebar__user-role">{{ roleLabel }}</small>
     </section>
-    <div class="sidebar__user-actions">
-      <button class="sidebar__edit-profile" type="button" (click)="profileEditRequested.emit()" aria-label="Editar perfil">
-        <lucide-icon name="pencil" [size]="18" aria-hidden="true"></lucide-icon>
-      </button>
-      <button class="sidebar__logout" type="button" (click)="loggedOut.emit()" aria-label="Cerrar sesión">
-        <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
-      </button>
-    </div>
+    <menu class="sidebar__user-actions">
+      <li>
+        <button class="sidebar__edit-profile" type="button" (click)="profileEditRequested.emit()" aria-label="Editar perfil">
+          <lucide-icon name="pencil" [size]="18" aria-hidden="true"></lucide-icon>
+        </button>
+      </li>
+      <li>
+        <button class="sidebar__logout" type="button" (click)="loggedOut.emit()" aria-label="Cerrar sesión">
+          <lucide-icon name="log-out" [size]="20" aria-hidden="true"></lucide-icon>
+        </button>
+      </li>
+    </menu>
   </footer>
 </nav>

@@ -27,10 +27,10 @@
       [selectedDate]="filterDate"
       placeholder="Fecha"
       (dateSelected)="onDateChange($event)" />
-    <div class="act-list__search-wrapper">
+    <search class="act-list__search-wrapper" aria-label="Buscar actos">
       <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input class="act-list__filter-search" type="search" [value]="searchQuery" (input)="onSearch($any($event.target).value)" placeholder="Buscar" aria-label="Buscar" maxlength="200">
-    </div>
+    </search>
     <button class="act-list__filter-clear" type="button" (click)="clearFilters()">Limpiar</button>
   </search>
 

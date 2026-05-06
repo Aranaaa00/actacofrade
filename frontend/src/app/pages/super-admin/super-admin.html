@@ -16,7 +16,7 @@
   @if (loading) {
     <p class="super-admin__placeholder" role="status">Cargando solicitudes…</p>
   } @else {
-    <div class="super-admin__layout">
+    <section class="super-admin__layout">
       <aside class="super-admin__panel" aria-label="Solicitudes recibidas">
         <app-request-list
           [requests]="requests"
@@ -33,7 +33,7 @@
           (approved)="onApprove($event)"
           (rejected)="onReject()" />
       </section>
-    </div>
+    </section>
   }
 
 </section>
