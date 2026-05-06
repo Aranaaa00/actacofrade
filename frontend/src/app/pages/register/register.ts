@@ -109,45 +109,52 @@ export class Register implements OnInit {
   onSubmit(): void {
     // mark form as submitted to enable error display
     this.submitted = true;
-    if (this.form.invalid || !this.passwordsMatch()) {
+    if (this.form.invalid || !this.passwordsMatch() || !this.isRoleAllowed()) {
       this.form.markAllAsTouched();
       this.toast.warning('Revisa los campos marcados antes de continuar.');
-    } else {
-      this.loading = true;
-
-      const { confirmPassword, hermandadNombre, ...rest } = this.form.value;
-
-      if (this.embedded) {
-        const request = sanitizeFormValues(rest);
-        this.userService.create(request).subscribe({
-          next: (created) => {
-            this.loading = false;
-            this.toast.success('Usuario creado correctamente.');
-            this.userCreated.emit(created);
-          },
-          error: (err) => {
-            this.toast.fromHttpError(err, 'No se pudo crear el usuario. Inténtalo de nuevo.');
-            this.loading = false;
-          }
-        });
-      } else {
-        const request = sanitizeFormValues({
-          ...rest,
-          hermandadNombre: hermandadNombre.trim()
-        });
-        this.authService.register(request).subscribe({
-          next: () => {
-            this.loading = false;
-            this.toast.success('Cuenta creada correctamente.');
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            this.toast.fromHttpError(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
-            this.loading = false;
-          }
-        });
-      }
+      return;
     }
+    this.loading = true;
+
+    const { confirmPassword, hermandadNombre, ...rest } = this.form.value;
+
+    if (this.embedded) {
+      const request = sanitizeFormValues(rest);
+      this.userService.create(request).subscribe({
+        next: (created) => {
+          this.loading = false;
+          this.toast.success('Usuario creado correctamente.');
+          this.userCreated.emit(created);
+        },
+        error: (err) => {
+          this.toast.fromHttpError(err, 'No se pudo crear el usuario. Inténtalo de nuevo.');
+          this.loading = false;
+        }
+      });
+    } else {
+      const request = sanitizeFormValues({
+        ...rest,
+        hermandadNombre: hermandadNombre.trim()
+      });
+      this.authService.register(request).subscribe({
+        next: () => {
+          this.loading = false;
+          this.toast.success('Cuenta creada correctamente.');
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.toast.fromHttpError(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+          this.loading = false;
+        }
+      });
+    }
+  }
+
+  // Guards against tampered values: roleCode must belong to the dropdown options
+  // that the current context (registro abierto vs creación interna) ofrece.
+  private isRoleAllowed(): boolean {
+    const roleCode = this.form.get('roleCode')?.value;
+    return this.availableRoles.some((r) => r.code === roleCode);
   }
 
   close(): void {

@@ -68,11 +68,11 @@
     @if (embedded) {
       <footer class="act-editor__footer">
         <button type="button" class="button button--secondary" (click)="close()">Cancelar</button>
-        <button type="submit" class="button button--primary" [disabled]="loading" [attr.aria-busy]="loading">Crear usuario →</button>
+        <button type="submit" class="button button--primary" [disabled]="loading || form.invalid || !passwordsMatch()" [attr.aria-busy]="loading">Crear usuario →</button>
       </footer>
     } @else {
       <footer class="login__submit">
-        <button type="submit" class="button register__submit-button button--full-width" [disabled]="loading" [attr.aria-busy]="loading">Crear cuenta →</button>
+        <button type="submit" class="button register__submit-button button--full-width" [disabled]="loading || form.invalid || !passwordsMatch()" [attr.aria-busy]="loading">Crear cuenta →</button>
       </footer>
 
       <p class="register__login-link">

@@ -29,17 +29,26 @@
 }
 
 // Two-column row for password and confirmation
+// Rendered as <fieldset>; direct children are <app-form-field> host
+// elements (NOT the inner .form-field fieldsets), so we must size on
+// the host. CSS grid with minmax(0,1fr) guarantees both columns stay
+// at exactly 50% no matter how long the error message wraps.
 .register__row {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: $space-16;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 
   @include from-tablet {
-    flex-direction: row;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: flex-start;
+  }
 
-    & > .form-field {
-      flex: 1;
-    }
+  & > app-form-field {
+    min-width: 0;
+    max-width: 100%;
   }
 }
 
