@@ -40,11 +40,17 @@
 
 .act-editor__row {
   display: grid;
-  grid-template-columns: 1fr;
+  // minmax(0, 1fr) prevents grid items from blowing past the column
+  // when the slotted content (errors, long emails, dates) is wider
+  // than the column's intrinsic min-content width.
+  grid-template-columns: minmax(0, 1fr);
   gap: $space-16;
+  width: 100%;
+  min-width: 0;
 
   @include from-tablet {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: flex-start;
   }
 }
 

@@ -60,13 +60,25 @@
 }
 
 .element-form__row {
-  display: flex;
+  display: grid;
+  // Default to single column on narrow viewports / high zoom so the
+  // two halves never get compressed into unreadable widths.
+  grid-template-columns: minmax(0, 1fr);
   gap: $space-16;
+  width: 100%;
+  min-width: 0;
+
+  @include from-tablet {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: flex-start;
+  }
 }
 
+// Kept for backward-compat with existing styleClass binding; the grid
+// layout above already handles equal sizing.
 .element-form__field--half {
-  flex: 1;
   min-width: 0;
+  max-width: 100%;
 }
 
 .element-form__status-box {

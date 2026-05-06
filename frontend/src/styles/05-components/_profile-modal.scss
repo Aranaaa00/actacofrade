@@ -1,11 +1,15 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Profile modal: 2 columns (avatar + forms), centered, no scroll
+// Profile modal: 2 columns (avatar + forms). Body scrolls internally so the
+// overlay never produces a second scrollbar regardless of viewport height.
 .profile-modal__overlay {
-  align-items: center;
+  align-items: stretch;
   padding: $space-16;
-  overflow: hidden;
+
+  @include from-tablet {
+    align-items: center;
+  }
 }
 
 .profile-modal {
@@ -34,7 +38,8 @@
   grid-template-columns: 1fr;
   gap: $space-24;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 
   @include from-tablet {
     grid-template-columns: 16rem 1fr;
@@ -188,12 +193,6 @@
   align-items: center;
   gap: $space-12;
   flex-wrap: wrap;
-
-  // anchor the destructive action to the modal's left edge on wide screens,
-  // bypassing the avatar column without leaving the password form
-  @include from-tablet {
-    margin-left: calc(-16rem - #{$space-24});
-  }
 }
 
 .profile-modal__form-actions--split .profile-modal__delete {
