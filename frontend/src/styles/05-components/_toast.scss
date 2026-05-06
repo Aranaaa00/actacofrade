@@ -1,223 +1,308 @@
 @use 'sass:color';
 @use '../00-settings/variables' as *;
 
-// Parchment toast — compact, native to the design system. Only text colour varies per tone.
-// Side curls render as cylindrical rolls with visible spiral end-caps top and bottom,
-// matching the appearance of a real rolled paper viewed from the side.
-// Entry animation: parchment unrolls from the right (closed) toward the left.
 
-$toast-cream:        #f0e5c5;
-$toast-cream-mid:    #d8c89a;
-$toast-cream-deep:   #b3996a;
-$toast-cream-shadow: #8a7448;
-$toast-wood:         #5c4033;
-$toast-gold:         #c9a961;
-$toast-gold-dark:    #7a6428;
+$toast-paper-base:    #ece2c8;
+$toast-paper-mid:     #e3d6b5;
+$toast-paper-deep:    #c9b88a;
+$toast-paper-edge:    #8f7a4d;
+$toast-ink:           #3b2e1f;
+$toast-ink-soft:      rgba($toast-ink, 0.62);
+$toast-rule:          rgba($toast-ink, 0.18);
 
-.toasts {
+$toast-tone-success:  #2f5d2f;
+$toast-tone-warning:  #8a6a1f;
+$toast-tone-error:    #7a2f2f;
+$toast-tone-info:     $toast-ink;
+
+// Subtle paper-fibre noise (SVG turbulence, very low opacity).
+// Encoded once, reused in the parchment surface — avoids external assets.
+$toast-fibre:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/>\
+<feColorMatrix values='0 0 0 0 0.32  0 0 0 0 0.26  0 0 0 0 0.16  0 0 0 0.18 0'/></filter>\
+<rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+// Rolled scroll end-cap (vertical cylinder cross-section). Used on both sides.
+@mixin toast-roll($side) {
+  content: '';
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  #{$side}: -4px;
+  width: 9px;
+  border-radius: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    $toast-paper-edge 0%,
+    $toast-paper-deep 18%,
+    $toast-paper-mid  44%,
+    $toast-paper-base 54%,
+    $toast-paper-mid  72%,
+    $toast-paper-deep 88%,
+    $toast-paper-edge 100%
+  );
+  box-shadow:
+    0 2px 3px -1px rgba($toast-ink, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba($toast-ink, 0.22);
+}
+
+// =============================================================================
+// 1. Stacking region
+// =============================================================================
+.toast__container {
   position: fixed;
-  top: 5rem;
+  top: 5rem;                 // sits below the application header
   right: $space-24;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: $space-12;
   width: min(23rem, calc(100vw - #{$space-32}));
-  pointer-events: none;
+  pointer-events: none;       // clicks pass through gaps; toasts re-enable
 }
 
+// =============================================================================
+// 2. Block · .toast
+// =============================================================================
 .toast {
   pointer-events: auto;
   position: relative;
-  display: grid;
-  grid-template-columns: 1.4rem 1fr 1.4rem;
-  align-items: stretch;
-  filter: drop-shadow(0 0.4rem 0.9rem rgba(92, 64, 51, 0.22));
   transform-origin: right center;
-  animation: toast-unroll 720ms cubic-bezier(0.22, 0.85, 0.3, 1) both;
+  will-change: transform, opacity;
+  animation: toast-unroll 720ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 
-  &--leaving {
-    animation: toast-roll-back 420ms cubic-bezier(0.55, 0, 0.78, 0.4) both;
-  }
+  &::before { @include toast-roll(left); }
+  &::after  { @include toast-roll(right); }
 
-  // Side rolls: rendered as vertical cylinders with visible spiral end-caps.
-  &__edge {
+  // ---------------------------------------------------------------------------
+  // 2.1 Parchment surface
+  // ---------------------------------------------------------------------------
+  &__parchment {
     position: relative;
-    // Cylinder shading across the width: dark edge → light highlight → dark edge.
-    background: linear-gradient(
-      90deg,
-      $toast-cream-deep 0%,
-      $toast-cream-mid 25%,
-      $toast-cream 50%,
-      $toast-cream-mid 75%,
-      $toast-cream-deep 100%
-    );
-
-    // Top cap: spiral end of the rolled paper (looks like a circular cross-section).
-    &::before {
-      content: '';
-      position: absolute;
-      top: -0.2rem;
-      left: -0.05rem;
-      right: -0.05rem;
-      height: 0.7rem;
-      border-radius: 50%;
-      background: radial-gradient(
-        ellipse at 50% 55%,
-        $toast-cream 0%,
-        $toast-cream-mid 35%,
-        $toast-cream-deep 55%,
-        $toast-cream-shadow 70%,
-        $toast-cream-deep 85%,
-        $toast-cream-mid 100%
-      );
-      box-shadow:
-        inset 0 0 0 1px rgba($toast-wood, 0.35),
-        0 0.1rem 0.15rem rgba($toast-wood, 0.35);
-    }
-
-    // Bottom cap: mirrored spiral end-cap.
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -0.2rem;
-      left: -0.05rem;
-      right: -0.05rem;
-      height: 0.7rem;
-      border-radius: 50%;
-      background: radial-gradient(
-        ellipse at 50% 45%,
-        $toast-cream 0%,
-        $toast-cream-mid 35%,
-        $toast-cream-deep 55%,
-        $toast-cream-shadow 70%,
-        $toast-cream-deep 85%,
-        $toast-cream-mid 100%
-      );
-      box-shadow:
-        inset 0 0 0 1px rgba($toast-wood, 0.35),
-        0 -0.1rem 0.15rem rgba($toast-wood, 0.35);
-    }
+    overflow: hidden;
+    border: 1px solid $toast-rule;
+    border-radius: 2px;
+    // Layered realism: highlight wash + edge vignette + warm body + paper fibre.
+    background-color: $toast-paper-base;
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 255, 255, 0)    32%,
+        rgba(0, 0, 0, 0.04)       100%
+      ),
+      radial-gradient(
+        130% 80% at 0% 0%,
+        rgba($toast-paper-edge, 0.18) 0%,
+        rgba($toast-paper-edge, 0)    55%
+      ),
+      radial-gradient(
+        130% 80% at 100% 100%,
+        rgba($toast-paper-edge, 0.22) 0%,
+        rgba($toast-paper-edge, 0)    60%
+      ),
+      $toast-fibre,
+      linear-gradient(180deg, $toast-paper-base 0%, $toast-paper-mid 100%);
+    background-size: auto, auto, auto, 240px 240px, auto;
+    background-blend-mode: normal, normal, normal, multiply, normal;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.55) inset,
+      0 -1px 0 rgba($toast-paper-edge, 0.25) inset,
+      inset  6px 0 6px -6px rgba($toast-paper-edge, 0.45),
+      inset -6px 0 6px -6px rgba($toast-paper-edge, 0.45),
+      0 6px 14px -8px rgba($toast-ink, 0.35),
+      0 2px 4px -2px rgba($toast-ink, 0.18);
   }
 
-  &__sheet {
+  // ---------------------------------------------------------------------------
+  // 2.2 Inner content
+  // ---------------------------------------------------------------------------
+  &__content {
     position: relative;
     display: flex;
-    align-items: center;
-    gap: $space-8;
+    align-items: flex-start;
+    gap: $space-12;
     padding: $space-12 $space-16;
-    background:
-      radial-gradient(ellipse at top left, rgba($toast-gold, 0.14), transparent 55%),
-      radial-gradient(ellipse at bottom right, rgba($toast-wood, 0.08), transparent 55%),
-      $toast-cream;
-    // Thin shadow lines where the sheet meets each curl, giving the impression of a fold.
-    box-shadow:
-      inset 0.4rem 0 0.4rem -0.35rem rgba($toast-wood, 0.4),
-      inset -0.4rem 0 0.4rem -0.35rem rgba($toast-wood, 0.4);
-    border-top: 1px solid rgba($toast-wood, 0.22);
-    border-bottom: 1px solid rgba($toast-wood, 0.22);
   }
 
+  // Non-colour cue: typographic mark (overridden per state below).
+  // Ensures the message is identifiable without relying on hue alone.
+  &__indicator {
+    flex: 0 0 auto;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.125rem;
+    font-family: $font-heading;
+    font-size: 0.95rem;
+    font-weight: $weight-bold;
+    line-height: 1.125rem;
+    text-align: center;
+    color: currentColor;
+
+    &::before { content: '\00B7'; }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2.3 Message
+  // ---------------------------------------------------------------------------
   &__message {
     flex: 1 1 auto;
     margin: 0;
     font-family: $font-heading;
     font-size: 0.9375rem;
-    line-height: 1.35;
+    line-height: 1.4;
     font-weight: $weight-semibold;
-    letter-spacing: 0.01em;
-    color: $toast-wood;
+    letter-spacing: 0.005em;
+    color: $toast-ink;
+    word-break: break-word;
   }
 
+  // ---------------------------------------------------------------------------
+  // 2.4 Dismiss button
+  // ---------------------------------------------------------------------------
   &__close {
     flex: 0 0 auto;
     width: 1.25rem;
     height: 1.25rem;
+    margin-top: 0.0625rem;
     padding: 0;
     border: 0;
     background: transparent;
     font-family: $font-heading;
     font-size: 1rem;
     line-height: 1;
-    color: rgba($toast-wood, 0.75);
+    color: $toast-ink-soft;
     cursor: pointer;
     border-radius: 50%;
-    transition: background-color $motion-hover $motion-ease, color $motion-hover $motion-ease;
+    transition:
+      background-color $motion-hover $motion-ease,
+      color            $motion-hover $motion-ease,
+      box-shadow       $motion-hover $motion-ease;
 
-    &:hover,
-    &:focus-visible {
-      background-color: rgba($toast-wood, 0.12);
-      color: $toast-wood;
-      outline: none;
+    &:hover {
+      background-color: rgba($toast-ink, 0.08);
+      color: $toast-ink;
     }
 
     &:focus-visible {
-      box-shadow: 0 0 0 2px $toast-gold;
+      outline: none;
+      color: $toast-ink;
+      box-shadow: 0 0 0 2px rgba($toast-paper-edge, 0.85);
     }
   }
 
-  // Only text colour varies per tone — parchment surface stays the same.
-  &--success .toast__message { color: #2f5d2f; }
-  &--error   .toast__message { color: #8b3a3a; }
-  &--warning .toast__message { color: $toast-gold-dark; }
-  &--info    .toast__message { color: $toast-wood; }
+  // ---------------------------------------------------------------------------
+  // 3. Tonal modifiers — TEXT ONLY (parchment surface remains constant)
+  // ---------------------------------------------------------------------------
+  &--success {
+    .toast__message,
+    .toast__indicator { color: $toast-tone-success; }
+    .toast__indicator {
+      font-weight: $weight-bold;
+      &::before { content: '\2713'; } // ✓
+    }
+  }
+
+  &--warning {
+    .toast__message,
+    .toast__indicator { color: $toast-tone-warning; }
+    .toast__indicator {
+      &::before { content: '!'; }
+    }
+  }
+
+  &--error {
+    .toast__message,
+    .toast__indicator { color: $toast-tone-error; }
+    .toast__message   { font-weight: $weight-bold; }
+    .toast__indicator {
+      &::before { content: '\00D7'; } // ×
+    }
+  }
+
+  &--info {
+    .toast__message,
+    .toast__indicator { color: $toast-tone-info; }
+    .toast__indicator {
+      &::before { content: 'i'; font-style: italic; }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4. State · leaving (exit animation)
+  // ---------------------------------------------------------------------------
+  &--leaving {
+    animation: toast-roll-back 420ms cubic-bezier(0.4, 0, 0.7, 0.3) both;
+  }
 }
 
-// Realistic unroll: the sheet expands from the right curl, with a brief overshoot
-// that simulates the parchment settling once it has finished unfurling.
+// =============================================================================
+// 5. Animations — physical parchment metaphor (no bounce, no overshoot)
+// =============================================================================
+
+// Entry: unrolls horizontally from right to left. Combines a smooth scaleX
+// from the right edge with a clip-path reveal so the leading edge appears
+// to advance across the surface, mimicking the unfurling of paper.
 @keyframes toast-unroll {
   0% {
     opacity: 0;
-    transform: scaleX(0.06);
+    transform: scaleX(0.04);
+    clip-path: inset(0 0 0 100%);
   }
-  35% {
+  40% {
     opacity: 1;
-  }
-  72% {
-    transform: scaleX(1.025);
-  }
-  88% {
-    transform: scaleX(0.995);
   }
   100% {
     opacity: 1;
     transform: scaleX(1);
+    clip-path: inset(0 0 0 0);
   }
 }
 
-// Realistic roll-back: the parchment retracts toward the right curl before vanishing.
+// Exit: parchment contracts back toward the right and fades.
 @keyframes toast-roll-back {
   0% {
     opacity: 1;
     transform: scaleX(1);
-  }
-  60% {
-    opacity: 1;
-    transform: scaleX(0.4);
+    clip-path: inset(0 0 0 0);
   }
   100% {
     opacity: 0;
-    transform: scaleX(0.06);
+    transform: scaleX(0.04);
+    clip-path: inset(0 0 0 100%);
   }
 }
 
+// =============================================================================
+// 6. Accessibility · reduced motion
+// =============================================================================
 @media (prefers-reduced-motion: reduce) {
   .toast,
   .toast--leaving {
     animation: none;
+    transform: none;
+    clip-path: none;
     transition: opacity $motion-hover linear;
   }
+
+  .toast          { opacity: 1; }
+  .toast--leaving { opacity: 0; }
 }
 
+// =============================================================================
+// 7. Responsive
+// =============================================================================
 @media (max-width: $breakpoint-tablet) {
-  .toasts {
+  .toast__container {
     top: 4.5rem;
     right: $space-12;
     left: $space-12;
     width: auto;
   }
 
-  .toast__message {
-    font-size: 0.875rem;
-  }
+  .toast__message { font-size: 0.875rem; }
+  .toast__content { padding: $space-12; }
 }

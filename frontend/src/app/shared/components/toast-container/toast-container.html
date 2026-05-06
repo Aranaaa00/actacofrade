@@ -1,4 +1,4 @@
-<div class="toasts" aria-label="Notificaciones">
+<div class="toast__container" aria-label="Notificaciones">
   @for (toast of toasts(); track toast.id) {
     <article
       class="toast"
@@ -10,18 +10,19 @@
       [attr.role]="ariaRole(toast.tone)"
       [attr.aria-live]="ariaLive(toast.tone)"
       aria-atomic="true">
-      <span class="toast__edge toast__edge--left" aria-hidden="true"></span>
-      <div class="toast__sheet">
-        <p class="toast__message">{{ toast.message }}</p>
-        <button
-          type="button"
-          class="toast__close"
-          (click)="dismiss(toast.id)"
-          aria-label="Cerrar notificación">
-          <span aria-hidden="true">×</span>
-        </button>
+      <div class="toast__parchment">
+        <div class="toast__content">
+          <span class="toast__indicator" aria-hidden="true"></span>
+          <p class="toast__message">{{ toast.message }}</p>
+          <button
+            type="button"
+            class="toast__close"
+            (click)="dismiss(toast.id)"
+            aria-label="Cerrar notificación">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
       </div>
-      <span class="toast__edge toast__edge--right" aria-hidden="true"></span>
     </article>
   }
 </div>
