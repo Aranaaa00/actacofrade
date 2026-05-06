@@ -7,13 +7,12 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
-import { Banner } from '../../shared/components/banner/banner';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import {
   getEventTypeLabel, getEventStatusLabel,
   getEventStatusBadgeVariant, getStepIndex,
@@ -23,13 +22,14 @@ import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown, Banner],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown],
   templateUrl: './act-list.html',
 })
 export class ActList implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
   readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   readonly stepLabels = ['Planificación', 'Preparación', 'Confirmación', 'Cierre'];
   readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
@@ -44,8 +44,6 @@ export class ActList implements OnInit, OnDestroy {
   filterDate = '';
   searchQuery = '';
   loading = true;
-  // user-facing message shown when an action fails
-  errorMessage = '';
   availableDates: string[] = [];
 
   events: EventResponse[] = [];
@@ -151,15 +149,14 @@ export class ActList implements OnInit, OnDestroy {
   }
 
   cloneAct(act: EventResponse): void {
-    // reset previous error before request
-    this.errorMessage = '';
     this.eventService.clone(act.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
+        this.toast.success('Acto clonado correctamente.');
         this.loadAvailableDates();
         this.loadEvents();
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
+        this.toast.fromHttpError(err, 'No se pudo clonar el acto. Inténtalo de nuevo.');
       }
     });
   }
@@ -167,9 +164,8 @@ export class ActList implements OnInit, OnDestroy {
   private loadAvailableDates(): void {
     this.eventService.availableDates().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (dates) => { this.availableDates = dates; },
-      error: (err) => {
-        // Calendar filter is non-critical, log so QA can spot the issue.
-        console.error('Failed to load available dates', err);
+      error: () => {
+        // Calendar filter is non-critical, fall back to an empty list silently.
         this.availableDates = [];
       }
     });
@@ -177,7 +173,6 @@ export class ActList implements OnInit, OnDestroy {
 
   private loadEvents(): void {
     this.loading = true;
-    this.errorMessage = '';
     this.eventService.filter({
       eventType: this.filterType || undefined,
       status: this.filterStatus || undefined,
@@ -192,7 +187,7 @@ export class ActList implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar los actos.');
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudieron cargar los actos.');
         this.loading = false;
       }
     });

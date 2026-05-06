@@ -11,9 +11,9 @@ import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-di
 import { Register } from '../register/register';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { RoleStatsResponse, UserResponse } from '../../models/user.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 import { ROLE_BADGE_VARIANTS, ROLE_LABELS, ROLES_ALL } from '../../shared/constants/roles.const';
 
 interface PermissionColumn {
@@ -38,6 +38,7 @@ export class Users implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   readonly pageSize = 5;
   readonly permissionColumns = PERMISSION_COLUMNS;
@@ -56,7 +57,6 @@ export class Users implements OnInit, OnDestroy {
   readonly editableRoles = this.roleOptions.filter((o) => o.value !== '');
 
   loading = true;
-  errorMessage = '';
 
   users: UserResponse[] = [];
   stats: RoleStatsResponse = { administradores: 0, responsables: 0, colaboradores: 0, consulta: 0 };
@@ -171,9 +171,10 @@ export class Users implements OnInit, OnDestroy {
       next: (updated) => {
         this.users = this.users.map((u) => (u.id === updated.id ? updated : u));
         this.processingUserId = null;
+        this.toast.success(updated.active ? 'Usuario activado.' : 'Usuario desactivado.');
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo actualizar el estado del usuario.');
+        this.toast.fromHttpError(err, 'No se pudo actualizar el estado del usuario.');
         this.processingUserId = null;
       },
     });
@@ -202,9 +203,10 @@ export class Users implements OnInit, OnDestroy {
         this.showEditModal = false;
         this.editingUser = null;
         this.refreshStats();
+        this.toast.success('Rol del usuario actualizado.');
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo actualizar el rol del usuario.');
+        this.toast.fromHttpError(err, 'No se pudo actualizar el rol del usuario.');
         this.processingUserId = null;
       },
     });
@@ -247,9 +249,10 @@ export class Users implements OnInit, OnDestroy {
         if (this.currentPage > this.totalPages) {
           this.currentPage = this.totalPages;
         }
+        this.toast.success('Usuario eliminado correctamente.');
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudo eliminar el usuario.');
+        this.toast.fromHttpError(err, 'No se pudo eliminar el usuario.');
         this.processingUserId = null;
       },
     });
@@ -299,7 +302,7 @@ export class Users implements OnInit, OnDestroy {
         this.loading = false;
       },
       error: (err) => {
-        this.errorMessage = extractErrorMessage(err, 'No se pudieron cargar los usuarios. Inténtalo de nuevo más tarde.');
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudieron cargar los usuarios. Inténtalo de nuevo más tarde.');
         this.loading = false;
       },
     });

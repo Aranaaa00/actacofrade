@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { DashboardService } from '../../services/dashboard.service';
+import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { DashboardAlert, DashboardAlertType } from '../../models/dashboard.model';
 import { Badge } from '../../shared/components/badge/badge';
@@ -22,13 +23,13 @@ const ALERT_TYPE_LABELS: Record<DashboardAlertType, string> = {
 export class Dashboard implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
+  private readonly toast = inject(ToastService);
 
   events: EventResponse[] = [];
   alerts: DashboardAlert[] = [];
   alertCount = 0;
   readyToCloseCount = 0;
   loading = true;
-  errorMessage = '';
 
   get userName(): string {
     const user = this.authService.getUser();
@@ -53,8 +54,8 @@ export class Dashboard implements OnInit {
         this.readyToCloseCount = data.readyToCloseCount;
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'No se pudieron cargar los datos. Inténtalo de nuevo más tarde.';
+      error: (err) => {
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudieron cargar los datos. Inténtalo de nuevo más tarde.');
         this.loading = false;
       }
     });

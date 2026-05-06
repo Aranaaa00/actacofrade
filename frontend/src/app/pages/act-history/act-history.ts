@@ -8,6 +8,7 @@ import { FilterDropdown, FilterOption } from '../../shared/components/filter-dro
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { EventService } from '../../services/event.service';
 import { UserService } from '../../services/user.service';
+import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { UserResponse } from '../../models/user.model';
 import { sanitizeText } from '../../shared/utils/sanitize.utils';
@@ -32,6 +33,7 @@ export class ActHistory implements OnInit, OnDestroy {
   private readonly eventService = inject(EventService);
   private readonly userService = inject(UserService);
   private readonly el = inject(ElementRef);
+  private readonly toast = inject(ToastService);
 
   readonly pageSize = 5;
   readonly eventTypeOptions = EVENT_TYPE_OPTIONS;
@@ -229,8 +231,9 @@ export class ActHistory implements OnInit, OnDestroy {
         this.totalPages = Math.max(1, page.totalPages);
         this.loading = false;
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
+        this.toast.fromHttpErrorSilencingAuth(err, 'No se pudo cargar el historial de actos.');
       }
     });
   }
