@@ -2,16 +2,15 @@ import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { Banner } from '../../shared/components/banner/banner';
+import { ToastService } from '../../services/toast.service';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
-import { extractErrorMessage } from '../../shared/utils/http-error.utils';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, Banner, FormField, AutofocusDirective],
+  imports: [ReactiveFormsModule, RouterLink, FormField, AutofocusDirective],
   templateUrl: './login.html',
 })
 export class Login {
@@ -20,6 +19,7 @@ export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
@@ -28,7 +28,6 @@ export class Login {
   });
 
   loading = false;
-  errorMessage = '';
   submitted = false;
 
   constructor() {
@@ -51,9 +50,9 @@ export class Login {
     this.submitted = true;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de continuar.');
     } else {
       this.loading = true;
-      this.errorMessage = '';
 
       const { rememberMe, ...rawCredentials } = this.form.value;
       const credentials = sanitizeFormValues(rawCredentials);
@@ -61,11 +60,12 @@ export class Login {
       this.authService.login(credentials).subscribe({
         next: () => {
           this.loading = false;
+          this.toast.success('Sesión iniciada correctamente.');
           this.router.navigate([this.authService.isSuperAdmin() ? '/super-admin' : '/dashboard']);
         },
         error: (err) => {
           this.loading = false;
-          this.errorMessage = extractErrorMessage(err, 'Credenciales incorrectas. Inténtalo de nuevo.');
+          this.toast.fromHttpError(err, 'Credenciales incorrectas. Inténtalo de nuevo.');
         }
       });
     }

@@ -15,10 +15,6 @@
     <section class="login__main">
       <h1 class="login__heading" id="login-heading">Iniciar sesión</h1>
 
-      @if (errorMessage) {
-        <app-banner type="critical">{{ errorMessage }}</app-banner>
-      }
-
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login__form" aria-label="Formulario de inicio de sesión">
         <app-form-field label="Correo electrónico" fieldId="login-email" [hasError]="hasError('email')" [errorMessage]="hasError('email') ? getError('email') : ''">
           <input id="login-email"
