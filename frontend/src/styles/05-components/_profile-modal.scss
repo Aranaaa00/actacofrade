@@ -183,9 +183,69 @@
   justify-content: flex-end;
 }
 
+.profile-modal__form-actions--split {
+  justify-content: space-between;
+  align-items: center;
+  gap: $space-12;
+  flex-wrap: wrap;
+
+  // anchor the destructive action to the modal's left edge on wide screens,
+  // bypassing the avatar column without leaving the password form
+  @include from-tablet {
+    margin-left: calc(-16rem - #{$space-24});
+  }
+}
+
+.profile-modal__form-actions--split .profile-modal__delete {
+  margin-left: 0;
+}
+
 // Compact button reused inside the modal: respects tokens
 .profile-modal__btn {
   height: $size-input-height;
   padding-inline: $space-16;
   font-size: $text-paragraph;
+}
+
+.profile-modal__delete {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-8;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: $font-body;
+  font-size: $text-label;
+  font-weight: $weight-semibold;
+  color: var(--btn-danger-bg);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color $motion-hover $motion-ease;
+
+  &:disabled {
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+}
+
+.profile-modal__delete-marker {
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  background-color: currentColor;
+  border-radius: 1px;
+}
+
+.profile-modal__delete-label {
+  border-bottom: $border-1 dashed currentColor;
+  padding-bottom: 2px;
+}
+
+.profile-modal__delete:hover:not(:disabled) {
+  color: var(--btn-danger-bg-hover);
+
+  .profile-modal__delete-label {
+    border-bottom-style: solid;
+  }
 }

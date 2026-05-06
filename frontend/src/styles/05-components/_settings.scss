@@ -235,3 +235,92 @@
   background-color: var(--bg-surface-hover);
   border-color: var(--nav-bg);
 }
+
+// Discreet destructive panel: low contrast container, red only as a thin
+// vertical marker on the title and as a subtle text-link action.
+.settings__danger {
+  display: flex;
+  flex-direction: column;
+  gap: $space-8;
+  padding: $space-12 $space-16 $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 dashed var(--border-default);
+  border-radius: $radius-2;
+}
+
+.settings__danger-header {
+  display: flex;
+  align-items: center;
+  gap: $space-8;
+}
+
+.settings__danger-marker {
+  display: inline-block;
+  width: 3px;
+  height: 0.95em;
+  background-color: var(--btn-danger-bg);
+  border-radius: 1px;
+}
+
+.settings__danger-title {
+  font-family: $font-heading;
+  font-size: $text-paragraph;
+  font-weight: $weight-bold;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings__danger-text {
+  font-size: $text-paragraph;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.settings__danger-action {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: baseline;
+  gap: $space-8;
+  padding: 0;
+  margin-top: $space-4;
+  background: transparent;
+  border: 0;
+  font-family: $font-body;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--btn-danger-bg);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color $motion-hover $motion-ease;
+
+  &:disabled {
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+}
+
+.settings__danger-action-label {
+  border-bottom: $border-1 dashed currentColor;
+  padding-bottom: 2px;
+}
+
+.settings__danger-action:hover:not(:disabled) {
+  color: var(--btn-danger-bg-hover);
+
+  .settings__danger-action-label {
+    border-bottom-style: solid;
+  }
+
+  .settings__danger-action-arrow {
+    transform: translateX(3px);
+  }
+}
+
+.settings__danger-action-arrow {
+  display: inline-block;
+  font-size: $text-body;
+  line-height: 1;
+  transition: transform $motion-hover $motion-ease;
+}

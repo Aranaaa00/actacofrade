@@ -3,7 +3,7 @@
   @if (loading) {
     <p class="settings__loading" role="status">Cargando configuración…</p>
   } @else if (!hermandad) {
-    <p class="settings__error" role="alert">{{ errorMessage }}</p>
+    <p class="settings__error" role="status">No hay datos disponibles.</p>
   } @else {
 
   <header class="settings__header">
@@ -13,16 +13,10 @@
   @if (!canEdit) {
     <app-banner type="info">Solo el administrador puede modificar esta información.</app-banner>
   }
-  @if (errorMessage) {
-    <app-banner type="danger">{{ errorMessage }}</app-banner>
-  }
-  @if (successMessage) {
-    <app-banner type="success">{{ successMessage }}</app-banner>
-  }
 
-  <div class="settings__layout">
+  <form class="settings__layout" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-    <form class="settings__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="settings__form">
 
       <article class="settings__section">
         <header class="settings__section-header">
@@ -61,17 +55,18 @@
             <input id="telefonoContacto" class="settings__input" type="tel" formControlName="telefonoContacto" maxlength="20" autocomplete="tel" />
           </app-form-field>
         </div>
-        @if (canEdit) {
-          <footer class="settings__actions">
-            <button class="button button--primary" type="submit" [disabled]="saving || form.invalid || form.pristine">
-              {{ saving ? 'Guardando…' : 'Guardar cambios' }}
-            </button>
-          </footer>
-        }
       </article>
-    </form>
 
-    <aside class="settings__aside" aria-label="Información del sistema y accesos rápidos">
+      @if (canEdit) {
+        <footer class="settings__actions">
+          <button class="button button--primary" type="submit" [disabled]="saving || form.invalid || form.pristine">
+            {{ saving ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </footer>
+      }
+    </div>
+
+    <aside class="settings__aside" aria-label="Información del sistema">
 
       <article class="settings__section settings__section--compact">
         <header class="settings__section-header">
@@ -98,32 +93,35 @@
         </dl>
       </article>
 
-      <article class="settings__section settings__section--compact">
-        <header class="settings__section-header">
-          <lucide-icon name="link" class="settings__section-icon" [size]="20" aria-hidden="true"></lucide-icon>
-          <h2 class="settings__section-title">Accesos rápidos</h2>
-        </header>
-        <ul class="settings__links" role="list">
-          @if (canEdit) {
-            <li>
-              <a class="settings__link" routerLink="/users">
-                <lucide-icon name="users" [size]="18" aria-hidden="true"></lucide-icon>
-                Usuarios
-              </a>
-            </li>
-          }
-          <li>
-            <a class="settings__link" routerLink="/history">
-              <lucide-icon name="history" [size]="18" aria-hidden="true"></lucide-icon>
-              Historial
-            </a>
-          </li>
-        </ul>
-      </article>
+      @if (canEdit) {
+        <article class="settings__danger" aria-labelledby="settings-danger-title">
+          <header class="settings__danger-header">
+            <span class="settings__danger-marker" aria-hidden="true"></span>
+            <h2 id="settings-danger-title" class="settings__danger-title">Disolver hermandad</h2>
+          </header>
+          <p class="settings__danger-text">
+            La operación borrará la hermandad junto a sus actos, tareas, decisiones, incidencias y miembros. Es irreversible.
+          </p>
+          <button class="settings__danger-action" type="button" [disabled]="deleting" (click)="onRequestDelete()">
+            <span class="settings__danger-action-label">{{ deleting ? 'disolviendo…' : 'disolver hermandad' }}</span>
+            <span class="settings__danger-action-arrow" aria-hidden="true">→</span>
+          </button>
+        </article>
+      }
 
     </aside>
 
-  </div>
+  </form>
 
+  }
+
+  @if (showDeleteConfirm) {
+    <app-confirm-dialog
+      title="Eliminar hermandad"
+      [message]="deleteConfirmMessage"
+      confirmLabel="Eliminar definitivamente"
+      cancelLabel="Cancelar"
+      (confirmed)="onConfirmDelete()"
+      (cancelled)="onCancelDelete()" />
   }
 </section>

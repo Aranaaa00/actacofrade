@@ -1,12 +1,14 @@
 import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { Banner } from '../../shared/components/banner/banner';
 import { FormField } from '../../shared/components/form-field/form-field';
+import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { HermandadService } from '../../services/hermandad.service';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { HermandadResponse, HermandadUpdateRequest } from '../../models/hermandad.model';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../shared/utils/sanitize.utils';
@@ -14,21 +16,24 @@ import { formatDateTime } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-settings',
-  imports: [ReactiveFormsModule, RouterLink, LucideAngularModule, Banner, FormField],
+  imports: [ReactiveFormsModule, LucideAngularModule, Banner, FormField, ConfirmDialog],
   templateUrl: './settings.html',
 })
 export class Settings implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly hermandadService = inject(HermandadService);
   private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly toast = inject(ToastService);
 
   form!: FormGroup;
   hermandad: HermandadResponse | null = null;
   loading = false;
   saving = false;
-  errorMessage = '';
-  successMessage = '';
+  deleting = false;
+  showDeleteConfirm = false;
+  hasLoadError = false;
 
   ngOnInit(): void {
     // build the brotherhood form with size and pattern validators that mirror the backend
@@ -62,6 +67,11 @@ export class Settings implements OnInit {
     return this.hermandad?.updatedAt ? formatDateTime(this.hermandad.updatedAt) : 'Sin cambios registrados';
   }
 
+  get deleteConfirmMessage(): string {
+    const name = this.hermandad?.nombre ?? '';
+    return `¿Seguro que deseas eliminar "${name}"? Se borrarán todos los usuarios, actos y datos asociados de forma permanente.`;
+  }
+
   hasError(field: string): boolean {
     return hasFieldError(this.form, field);
   }
@@ -77,12 +87,11 @@ export class Settings implements OnInit {
     }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      this.toast.warning('Revisa los campos marcados antes de guardar.');
       return;
     }
 
     this.saving = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const sanitized = sanitizeFormValues(this.form.value) as HermandadUpdateRequest;
     this.hermandadService.updateCurrent(sanitized)
@@ -91,20 +100,52 @@ export class Settings implements OnInit {
         next: (response) => {
           this.applyResponse(response);
           this.form.markAsPristine();
-          this.successMessage = 'Configuración guardada correctamente.';
+          this.toast.success('Configuración guardada correctamente.');
           this.saving = false;
         },
         error: (err) => {
-          this.errorMessage = err.error?.message || 'No se pudo guardar la configuración. Inténtalo de nuevo.';
+          this.toast.fromHttpError(err, 'No se pudo guardar la configuración. Inténtalo de nuevo.');
           this.saving = false;
+        }
+      });
+  }
+
+  onRequestDelete(): void {
+    if (!this.canEdit || this.deleting) {
+      return;
+    }
+    this.showDeleteConfirm = true;
+  }
+
+  onCancelDelete(): void {
+    this.showDeleteConfirm = false;
+  }
+
+  onConfirmDelete(): void {
+    if (!this.canEdit || this.deleting) {
+      return;
+    }
+    this.showDeleteConfirm = false;
+    this.deleting = true;
+    this.hermandadService.deleteCurrent()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // session is invalid once the brotherhood disappears: drop credentials and go home
+          this.auth.logout();
+          this.toast.success('Hermandad eliminada correctamente.');
+          this.router.navigate(['/']);
+        },
+        error: (err) => {
+          this.toast.fromHttpError(err, 'No se pudo eliminar la hermandad. Inténtalo de nuevo.');
+          this.deleting = false;
         }
       });
   }
 
   private load(): void {
     this.loading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.hasLoadError = false;
     this.hermandadService.getCurrent()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -112,8 +153,9 @@ export class Settings implements OnInit {
           this.applyResponse(response);
           this.loading = false;
         },
-        error: () => {
-          this.errorMessage = 'No se pudo cargar la configuración de la hermandad.';
+        error: (err) => {
+          this.hasLoadError = true;
+          this.toast.fromHttpErrorSilencingAuth(err, 'No se pudo cargar la configuración de la hermandad.');
           this.loading = false;
         }
       });
