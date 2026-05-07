@@ -1,186 +1,170 @@
 # ActaCofrade
 
-ActaCofrade is a web application for Catholic brotherhoods (*cofradías*).
-It helps them organise their public events: planning the program, sharing
-the work between members, recording the decisions taken in each meeting
-and keeping a clear history of every incident that happens.
+ActaCofrade es una aplicación web pensada para hermandades y cofradías. Sirve para organizar sus actos: planificar el programa, repartir las tareas entre los miembros, dejar por escrito las decisiones tomadas en cada reunión y guardar el historial de incidencias de cada edición.
 
-The project has two parts:
+El proyecto tiene dos partes:
 
-* **Backend** — a Spring Boot REST API (Java 21) that owns the business
-  rules, the database and the authentication.
-* **Frontend** — an Angular Single Page Application served by Nginx, which
-  also acts as the reverse proxy of the API.
+- **Backend.** API REST en Spring Boot 4 sobre Java 21. Lleva la lógica de negocio, la base de datos y la autenticación.
+- **Frontend.** Aplicación Angular servida por Nginx, que además hace de reverse proxy del backend.
 
-The whole stack runs with a single command:
+Todo el stack se levanta con un único comando:
 
 ```bash
 docker compose up -d
 ```
 
-Full step-by-step deployment instructions, environment variables and
-verification commands live in [DEPLOY.md](DEPLOY.md). Detailed
-documentation of the API itself is in
-[backend/README.md](backend/README.md).
+Las instrucciones completas de despliegue, las variables de entorno y las comprobaciones de verificación están en [DEPLOY.md](DEPLOY.md). La documentación detallada de la API vive en [backend/README.md](backend/README.md).
 
 ---
 
-## Architecture
+## Documentación del TFG
 
-Three services share a private Docker network. Only the frontend is
-visible from the host. The backend and the database are reachable only
-from inside that network.
+La memoria del proyecto está dividida por capítulos en la carpeta [`docs/`](docs/):
+
+| Capítulo | Contenido |
+|---|---|
+| [1. Introducción, objetivos y antecedentes](docs/01-introduccion.md) | Origen de la idea, motivación y comparación con herramientas existentes. |
+| [2. Descripción del proyecto](docs/02-descripcion.md) | Alcance funcional, roles y casos de uso. |
+| [3. Instalación](docs/03-instalacion.md) | Requisitos, variables de entorno y arranque con Docker Compose. |
+| [4. Guía de estilos](docs/04-guia-estilos.md) | Convenciones visuales del frontend. |
+| [5. Diseño](docs/05-diseno.md) | Modelo de datos, arquitectura y decisiones técnicas. |
+| [6. Desarrollo](docs/06-desarrollo.md) | Estructura del código, flujo de trabajo y patrones aplicados. |
+| [7. Pruebas](docs/07-pruebas.md) | Estrategia de testing, cobertura y resultados. |
+| [8. Despliegue](docs/08-despliegue.md) | Despliegue del entorno completo (resumen de [DEPLOY.md](DEPLOY.md)). |
+| [9. Manual de usuario](docs/09-manual-usuario.md) | Guía de uso de la aplicación por roles. |
+| [10. Conclusiones](docs/10-conclusiones.md) | Balance, lecciones aprendidas y líneas futuras. |
+
+Otros materiales de referencia:
+
+- [docs/propuesta.md](docs/propuesta.md) — propuesta original del TFG con la identificación de necesidades.
+- [docs/postman/ActaCofrade_API.postman_collection.json](docs/postman/ActaCofrade_API.postman_collection.json) — colección de Postman lista para importar.
+
+---
+
+## Arquitectura
+
+Tres servicios comparten una red Docker privada. Solo el frontend es accesible desde el host. El backend y la base de datos solo se ven desde dentro de esa red.
 
 ```text
-   Browser ──► localhost:80
-                    │
-                    ▼
+   Navegador ──► localhost:80
+                       │
+                       ▼
             ┌──────────────────────┐
             │  frontend  (Nginx)   │
-            │  · Angular SPA       │
+            │  · SPA Angular       │
             │  · /api/* → backend  │
             │  · /swagger-ui*      │
             │  · /v3/api-docs      │
             └─────────┬────────────┘
-                      │  internal network
+                      │  red interna
                       ▼
             ┌──────────────────────┐
             │  backend  (Spring)   │
-            │  · REST API          │
-            │  · JWT auth          │
-            │  · Flyway migrations │
+            │  · API REST          │
+            │  · Autenticación JWT │
+            │  · Migraciones Flyway│
             └─────────┬────────────┘
-                      │  internal network
+                      │  red interna
                       ▼
             ┌──────────────────────┐
             │  db  (PostgreSQL 15) │
-            │  · volume: pg_data   │
+            │  · volumen: pg_data  │
             └──────────────────────┘
 ```
 
-| Service    | Image                        | Internal port | Published on host |
-|------------|------------------------------|---------------|-------------------|
-| `frontend` | built locally (`nginx:alpine`) | 80            | **80**            |
-| `backend`  | built locally (Temurin JRE 21) | 8080          | no                |
-| `db`       | `postgres:15-alpine`           | 5432          | no                |
+| Servicio   | Imagen                          | Puerto interno | Publicado en el host |
+|------------|---------------------------------|----------------|----------------------|
+| `frontend` | construida localmente (`nginx:alpine`) | 80      | **80**               |
+| `backend`  | construida localmente (Temurin JRE 21) | 8080    | no                   |
+| `db`       | `postgres:15-alpine`            | 5432           | no                   |
 
-How they talk to each other:
+Cómo se comunican entre sí:
 
-* The browser only calls the frontend on `http://localhost`.
-* Nginx forwards `/api/*`, `/swagger-ui*` and `/v3/api-docs*` to
-  `backend:8080`.
-* The backend connects to the database with the URL
-  `jdbc:postgresql://db:5432/${POSTGRES_DB}`.
-* Names like `backend` and `db` are resolved by the Docker DNS of the
-  `actacofrade_network` bridge.
+- El navegador solo habla con el frontend en `http://localhost`.
+- Nginx reenvía `/api/*`, `/swagger-ui*` y `/v3/api-docs*` a `backend:8080`.
+- El backend se conecta a la base de datos con `jdbc:postgresql://db:5432/${POSTGRES_DB}`.
+- Los nombres `backend` y `db` los resuelve el DNS interno de la red `actacofrade_network`.
 
 ---
 
-## Project layout
+## Estructura del repositorio
 
 ```
 .
-├── backend/                Spring Boot REST API (see backend/README.md)
-│   ├── src/                Java code and tests
-│   ├── Dockerfile          Multi-stage build (Maven → Temurin JRE)
+├── backend/                API REST en Spring Boot (ver backend/README.md)
+│   ├── src/                Código Java y tests
+│   ├── Dockerfile          Build multi-stage (Maven → Temurin JRE)
 │   └── pom.xml
-├── frontend/               Angular SPA + Nginx reverse proxy
-│   ├── src/                Angular code
-│   ├── nginx.conf          Reverse proxy + static config
-│   └── Dockerfile          Multi-stage build (Node → Nginx)
-├── docs/                   Functional docs and Postman collection
-├── docker-compose.yml      Stack definition (db + backend + frontend)
-├── .env.example            Template for the .env file
-├── DEPLOY.md               Full deployment guide
-└── .github/workflows/      CI pipelines (backend.yml, frontend.yml)
+├── frontend/               SPA Angular + Nginx como reverse proxy
+│   ├── src/                Código Angular
+│   ├── nginx.conf          Configuración del proxy y los estáticos
+│   └── Dockerfile          Build multi-stage (Node → Nginx)
+├── docs/                   Memoria del TFG y colección de Postman
+├── docker-compose.yml      Definición del stack (db + backend + frontend)
+├── .env.example            Plantilla del fichero .env
+├── DEPLOY.md               Guía completa de despliegue
+└── .github/workflows/      Pipelines de CI (backend.yml, frontend.yml)
 ```
 
 ---
 
-## Quick start
+## Arranque rápido
 
 ```bash
 git clone https://github.com/Aranaaa00/actacofrade.git
 cd actacofrade
 cp .env.example .env
-# Edit .env and set strong values (see DEPLOY.md)
+# Editar .env con valores reales (ver DEPLOY.md)
 docker compose up -d --build
 docker compose ps
 ```
 
-Once every service shows `(healthy)`:
+Cuando los tres servicios aparezcan como `(healthy)`:
 
-| URL                                       | What you get                  |
+| URL                                       | Qué se obtiene                |
 |-------------------------------------------|-------------------------------|
-| `http://localhost/`                       | Angular SPA (login screen)    |
-| `http://localhost/api/...`                | REST API                      |
-| `http://localhost/swagger-ui.html`        | Interactive API documentation |
-| `http://localhost/v3/api-docs`            | Raw OpenAPI document          |
+| `http://localhost/`                       | SPA Angular (pantalla de login) |
+| `http://localhost/api/...`                | API REST                      |
+| `http://localhost/swagger-ui.html`        | Documentación interactiva     |
+| `http://localhost/v3/api-docs`            | OpenAPI en JSON               |
 
 ---
 
-## API in short
+## Resumen de la API
 
-* Base path: `/api`.
-* Authentication: `Authorization: Bearer <token>`, obtained from
-  `POST /api/auth/login`.
-* Roles: `SUPER_ADMIN`, `ADMINISTRADOR`, `RESPONSABLE`, `COLABORADOR`,
-  `CONSULTA`.
-* Main resources: `auth`, `me`, `users`, `roles`, `hermandades`,
-  `events`, `tasks`, `decisions`, `incidents`, `audit`, `dashboard`,
-  `admin-change-requests`.
+- Ruta base: `/api`.
+- Autenticación: cabecera `Authorization: Bearer <token>` obtenida con `POST /api/auth/login`.
+- Roles: `SUPER_ADMIN`, `ADMINISTRADOR`, `RESPONSABLE`, `COLABORADOR`, `CONSULTA`.
+- Recursos principales: `auth`, `me`, `users`, `roles`, `hermandades`, `events`, `tasks`, `decisions`, `incidents`, `audit`, `dashboard`, `admin-change-requests`.
 
-The full endpoint list, the task state machine and the error envelope
-are documented in [backend/README.md](backend/README.md).
-
-The API is also documented live in Swagger UI at
-`http://localhost/swagger-ui.html` and as raw JSON at
-`http://localhost/v3/api-docs`.
+El listado completo de endpoints, la máquina de estados de las tareas y la estructura de errores están detallados en [backend/README.md](backend/README.md). La API también se puede explorar en vivo desde Swagger UI (`http://localhost/swagger-ui.html`) o consultar como JSON crudo en `http://localhost/v3/api-docs`.
 
 ---
 
-## Continuous integration
+## Integración continua
 
-The repository has two GitHub Actions workflows. Each one runs only when
-its part of the project changes:
+El repositorio tiene dos workflows en GitHub Actions. Cada uno se ejecuta solo cuando cambia su parte del proyecto:
 
-* [.github/workflows/backend.yml](.github/workflows/backend.yml) —
-  compiles the backend, runs unit and integration tests, publishes the
-  Surefire reports, and finally builds the backend Docker image.
-* [.github/workflows/frontend.yml](.github/workflows/frontend.yml) —
-  installs dependencies with `npm ci`, runs the production
-  `ng build`, uploads the `dist/` artifact, and builds the frontend
-  Docker image.
+- [.github/workflows/backend.yml](.github/workflows/backend.yml) — compila el backend, ejecuta los tests unitarios e integración, publica los informes de Surefire y construye la imagen Docker del backend.
+- [.github/workflows/frontend.yml](.github/workflows/frontend.yml) — instala dependencias con `npm ci`, ejecuta el `ng build` de producción, sube el `dist/` como artefacto y construye la imagen Docker del frontend.
 
-The pipelines do not need any external secret. They use only public
-images and a throw-away `JWT_SECRET` defined inside the runner.
+Las pipelines no necesitan secretos externos: usan únicamente imágenes públicas y un `JWT_SECRET` de usar y tirar generado dentro del runner.
 
-On every successful run on `main`, both workflows push the resulting
-Docker images to the **GitHub Container Registry** using the built-in
-`GITHUB_TOKEN`:
+En cada ejecución correcta sobre `main`, ambos workflows publican las imágenes resultantes en el **GitHub Container Registry** usando el `GITHUB_TOKEN` integrado:
 
-* `ghcr.io/aranaaa00/actacofrade-backend:latest`
-* `ghcr.io/aranaaa00/actacofrade-frontend:latest`
+- `ghcr.io/aranaaa00/actacofrade-backend:latest`
+- `ghcr.io/aranaaa00/actacofrade-frontend:latest`
 
-Each image is also tagged with the commit SHA so any past build can be
-pulled (`...:<sha>`). The packages page lists every published image:
-<https://github.com/Aranaaa00?tab=packages>.
+Cada imagen se etiqueta también con el SHA del commit (`...:<sha>`), así que se puede recuperar cualquier build pasado. La lista completa está en <https://github.com/Aranaaa00?tab=packages>.
 
 ---
 
-## Security highlights
+## Seguridad
 
-* Only port `80` is published on the host. Backend and database use
-  `expose:` and stay on the internal Docker network.
-* All secrets are read from `.env` (git-ignored) and injected as
-  container environment variables. Nothing is hard-coded.
-* The backend container runs as a non-root user.
-* Nginx adds defensive HTTP headers (`X-Frame-Options`,
-  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
-* Authentication uses signed JWTs (HS256) and the secret must be at
-  least 32 bytes. The login endpoint is rate-limited per IP and email.
+- Solo se publica el puerto `80` en el host. El backend y la base de datos usan `expose:` y se quedan en la red interna de Docker.
+- Todos los secretos se leen desde `.env` (incluido en `.gitignore`) y se inyectan como variables de entorno en los contenedores. Nada va escrito en el código.
+- El contenedor del backend se ejecuta con un usuario sin privilegios.
+- Nginx añade cabeceras defensivas (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
+- La autenticación se basa en JWT firmados con HS256, y el secreto debe tener al menos 32 bytes. El endpoint de login está limitado por IP y por email para frenar intentos de fuerza bruta.
 
-HTTPS is not terminated inside the stack on purpose: this academic
-deployment is reached through `localhost`. In a real production setup
-TLS would be terminated by an upstream component (Traefik, Caddy or a
-managed load balancer) in front of the Nginx container.
+HTTPS no se termina dentro del stack a propósito: este despliegue académico se accede por `localhost`. En un escenario real, el TLS lo terminaría un componente delante del Nginx (Traefik, Caddy o un balanceador gestionado).

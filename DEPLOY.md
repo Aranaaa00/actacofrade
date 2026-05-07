@@ -1,105 +1,93 @@
-# Deployment guide
+# Guía de despliegue
 
-This guide explains how to deploy ActaCofrade from zero on any machine
-with Docker, and how to check that the deployment really works.
+Esta guía explica cómo desplegar ActaCofrade desde cero en cualquier máquina con Docker, y cómo comprobar que el despliegue funciona realmente.
 
-For the project description and the architecture overview, see
-[README.md](README.md). The API itself is documented in
-[backend/README.md](backend/README.md).
+Para la descripción del proyecto y la arquitectura general, ver [README.md](README.md). La API está documentada en [backend/README.md](backend/README.md).
 
 ---
 
-## 1. Requirements
+## 1. Requisitos
 
-* Docker Desktop 4.x or Docker Engine ≥ 24, with the Compose plugin.
-  The command `docker compose version` must work.
-* Git.
-* Free TCP port `80` on the host.
+- Docker Desktop 4.x o Docker Engine ≥ 24, con el plugin de Compose. El comando `docker compose version` debe responder.
+- Git.
+- Puerto TCP `80` libre en el host.
 
-You do **not** need Java or Node.js on the host. The Docker images
-build everything on their own.
+No hace falta tener Java ni Node.js instalados. Las imágenes Docker compilan todo por su cuenta.
 
 ---
 
-## 2. Deploy from zero
+## 2. Despliegue desde cero
 
 ```bash
-# 1. Get the source code
+# 1. Clonar el repositorio
 git clone https://github.com/Aranaaa00/actacofrade.git
 cd actacofrade
 
-# 2. Create the environment file from the template
+# 2. Crear el fichero de entorno a partir de la plantilla
 cp .env.example .env
 
-# 3. Edit .env. The values you MUST change before the first start:
+# 3. Editar .env. Antes del primer arranque hay que cambiar SÍ o SÍ:
 #      POSTGRES_PASSWORD
-#      DB_PASSWORD            (same value as POSTGRES_PASSWORD)
+#      DB_PASSWORD            (mismo valor que POSTGRES_PASSWORD)
 #      JWT_SECRET             (>= 32 bytes; openssl rand -base64 48)
 #      SUPERADMIN_EMAIL
 #      SUPERADMIN_PASSWORD
 #      SUPERADMIN_FULL_NAME
 
-# 4. Build the images and start the stack
+# 4. Construir las imágenes y arrancar el stack
 docker compose up -d --build
 
-# 5. Wait until all three services are healthy
+# 5. Esperar a que los tres servicios estén "healthy"
 docker compose ps
 ```
 
-When you see the three services in state `Up ... (healthy)` the
-deployment is finished. The application is now available at
-`http://localhost/`.
+Cuando los tres servicios aparezcan como `Up ... (healthy)`, el despliegue ha terminado. La aplicación está en `http://localhost/`.
 
-To stop everything:
+Para parar el stack:
 
 ```bash
-docker compose down            # stop, keep the database data
-docker compose down -v         # stop and delete the database data
+docker compose down            # parar, conservando los datos de la base
+docker compose down -v         # parar y borrar también los datos
 ```
 
 ---
 
-## 3. Environment variables
+## 3. Variables de entorno
 
-All variables come from `.env`. Variables marked **required** must
-have a real value (not the placeholder from `.env.example`) before the
-first `docker compose up`.
+Toda la configuración viene del fichero `.env`. Las variables marcadas como **obligatorias** deben tener un valor real (no el placeholder de `.env.example`) antes del primer `docker compose up`.
 
-| Variable                  | Required | What it does                                                              |
-|---------------------------|:--------:|---------------------------------------------------------------------------|
-| `POSTGRES_DB`             | yes      | Name of the database created on first start.                              |
-| `POSTGRES_USER`           | yes      | Database user owned by the application.                                   |
-| `POSTGRES_PASSWORD`       | yes      | Database password.                                                        |
-| `DB_URL`                  | no       | JDBC URL. Compose overrides it to `jdbc:postgresql://db:5432/...`.        |
-| `DB_USER` / `DB_PASSWORD` | yes      | Backend datasource (must match `POSTGRES_USER` / `POSTGRES_PASSWORD`).    |
-| `JWT_SECRET`              | yes      | HMAC key for JWTs. Minimum 32 bytes.                                      |
-| `JWT_EXPIRATION_MS`       | no       | JWT lifetime in milliseconds (default `86400000`, i.e. 24 h).             |
-| `CORS_ALLOWED_ORIGINS`    | yes      | Allowed origins, comma separated. Example: `http://localhost`.            |
-| `AVATAR_MAX_SIZE`         | no       | Spring multipart limit, e.g. `2MB`.                                       |
-| `AVATAR_MAX_BYTES`        | no       | Same limit in bytes (must match `AVATAR_MAX_SIZE`).                       |
-| `AVATAR_ALLOWED_TYPES`    | no       | MIME types accepted as avatar.                                            |
-| `SUPERADMIN_EMAIL`        | no       | If set, a `SUPER_ADMIN` user is created on first start.                   |
-| `SUPERADMIN_PASSWORD`     | no       | Password for that super-admin user.                                       |
-| `SUPERADMIN_FULL_NAME`    | no       | Display name for that super-admin user.                                   |
+| Variable                  | Obligatoria | Para qué sirve                                                            |
+|---------------------------|:-----------:|---------------------------------------------------------------------------|
+| `POSTGRES_DB`             | sí          | Nombre de la base de datos creada en el primer arranque.                  |
+| `POSTGRES_USER`           | sí          | Usuario propietario de la base de datos.                                  |
+| `POSTGRES_PASSWORD`       | sí          | Contraseña de la base de datos.                                           |
+| `DB_URL`                  | no          | URL JDBC. Compose la sobrescribe a `jdbc:postgresql://db:5432/...`.       |
+| `DB_USER` / `DB_PASSWORD` | sí          | Datasource del backend (debe coincidir con `POSTGRES_USER` / `POSTGRES_PASSWORD`). |
+| `JWT_SECRET`              | sí          | Clave HMAC para firmar JWTs. Mínimo 32 bytes.                             |
+| `JWT_EXPIRATION_MS`       | no          | Vida del JWT en milisegundos (por defecto `86400000`, 24 h).              |
+| `CORS_ALLOWED_ORIGINS`    | sí          | Orígenes permitidos separados por coma. Ejemplo: `http://localhost`.      |
+| `AVATAR_MAX_SIZE`         | no          | Límite de multipart de Spring, p. ej. `2MB`.                              |
+| `AVATAR_MAX_BYTES`        | no          | El mismo límite en bytes (debe coincidir con `AVATAR_MAX_SIZE`).          |
+| `AVATAR_ALLOWED_TYPES`    | no          | MIME types aceptados como avatar.                                         |
+| `SUPERADMIN_EMAIL`        | no          | Si se indica, crea un usuario `SUPER_ADMIN` en el primer arranque.        |
+| `SUPERADMIN_PASSWORD`     | no          | Contraseña de ese super-admin.                                            |
+| `SUPERADMIN_FULL_NAME`    | no          | Nombre visible del super-admin.                                           |
 
-`.env` is git-ignored and must never be committed. For CI/CD or real
-production, store secrets in the secret manager of the platform
-(GitHub Actions repository secrets, Docker secrets, etc.).
+`.env` está en `.gitignore` y nunca debe subirse al repositorio. Para CI/CD o producción real, los secretos van en el gestor de la plataforma (secrets de GitHub Actions, Docker secrets, etc.).
 
 ---
 
-## 4. Verification
+## 4. Verificación
 
-Run these commands after `docker compose up -d`. All of them must pass
-to consider the deployment correct.
+Estas comprobaciones se hacen tras `docker compose up -d`. Todas deben pasar para considerar correcto el despliegue.
 
-### 4.1 The three services are healthy
+### 4.1 Los tres servicios están sanos
 
 ```bash
 docker compose ps
 ```
 
-Expected output:
+Salida esperada:
 
 ```
 NAME                   STATUS
@@ -108,53 +96,51 @@ actacofrade_backend    Up X seconds (healthy)
 actacofrade_frontend   Up X seconds (healthy)
 ```
 
-### 4.2 The frontend answers through the reverse proxy
+### 4.2 El frontend responde a través del reverse proxy
 
 ```bash
 curl -I http://localhost/
 ```
 
-Expected: `HTTP/1.1 200 OK` served by `nginx`.
+Esperado: `HTTP/1.1 200 OK` servido por `nginx`.
 
-### 4.3 The API answers through the reverse proxy
+### 4.3 La API responde a través del reverse proxy
 
 ```bash
 curl -fsS http://localhost/v3/api-docs | head -c 200
 ```
 
-Expected: a JSON document that starts with `{"openapi":"3...`.
+Esperado: un JSON que empieza por `{"openapi":"3...`.
 
 ```bash
 curl -I http://localhost/swagger-ui.html
 ```
 
-Expected: HTTP `200` or `302`. The interactive Swagger UI is served.
+Esperado: HTTP `200` o `302`. Swagger UI se sirve correctamente.
 
-### 4.4 The backend port is NOT exposed (security check)
+### 4.4 El puerto del backend NO está expuesto
 
 ```bash
 curl --max-time 3 -I http://localhost:8080/
 ```
 
-Expected: connection refused or timeout. The backend must not be
-reachable from the host.
+Esperado: conexión rechazada o timeout. El backend no debe ser alcanzable desde el host.
 
-### 4.5 Authentication smoke test
+### 4.5 Smoke test de autenticación
 
-Replace the values with the super-admin credentials you set in `.env`:
+Sustituyendo los valores por las credenciales del super-admin definido en `.env`:
 
 ```bash
 curl -s -X POST http://localhost/api/auth/login \
      -H "Content-Type: application/json" \
-     -d '{"email":"admin@example.com","password":"YOUR_PASSWORD"}'
+     -d '{"email":"admin@example.com","password":"TU_PASSWORD"}'
 ```
 
-Expected: a JSON response that contains an `accessToken` field.
+Esperado: una respuesta JSON con un campo `accessToken`.
 
-### 4.6 Light load check
+### 4.6 Carga ligera
 
-Send 50 requests to the OpenAPI document and print the HTTP code and
-the time of each one:
+Lanzar 50 peticiones al documento OpenAPI e imprimir el código HTTP y el tiempo de cada una:
 
 ```bash
 for i in $(seq 1 50); do
@@ -163,12 +149,9 @@ for i in $(seq 1 50); do
 done
 ```
 
-Expected: every line shows `200` and the time stays below ~200 ms on a
-normal laptop. This is enough to confirm that the reverse proxy and
-the application server keep stable response times under repeated
-calls.
+Esperado: todas las líneas muestran `200` y el tiempo se mantiene por debajo de ~200 ms en un portátil normal. Es suficiente para confirmar que el reverse proxy y el servidor de aplicaciones aguantan llamadas repetidas con tiempos estables.
 
-### 4.7 Logs of each service
+### 4.7 Logs de cada servicio
 
 ```bash
 docker compose logs --tail=50 backend
@@ -176,46 +159,121 @@ docker compose logs --tail=20 frontend
 docker compose logs --tail=20 db
 ```
 
-What to look for:
+Qué hay que ver:
 
-* `backend` shows `Started BackendApplication in X seconds` and the
-  list of Flyway migrations applied.
-* `frontend` shows the Nginx start-up and real `GET` lines for every
-  request you sent during the verification.
-* `db` shows `database system is ready to accept connections`.
+- `backend`: la línea `Started BackendApplication in X seconds` y la lista de migraciones de Flyway aplicadas.
+- `frontend`: el arranque de Nginx y un `GET` real por cada petición lanzada en la verificación.
+- `db`: `database system is ready to accept connections`.
 
 ---
 
-## 5. Continuous integration
+## 5. Servidor web y reverse proxy
 
-There are two workflows in `.github/workflows/`:
+La capa web es **Nginx** (imagen `nginx:alpine`) corriendo dentro del servicio `frontend`. Es el **único** contenedor expuesto al host (puerto `80`). Tanto el backend de Spring Boot como la base de datos PostgreSQL están en la red interna `actacofrade_network` y **no** publican puertos, así que no se pueden alcanzar desde fuera del host Docker.
 
-| Workflow file  | Triggered by changes in | What it does                                                    |
-|----------------|-------------------------|-----------------------------------------------------------------|
-| `backend.yml`  | `backend/**`            | Compiles the API, runs unit and integration tests, builds the backend Docker image. |
-| `frontend.yml` | `frontend/**`           | Installs dependencies, runs the production Angular build, uploads `dist/` and builds the frontend Docker image. |
+### 5.1 Qué hace Nginx
 
-Both pipelines also run on `workflow_dispatch`, so they can be
-launched by hand from the *Actions* tab in GitHub.
+| Responsabilidad           | Cómo                                                                  |
+|---------------------------|-----------------------------------------------------------------------|
+| Estáticos (Angular)       | Sirve `/usr/share/nginx/html` (la salida del `ng build` de producción). |
+| Routing de la SPA         | `try_files $uri $uri/ /index.html` para que el router de Angular renderice los enlaces profundos. |
+| Caché larga de hashes     | `*.js`, `*.css`, fuentes, imágenes → `Cache-Control: public, immutable, 1y`. |
+| Shell siempre fresco      | `index.html` → `Cache-Control: no-store`.                             |
+| Compresión                | `gzip` sobre tipos de texto (`application/json`, `text/css`, ...).    |
+| Reverse proxy             | `/api/`, `/v3/api-docs`, `/swagger-ui`, `/swagger-ui.html` → `backend:8080` por la red interna, con keepalive HTTP/1.1 (`upstream` + `keepalive 32`). |
+| Cabeceras forwarded       | `Host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`, `X-Forwarded-Host`, `X-Forwarded-Port` para que Spring Boot construya URLs absolutas correctas (Swagger UI, redirecciones). |
+| Endurecimiento            | `server_tokens off`, `client_max_body_size 4m`, bloqueo de dotfiles, cabeceras de seguridad (`X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, `Cross-Origin-Resource-Policy`). |
+| Endpoint de salud         | `GET /healthz` devuelve `200 ok` y lo usa el healthcheck Docker del servicio `frontend`. |
 
-The build does not need any real secret. If you add a deployment job
-later, configure the credentials as **repository secrets** in GitHub
-and never write them in the repository.
+La configuración completa está en [`frontend/nginx.conf`](frontend/nginx.conf) y la copia en `/etc/nginx/conf.d/default.conf` el [`frontend/Dockerfile`](frontend/Dockerfile).
 
-The Git workflow used in this project: feature branches with
-descriptive commits in Spanish, `main` always green, no merge of red
-builds.
+### 5.2 HTTPS
+
+HTTPS **no** se termina en esta imagen a propósito:
+
+- El entregable es un stack Docker autocontenido pensado para correr en un portátil, en CI o detrás de un ingress propio de la organización (Nginx en el host, Traefik, Caddy o un balanceador cloud). Esos terminadores ya gestionan certificados, OCSP stapling y renovación, así que duplicarlo dentro del contenedor solo añade superficie de ataque y complica el desarrollo local.
+- Para verificación local (`http://localhost`) los navegadores no exigen TLS, y los emisores ACME (Let's Encrypt) no pueden validar `localhost`.
+- La configuración está **lista para HTTPS**: al final de `nginx.conf` hay un bloque `server { listen 443 ssl http2; ... }` comentado con selección moderna de protocolos y cifrados (`TLSv1.2`, `TLSv1.3`), cabecera `HSTS` y redirección HTTP→HTTPS. Activarlo solo requiere tres pasos: montar un volumen con el certificado, publicar el puerto `443` en `docker-compose.yml` y descomentar el bloque.
+- `X-Forwarded-Proto` ya se propaga, así que el backend genera URLs `https://` correctas en el momento en que haya un terminador TLS delante de Nginx.
+
+`Strict-Transport-Security` no se envía sobre HTTP plano deliberadamente: enviarlo haría que los navegadores rechazaran el sitio si HTTPS aún no está disponible. Forma parte del snippet listo para HTTPS.
+
+### 5.3 Evidencias
+
+Tras `docker compose up -d`, estos comandos son los que demuestran que el reverse proxy funciona.
+
+**Fichero de configuración**
+
+```bash
+cat frontend/nginx.conf
+```
+
+**`curl -I` contra el proxy** (estas peticiones llegan a Nginx, no al backend directamente: el backend no tiene puerto en el host):
+
+```bash
+# Shell del frontend
+curl -I http://localhost/
+# -> HTTP/1.1 200 OK, Server: nginx, Cache-Control: no-store en /index.html
+
+# API a través del proxy (documento OpenAPI servido por el backend)
+curl -I http://localhost/v3/api-docs
+# -> HTTP/1.1 200 OK, Content-Type: application/json
+
+# Swagger UI a través del proxy
+curl -I http://localhost/swagger-ui.html
+# -> HTTP/1.1 302 Found, Location: /swagger-ui/index.html
+
+# Salud del proxy
+curl -I http://localhost/healthz
+# -> HTTP/1.1 200 OK
+
+# El backend NO se alcanza directamente desde el host
+curl --max-time 3 -I http://localhost:8080/   # connection refused / timeout
+```
+
+**Logs reales del proxy con esas peticiones**
+
+```bash
+docker compose logs --tail=20 frontend
+```
+
+Debería verse una línea de access-log por cada `curl`, p. ej.:
+
+```
+192.168.x.x - - [..] "HEAD / HTTP/1.1" 200 0 "-" "curl/8.x"
+192.168.x.x - - [..] "HEAD /v3/api-docs HTTP/1.1" 200 0 "-" "curl/8.x"
+192.168.x.x - - [..] "HEAD /swagger-ui.html HTTP/1.1" 302 0 "-" "curl/8.x"
+```
+
+Nginx escribe `access.log` en `/dev/stdout` y `error.log` en `/dev/stderr` (configuración por defecto de la imagen `nginx:alpine`), así que todo el tráfico del proxy queda capturado por Docker y se ve con `docker compose logs`.
 
 ---
 
-## 6. Troubleshooting
+## 6. Integración continua
 
-| Problem                                                       | What to do                                                                                      |
-|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| Backend logs show `JWT_SECRET ... too short`                  | Change `JWT_SECRET` in `.env` to at least 32 bytes (`openssl rand -base64 48`).                 |
-| `actacofrade_backend` stays `unhealthy`                       | `docker compose logs backend`. Usually wrong DB credentials.                                    |
-| `curl http://localhost/` returns `502 Bad Gateway`            | The backend is not healthy yet. Wait a few seconds and check the backend logs.                  |
-| Port 80 is already in use                                     | Stop the program that uses it, or change the host mapping in `docker-compose.yml`.              |
-| Login returns `401`                                           | The super-admin was not created. Set `SUPERADMIN_*` and run `docker compose down -v` followed by `docker compose up -d`. |
-| You changed code and the container does not pick it up        | `docker compose build --no-cache <service>` and then `docker compose up -d`.                    |
-| Reset everything to a clean state                             | `docker compose down -v && docker compose build --no-cache && docker compose up -d`.            |
+Hay dos workflows en `.github/workflows/`:
+
+| Workflow       | Se dispara con cambios en | Qué hace                                                        |
+|----------------|---------------------------|-----------------------------------------------------------------|
+| `backend.yml`  | `backend/**`              | Compila la API, ejecuta tests unitarios e integración y construye la imagen Docker del backend. |
+| `frontend.yml` | `frontend/**`             | Instala dependencias, lanza el build de producción de Angular, sube `dist/` y construye la imagen Docker del frontend. |
+
+Ambos también responden a `workflow_dispatch`, así que se pueden lanzar a mano desde la pestaña *Actions* de GitHub.
+
+El build no necesita secretos reales. Si más adelante se añade un job de despliegue, las credenciales se configuran como **repository secrets** y nunca se escriben en el repositorio.
+
+Flujo de Git del proyecto: ramas de feature con commits descriptivos en español, `main` siempre verde y nada que se mezcle con tests en rojo.
+
+---
+
+## 7. Resolución de problemas
+
+| Problema                                                       | Qué hacer                                                                                       |
+|----------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| Los logs del backend muestran `JWT_SECRET ... too short`       | Cambiar `JWT_SECRET` en `.env` a un valor de al menos 32 bytes (`openssl rand -base64 48`).     |
+| `actacofrade_backend` se queda en `unhealthy`                  | `docker compose logs backend`. Casi siempre son credenciales de base de datos incorrectas.      |
+| `curl http://localhost/` devuelve `502 Bad Gateway`            | El backend aún no está sano. Esperar unos segundos y revisar los logs.                          |
+| El puerto 80 ya está en uso                                    | Detener el proceso que lo ocupa o cambiar el mapeo en `docker-compose.yml`.                     |
+| El login devuelve `401`                                        | El super-admin no se llegó a crear. Definir las variables `SUPERADMIN_*` y reiniciar con `docker compose down -v` seguido de `docker compose up -d`. |
+| Tras cambiar código, el contenedor sigue con la versión vieja  | `docker compose build --no-cache <servicio>` y luego `docker compose up -d`.                    |
+| Empezar de cero                                                | `docker compose down -v && docker compose build --no-cache && docker compose up -d`.            |
