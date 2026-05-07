@@ -6,8 +6,8 @@
 
 El diseño completo de la aplicación está disponible en Figma. Incluye todas las pantallas, estados de componentes y la guía de estilos del sistema.
 
-**[Abrir prototipo en Figma](https://www.figma.com/design/6BNWzqbzZVRMAGXaj2xDK2/ActaCofrade?node-id=0-1&p=f&t=3tk9X1XYoAYat07i-0)**
-
+**[Abrir proyecto completo en Figma](https://www.figma.com/files/team/1552704699894487846/project/458400834?fuid=1552704695646243318)**
+**[Abrir portada del proyecto en Figma](https://www.figma.com/design/6BNWzqbzZVRMAGXaj2xDK2/ActaCofrade?t=PCy3GjpM4AbEyw5L-1)**
 ---
 
 ## Guía de estilos
