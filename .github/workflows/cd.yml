@@ -7,7 +7,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  DOCKERHUB_NAMESPACE: aranaaa00
+  DOCKERHUB_NAMESPACE: aranaa00
 
 permissions:
   contents: read
