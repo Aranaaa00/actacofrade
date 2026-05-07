@@ -29,7 +29,7 @@ jobs:
       - name: Build and test backend
         working-directory: backend
         env:
-          JWT_SECRET: ci-test-secret-please-do-not-use-in-prod-32b
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./mvnw -B -ntp clean verify
 
       - name: Set up Docker Buildx

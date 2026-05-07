@@ -36,9 +36,7 @@ jobs:
 
       - name: Build and test with Maven
         env:
-          # The application requires a JWT_SECRET of at least 32 bytes
-          # to start the Spring context during integration tests.
-          JWT_SECRET: ci-test-secret-please-do-not-use-in-prod-32b
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./mvnw -B -ntp clean verify
 
       - name: Upload Surefire reports
