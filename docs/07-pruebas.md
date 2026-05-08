@@ -115,7 +115,7 @@ La cobertura se mide con JaCoCo, configurado para excluir del análisis las clas
 
 ### Frontend
 
-La cobertura del frontend la genera Istanbul a través de `karma-coverage`. El umbral mínimo configurado en `karma.conf.js` es del **> 85%** en las cuatro métricas (statements, branches, functions y lines). Si alguna métrica cae por debajo, la ejecución de tests falla.
+La cobertura del frontend la genera Istanbul a través de `karma-coverage`. El umbral mínimo configurado en `karma.conf.js` es **> 85%** en las cuatro métricas (statements, branches, functions y lines). Si alguna métrica cae por debajo, la ejecución de tests falla.
 
 ![Cobertura Istanbul del frontend](/docs/assets/frontend-cobertura.png)
 
