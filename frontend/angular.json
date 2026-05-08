@@ -84,6 +84,15 @@
             ],
             "tsConfig": "tsconfig.spec.json",
             "inlineStyleLanguage": "scss",
+            "karmaConfig": "karma.conf.js",
+            "codeCoverage": true,
+            "codeCoverageExclude": [
+              "src/app/models/**/*.ts",
+              "src/app/**/*.html",
+              "src/main.ts",
+              "src/app/app.config.ts",
+              "src/app/app.routes.ts"
+            ],
             "assets": [
               {
                 "glob": "**/*",
@@ -93,6 +102,12 @@
             "styles": [
               "src/styles.scss"
             ]
+          },
+          "configurations": {
+            "ci": {
+              "watch": false,
+              "browsers": "ChromeHeadlessCI"
+            }
           }
         }
       }
