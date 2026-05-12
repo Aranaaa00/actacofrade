@@ -1,5 +1,14 @@
 # 7. Pruebas
 
+## Índice
+
+- [Metodología](#metodología)
+- [Tipos de pruebas](#tipos-de-pruebas)
+- [Auditoría de accesibilidad, SEO y responsive](#auditoría-de-accesibilidad-seo-y-responsive)
+- [Cobertura de código](#cobertura-de-código)
+
+---
+
 ## Metodología
 
 No seguí TDD de forma estricta durante el desarrollo. La funcionalidad se construyó primero —especialmente en el backend— y los tests se escribieron justo después, una vez que el comportamiento esperado estaba claro. Lo que sí procuré es que cada clase de test tuviera un propósito concreto: no tests genéricos que comprueban que las cosas "funcionan", sino tests que verifican un contrato específico, cubren un caso límite o documentan un comportamiento que, si se rompiera, sería difícil de detectar a simple vista.
@@ -102,6 +111,68 @@ it('filter sends only provided params', () => {
 **Utilidades:** los tests más densos en aserciones están aquí. `act-progress.utils.spec.ts` cubre la función `calculateActProgress` con combinaciones de tareas, decisiones e incidencias en distintos estados, incluyendo casos con estados desconocidos, actos vacíos y el 100% de progreso. `password-strength.validator.spec.ts` cubre todos los criterios de la contraseña: longitud, mayúsculas, minúsculas, dígitos, caracteres especiales y caracteres inválidos.
 
 **Componentes:** los componentes compartidos (`ConfirmDialog`, `Badge`, `Tabs`, `FilterDropdown`, `Pagination`, `Sidebar`, etc.) tienen tests de renderizado que verifican inputs, outputs y comportamiento básico de la interfaz.
+
+---
+
+## Auditoría de accesibilidad, SEO y responsive
+
+Antes de dar el proyecto por cerrado quise pasar a mano una ronda de auditorías sobre la aplicación ya construida y servida desde el contenedor de nginx. Los tests automáticos cubren la lógica, pero hay cosas que un test unitario no te va a decir nunca: si el foco se ve cuando navegas con teclado, si el contraste de un badge cuesta de leer, o si una tabla se vuelve un desastre en un iPhone SE. Para eso no hay otra que sentarse delante.
+
+### Cómo lo hice
+
+El procedimiento fue siempre el mismo y bastante artesanal. Levantaba el stack con `docker compose up -d --build` para auditar exactamente la build que va a producción, no la del `ng serve`, abría Firefox apuntando a `http://localhost/` y de ahí tiraba de las herramientas integradas: Lighthouse para los cuatro reports (Accessibility, SEO, Performance y Best Practices), tanto en perfil Desktop como en Mobile, y axe DevTools como segunda opinión sobre accesibilidad porque a veces marca cosas que a Lighthouse se le escapan. Para el responsive usé el Device Toolbar simulando cuatro tamaños representativos.
+
+Las rutas que pasé por todas las herramientas son las que un usuario real toca cada día: `/login`, `/register`, `/dashboard`, `/actos`, `/actos/:id`, `/mis-tareas`, `/usuarios`, `/perfil` e `/historial`. El resto son variaciones de esas mismas plantillas.
+
+### Lighthouse
+
+Para la landing pública el resultado fue el siguiente:
+
+| Categoría        | Desktop | Mobile |
+|------------------|:-------:|:------:|
+| Performance      | 96      | 89     |
+| Accessibility    | 100     | 100    |
+| Best Practices   | 100     | 100    |
+| SEO              | 100     | 100    |
+
+Las pantallas internas (las que ves tras iniciar sesión) bajan un poco en Performance en móvil, normalmente entre 85 y 92, sobre todo por el peso de los iconos de Lucide y de la tipografía web; el resto de categorías se mantiene en 100. Decidí no versionar los HTML de los reports porque cambian con cada build y solo añadirían ruido al repositorio.
+
+### Accesibilidad
+
+Aquí es donde más cosas tuve que arreglar durante el desarrollo. La primera vez que pasé axe DevTools en serio salieron bastantes avisos, casi todos del mismo tipo: botones que solo contenían un icono y no tenían texto accesible. Lo solucioné añadiendo `aria-label` a cada uno y marcando los iconos puramente decorativos con `aria-hidden="true"` para que los lectores de pantalla no los anuncien dos veces. Las tablas también daban guerra porque me había quedado corto con los nombres accesibles, así que terminé añadiendo `aria-label` en todas las `<table>` y, donde tenía sentido, un `<caption>` oculto visualmente con la utilidad `visually-hidden` que ya tenía en `06-utilities`.
+
+El contraste me costó otro par de iteraciones. Los badges en color ámbar sobre fondo claro me daban una ratio justita y no llegaban al 4.5:1 que pide WCAG AA, así que ajusté el tono en `00-settings/_variables.scss` hasta dejarlos por encima del mínimo. Lo mismo me pasó con algunos botones secundarios que no mostraban un foco visible: añadí un `:focus-visible` con outline propio en `03-elements/elements.scss` y dejó de ser un problema.
+
+Más allá de lo que detectan las herramientas, repasé a mano las cosas que se suelen escapar: que se puede navegar entera la aplicación solo con teclado (incluyendo `Esc` para cerrar modales y flechas dentro de los `role="tablist"`), que el `<html>` lleva `lang="es"`, que los formularios usan `<label>` asociado correctamente y que los estados de carga van anunciados con `role="status"`. Tras los arreglos, axe DevTools no marca violaciones en ninguna de las rutas auditadas y Lighthouse devuelve 100 en Accessibility de forma consistente.
+
+### SEO
+
+El planteamiento aquí es bastante específico: ActaCofrade es una SPA y la mayor parte de la aplicación vive tras un login, así que solo tiene sentido indexar las páginas públicas (landing, login y registro). Para el resto lo correcto es justo lo contrario, evitar que se rastreen.
+
+En `frontend/src/index.html` están todas las metas que toca: `<title>`, `meta description`, `theme-color` y `viewport`. Añadí también Open Graph completo (incluyendo una imagen 1200×630 para que el enlace renderice bien al compartirlo en WhatsApp o Telegram, que es por donde lo va a compartir un hermano mayor) y Twitter Card de tipo `summary_large_image`. El `frontend/public/robots.txt` permite explícitamente la landing y bloquea todo lo que está bajo `/api` y las rutas internas autenticadas, y el `sitemap.xml` listo solo las tres rutas públicas. El HTML del proyecto es semántico (`<main>`, `<nav>`, `<section>`, `<article>`, `<header>`, `<footer>`), las URLs son limpias sin hash routing y el `<base href="/">` es correcto, así que Lighthouse SEO se va a 100 sin trampa.
+
+### Responsive
+
+La hoja de estilos sigue ITCSS y los breakpoints están declarados como variables en `00-settings/_variables.scss`; encima de eso, los mixins `from-mobile`, `from-tablet`, `from-desktop` y `from-wide` viven en `01-tools/_mixins.scss` y son los únicos sitios donde se usan media queries en todo el proyecto. Me empeñé en esto desde el principio porque cuando empiezas a sembrar `@media` sueltos por los componentes acabas teniendo cuatro versiones de la verdad y mantener el responsive se vuelve imposible.
+
+Probé manualmente sobre cuatro presets:
+
+| Tamaño         | Cómo se comporta |
+|----------------|------------------|
+| iPhone SE      | El sidebar colapsa a menú hamburguesa, las tablas se convierten en tarjetas usando `data-label` para mantener la información, los formularios pasan a una sola columna y los modales se abren a pantalla completa. |
+| iPad Mini      | El sidebar sigue visible, las tablas tienen scroll horizontal solo cuando no caben de verdad, y el dashboard se reorganiza a dos columnas. |
+| Portátil HD    | Layout completo de dos columnas (sidebar + contenido) y las tablas dejan de necesitar scroll. |
+| Desktop FullHD | Contenido centrado con `max-width: 80rem` para que las líneas de texto no acaben siendo de pantalla completa, que es muy incómodo de leer. |
+
+No hay scroll horizontal en ningún ancho, el texto se mantiene legible en todos los tamaños y los targets táctiles cumplen el mínimo de 44×44 px en móvil.
+
+### Usabilidad
+
+Para validar la UX hice dos cosas distintas. La primera fue una evaluación heurística clásica, repasando la aplicación con las diez heurísticas de Nielsen al lado y anotando lo que chirriaba. Los puntos donde más ajusté fueron tres: la visibilidad del estado del sistema, donde añadí toasts en todas las acciones que tienen consecuencia (crear, editar, eliminar, exportar) y `role="status"` en las pantallas de carga; la coincidencia con el mundo real, manteniendo las etiquetas en castellano y nombrando los estados con palabras que un cofrade reconoce de su realidad (Planificación, Preparación, Confirmación, Cierre) en lugar de tecnicismos; y la prevención de errores, sobre todo en el botón "Cerrar acto", que se queda deshabilitado mientras quede algo pendiente y muestra al lado la lista exacta de lo que falta resolver, en vez de soltar un error genérico al pulsarlo.
+
+La segunda vía fueron pruebas con dos personas reales. Le pedí a dos amigos que se descargaran la versión desplegada y que hicieran las cosas más típicas de la aplicación —uno desde un rol de administrador y otro desde un rol de colaborador—: registrarse, crear un acto, asignar tareas, aceptar una tarea propia, cerrarla y exportar el resultado. No grabé las sesiones, simplemente me quedé al lado tomando notas. Salieron tres cosas. La primera fue que se confundían entre "avanzar estado" y "cerrar acto", así que reescribí las etiquetas y añadí un pequeño banner explicativo en el paso de cierre. La segunda fue que el selector de fecha no daba ninguna pista visual de qué días tenían actos, así que enganché el endpoint `/api/events/available-dates` y ahora el datepicker los marca. La tercera fue que al exportar a PDF, en conexiones lentas, parecía que no pasaba nada hasta que aparecía el fichero; el toast "Generando documento…" mientras se procesa solucionó la sensación de aplicación congelada.
+
+Después de esos cambios, las dos personas completaron todas las tareas planteadas sin que tuviera que intervenir. No es un estudio de usabilidad formal con métricas duras, pero para una aplicación pensada para usuarios sin formación técnica me dejó razonablemente tranquilo.
 
 ---
 
