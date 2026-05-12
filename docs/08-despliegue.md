@@ -29,7 +29,7 @@ docker compose version
 
 ![Salida de docker --version y docker compose version en el Droplet](/docs/assets/deploy-docker-version.png)
 
-El dominio `actacofrade.com` apunta directamente a la IP pública del Droplet con un registro en el proveedor del dominio. No hay balanceador de carga ni CDN por delante: las peticiones llegan al puerto 80 del servidor, que es donde escucha Nginx dentro del contenedor del frontend.
+El dominio `actacofrade.com` está delegado a los nameservers de Cloudflare, que actúa como CDN/proxy delante del Droplet. Las peticiones HTTPS llegan primero a Cloudflare, que termina el TLS y reenvía el tráfico al puerto 80 del servidor en modo "Full". Ahí es donde escucha Nginx dentro del contenedor del frontend. La IP real del Droplet no queda expuesta en DNS: los registros A apuntan a los proxies de Cloudflare.
 
 ---
 

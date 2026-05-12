@@ -19,6 +19,8 @@ El proyecto tiene dos partes:
 - **Backend.** API REST en Spring Boot 4 sobre Java 21. Lleva la lógica de negocio, la base de datos y la autenticación.
 - **Frontend.** Aplicación Angular servida por Nginx, que además hace de reverse proxy del backend.
 
+La aplicación está desplegada en producción en **[www.actacofrade.com](https://www.actacofrade.com)**.
+
 Todo el stack se levanta con un único comando:
 
 ```bash
@@ -284,4 +286,4 @@ Los workflows de CI no necesitan secretos externos: usan imágenes públicas y u
 - Nginx añade cabeceras defensivas (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`).
 - La autenticación se basa en JWT firmados con HS256, y el secreto debe tener al menos 32 bytes. El endpoint de login está limitado por IP y por email para frenar intentos de fuerza bruta.
 
-HTTPS no se termina dentro del stack a propósito: este despliegue académico se accede por `localhost`. En un escenario real, el TLS lo terminaría un componente delante del Nginx (Traefik, Caddy o un balanceador gestionado).
+HTTPS no se termina dentro del stack. En producción, Cloudflare actúa como CDN delante del Droplet y termina TLS antes de reenviar las peticiones al Nginx del contenedor (modo "Full"). Para despliegues sin Cloudflare o sin otro terminador externo, al final de `nginx.conf` hay un bloque comentado con configuración TLS lista para activar (TLSv1.2 + TLSv1.3, HSTS, redirección HTTP→HTTPS).
