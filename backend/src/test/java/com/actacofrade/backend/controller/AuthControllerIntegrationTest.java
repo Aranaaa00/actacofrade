@@ -1,6 +1,7 @@
 package com.actacofrade.backend.controller;
 
 import com.actacofrade.backend.dto.AuthResponse;
+import com.actacofrade.backend.dto.RegistrationStatusResponse;
 import com.actacofrade.backend.exception.GlobalExceptionHandler;
 import com.actacofrade.backend.security.LoginRateLimiter;
 import com.actacofrade.backend.service.AuthService;
@@ -59,10 +60,8 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void register_validRequest_returns201() throws Exception {
-        AuthResponse resp = new AuthResponse(1, "TOKEN", "admin@hermandad.es",
-                "Admin Hermandad", List.of("ADMINISTRADOR"), "Hermandad de Prueba", false);
-        given(authService.register(any())).willReturn(resp);
+    void register_validRequest_returns202() throws Exception {
+        given(authService.register(any())).willReturn(RegistrationStatusResponse.pendingVerification());
 
         String body = """
                 {
@@ -77,10 +76,8 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.token").value("TOKEN"))
-                .andExpect(jsonPath("$.email").value("admin@hermandad.es"))
-                .andExpect(jsonPath("$.roles[0]").value("ADMINISTRADOR"));
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.status").value("pending_verification"));
     }
 
     @Test
