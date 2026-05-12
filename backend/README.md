@@ -1,6 +1,6 @@
 ﻿# ActaCofrade Backend
 
-Spring Boot REST API for **ActaCofrade**, a tool that helps cofradÃ­as (Catholic
+Spring Boot REST API for **ActaCofrade**, a tool that helps cofradías (Catholic
 brotherhoods) plan their events, follow up on the work of their members, and
 keep an auditable history of every decision and incident that happens during
 each act.
@@ -12,6 +12,20 @@ that sends the request.
 
 ---
 
+## Index
+
+- [1. Tech stack](#1-tech-stack)
+- [2. Project structure](#2-project-structure)
+- [3. Authentication and roles](#3-authentication-and-roles)
+- [4. API overview](#4-api-overview)
+- [5. Interactive documentation (Swagger UI)](#5-interactive-documentation-swagger-ui)
+- [6. Database model](#6-database-model)
+- [7. Configuration (environment variables)](#7-configuration-environment-variables)
+- [8. How to run the backend](#8-how-to-run-the-backend)
+- [9. Quick health check](#9-quick-health-check)
+
+---
+
 ## 1. Tech stack
 
 | Area | Choice |
@@ -19,12 +33,12 @@ that sends the request.
 | Language / runtime | Java 21 |
 | Framework | Spring Boot 4.0 (Web MVC, Data JPA, Security, Validation) |
 | Database | PostgreSQL 15+ |
-| Migrations | Flyway (V1 â€¦ V16) |
+| Migrations | Flyway (V1 … V16) |
 | Auth | JWT (jjwt 0.12, HS256) |
 | API docs | OpenAPI 3 + Swagger UI (springdoc 2.8) |
 | PDF export | OpenPDF 1.3 |
 | Tests | JUnit 5, Mockito, Spring Test, MockMvc |
-| Coverage | JaCoCo (â‰¥ 85 % line coverage required to pass `verify`) |
+| Coverage | JaCoCo (≥ 85 % line coverage required to pass `verify`) |
 | Build | Maven (`./mvnw`) |
 
 ---
@@ -33,33 +47,33 @@ that sends the request.
 
 ```
 backend/
-â”œâ”€â”€ pom.xml
-â”œâ”€â”€ Dockerfile
-â”œâ”€â”€ mvnw, mvnw.cmd
-â””â”€â”€ src/
-    â”œâ”€â”€ main/
-    â”‚   â”œâ”€â”€ java/com/actacofrade/backend/
-    â”‚   â”‚   â”œâ”€â”€ BackendApplication.java     â€” Spring Boot entry point
-    â”‚   â”‚   â”œâ”€â”€ config/                     â€” OpenAPI config, super-admin bootstrap
-    â”‚   â”‚   â”œâ”€â”€ controller/                 â€” REST endpoints (no business logic)
-    â”‚   â”‚   â”œâ”€â”€ dto/                        â€” Request / response records
-    â”‚   â”‚   â”œâ”€â”€ entity/                     â€” JPA entities and enums
-    â”‚   â”‚   â”œâ”€â”€ exception/                  â€” GlobalExceptionHandler
-    â”‚   â”‚   â”œâ”€â”€ repository/                 â€” Spring Data repositories + Specifications
-    â”‚   â”‚   â”œâ”€â”€ security/                   â€” SecurityConfig, JwtService, JwtAuthenticationFilter,
-    â”‚   â”‚   â”‚                                 LoginRateLimiter, CustomUserDetailsService
-    â”‚   â”‚   â”œâ”€â”€ service/                    â€” Business logic, transactions, hermandad scoping
-    â”‚   â”‚   â””â”€â”€ util/                       â€” SanitizationUtils, AuthorizationHelper
-    â”‚   â””â”€â”€ resources/
-    â”‚       â”œâ”€â”€ application.properties
-    â”‚       â””â”€â”€ db/migration/               â€” Flyway scripts V1__â€¦V16__
-    â””â”€â”€ test/
-        â””â”€â”€ java/com/actacofrade/backend/
-            â”œâ”€â”€ controller/                 â€” MockMvc integration tests
-            â”œâ”€â”€ service/                    â€” Mockito unit tests
-            â”œâ”€â”€ security/                   â€” JWT, filter, rate limiter, user details
-            â”œâ”€â”€ util/                       â€” Sanitization, authorization helpers
-            â””â”€â”€ support/                    â€” Shared test fixtures
+├── pom.xml
+├── Dockerfile
+├── mvnw, mvnw.cmd
+└── src/
+    ├── main/
+    │   ├── java/com/actacofrade/backend/
+    │   │   ├── BackendApplication.java     — Spring Boot entry point
+    │   │   ├── config/                     — OpenAPI config, super-admin bootstrap
+    │   │   ├── controller/                 — REST endpoints (no business logic)
+    │   │   ├── dto/                        — Request / response records
+    │   │   ├── entity/                     — JPA entities and enums
+    │   │   ├── exception/                  — GlobalExceptionHandler
+    │   │   ├── repository/                 — Spring Data repositories + Specifications
+    │   │   ├── security/                   — SecurityConfig, JwtService, JwtAuthenticationFilter,
+    │   │   │                                 LoginRateLimiter, CustomUserDetailsService
+    │   │   ├── service/                    — Business logic, transactions, hermandad scoping
+    │   │   └── util/                       — SanitizationUtils, AuthorizationHelper
+    │   └── resources/
+    │       ├── application.properties
+    │       └── db/migration/               — Flyway scripts V1__…V16__
+    └── test/
+        └── java/com/actacofrade/backend/
+            ├── controller/                 — MockMvc integration tests
+            ├── service/                    — Mockito unit tests
+            ├── security/                   — JWT, filter, rate limiter, user details
+            ├── util/                       — Sanitization, authorization helpers
+            └── support/                    — Shared test fixtures
 ```
 
 The architecture is a strict layered MVC:
@@ -110,7 +124,7 @@ configurable through environment variables.
 ### JWT
 
 * Algorithm: `HS256`.
-* Secret: `JWT_SECRET` (mandatory, â‰¥ 32 bytes / 256 bits, validated on
+* Secret: `JWT_SECRET` (mandatory, ≥ 32 bytes / 256 bits, validated on
   startup).
 * Expiration: `JWT_EXPIRATION_MS` (default `86400000` = 24 h).
 
@@ -130,7 +144,7 @@ whole API and is produced by `GlobalExceptionHandler`:
 }
 ```
 
-Successful responses return the resource directly, or a Spring `Page<â€¦>`
+Successful responses return the resource directly, or a Spring `Page<…>`
 object for paginated endpoints. HTTP statuses used: `200`, `201`, `204`,
 `400`, `401`, `403`, `404`, `409`, `413`, `500`.
 
@@ -154,10 +168,10 @@ object for paginated endpoints. HTTP statuses used: `200`, `201`, `204`,
 ### Task state machine
 
 ```
-PLANNED â†’ ACCEPTED â†’ IN_PREPARATION â†’ CONFIRMED â†’ COMPLETED
-   â”‚           â”‚
-   â”‚           â””â”€â”€ REJECTED
-   â””â”€â”€ reset to PLANNED
+PLANNED → ACCEPTED → IN_PREPARATION → CONFIRMED → COMPLETED
+   │           │
+   │           └── REJECTED
+   └── reset to PLANNED
 ```
 
 Each transition has its own PATCH endpoint and is validated by the service
@@ -205,14 +219,14 @@ API without reading the source code.
 
 Main relationships:
 
-* `Hermandad` 1â€”N `User`, 1â€”N `Event`, 1â€”N `AdminChangeRequest`.
-* `User` Nâ€”M `Role` through `user_roles`.
-* `User` 1â€”1 `UserAvatar` (optional binary avatar).
-* `Event` Nâ€”1 `User` (responsible) and 1â€”N `Task`, `Decision`, `Incident`,
+* `Hermandad` 1—N `User`, 1—N `Event`, 1—N `AdminChangeRequest`.
+* `User` N—M `Role` through `user_roles`.
+* `User` 1—1 `UserAvatar` (optional binary avatar).
+* `Event` N—1 `User` (responsible) and 1—N `Task`, `Decision`, `Incident`,
   `AuditLog`.
-* `Task` Nâ€”1 `User` for `assignedTo`, `createdBy` and `confirmedBy`.
-* `Incident` Nâ€”1 `User` for `reportedBy` and `resolvedBy`.
-* `Decision` Nâ€”1 `User` for `reviewedBy`.
+* `Task` N—1 `User` for `assignedTo`, `createdBy` and `confirmedBy`.
+* `Incident` N—1 `User` for `reportedBy` and `resolvedBy`.
+* `Decision` N—1 `User` for `reviewedBy`.
 
 Every primary key is an auto-increment `INTEGER`. Status fields use native
 PostgreSQL enums (`role_code`, `event_status`, `event_type`, `task_status`,
@@ -235,8 +249,8 @@ environment.
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `DB_URL` | no | `jdbc:postgresql://localhost:5432/actacofrade` | JDBC URL for PostgreSQL. |
-| `DB_USER` / `DB_PASSWORD` | yes | â€” | Database credentials. |
-| `JWT_SECRET` | **yes** | â€” | Signing key, â‰¥ 32 bytes. The application refuses to start otherwise. |
+| `DB_USER` / `DB_PASSWORD` | yes | — | Database credentials. |
+| `JWT_SECRET` | **yes** | — | Signing key, ≥ 32 bytes. The application refuses to start otherwise. |
 | `JWT_EXPIRATION_MS` | no | `86400000` | Token lifetime in milliseconds. |
 | `CORS_ALLOWED_ORIGINS` | no | `http://localhost:4200` | Comma-separated origins allowed by CORS. Add the deployed frontend origin here. |
 | `AVATAR_MAX_SIZE` | no | `2MB` | Multipart limit. |
@@ -252,7 +266,7 @@ Multipart upload limits are also surfaced through
 
 ## 8. How to run the backend
 
-### Option A â€” Docker Compose (recommended)
+### Option A — Docker Compose (recommended)
 
 From the **repository root**:
 
@@ -268,7 +282,7 @@ container also runs an Nginx reverse proxy that exposes the API and the
 interactive documentation under the same origin as the website, so the
 deployed site serves Swagger UI without any extra configuration.
 
-### Option B â€” Maven, locally
+### Option B — Maven, locally
 
 ```bash
 cd backend
@@ -286,7 +300,7 @@ cd backend
 ```
 
 `verify` compiles, runs every unit and integration test, and enforces the
-JaCoCo line-coverage rule (â‰¥ 85 % on `service`, `controller`, `security` and
+JaCoCo line-coverage rule (≥ 85 % on `service`, `controller`, `security` and
 `util`). The HTML coverage report is written to
 `target/site/jacoco/index.html`.
 
@@ -302,14 +316,14 @@ To run only one test class:
 
 After `docker compose up -d --build`:
 
-* `GET http://localhost:8080/v3/api-docs` â†’ returns the OpenAPI JSON.
-* `GET http://localhost:8080/swagger-ui.html` â†’ loads Swagger UI.
-* `POST http://localhost:8080/api/auth/login` with valid credentials â†’
+* `GET http://localhost:8080/v3/api-docs` → returns the OpenAPI JSON.
+* `GET http://localhost:8080/swagger-ui.html` → loads Swagger UI.
+* `POST http://localhost:8080/api/auth/login` with valid credentials →
   returns a JWT.
 
 The same paths also work through the frontend's reverse proxy on port `80`
 (`http://localhost/swagger-ui.html`, `http://localhost/api/auth/login`,
-â€¦), which is the configuration used in production.
+…), which is the configuration used in production.
 
 If any of those calls fails, check the container logs:
 
