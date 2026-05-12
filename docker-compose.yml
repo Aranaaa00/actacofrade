@@ -45,6 +45,11 @@ services:
       SUPERADMIN_EMAIL: ${SUPERADMIN_EMAIL}
       SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD}
       SUPERADMIN_FULL_NAME: ${SUPERADMIN_FULL_NAME}
+      # Email verification (Resend + Cloudflare DNS)
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
+      APP_BASE_URL: ${APP_BASE_URL}
+      TOKEN_EXPIRATION_TIME: ${TOKEN_EXPIRATION_TIME}
     depends_on:
       db:
         condition: service_healthy
