@@ -1,0 +1,45 @@
+@if (visible()) {
+  <aside class="cookie-banner"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="cookie-banner-title"
+    aria-describedby="cookie-banner-desc">
+
+    <header class="cookie-banner__head">
+      <span class="cookie-banner__tag">Aviso</span>
+      <h2 class="cookie-banner__title" id="cookie-banner-title">Cookies y almacenamiento</h2>
+    </header>
+
+    <p class="cookie-banner__desc" id="cookie-banner-desc">
+      Guardamos un token técnico para mantener tu sesión iniciada. El resto
+      —medición de uso y mejoras— solo se activa si tú lo decides.
+      <a routerLink="/cookies">Ver detalles</a>.
+    </p>
+
+    <ul class="cookie-banner__list" aria-label="Qué incluye cada opción">
+      <li class="cookie-banner__item cookie-banner__item--on">
+        <span class="cookie-banner__dot" aria-hidden="true"></span>
+        <span class="cookie-banner__item-label">Sesión y seguridad</span>
+        <span class="cookie-banner__item-meta">Obligatorias</span>
+      </li>
+      <li class="cookie-banner__item">
+        <span class="cookie-banner__dot" aria-hidden="true"></span>
+        <span class="cookie-banner__item-label">Medición y mejoras</span>
+        <span class="cookie-banner__item-meta">Opcionales</span>
+      </li>
+    </ul>
+
+    <div class="cookie-banner__actions">
+      <button type="button"
+        class="button button--secondary cookie-banner__button"
+        (click)="essentialOnly()">
+        Solo esenciales
+      </button>
+      <button type="button"
+        class="button button--primary cookie-banner__button"
+        (click)="acceptAll()">
+        Aceptar todo
+      </button>
+    </div>
+  </aside>
+}

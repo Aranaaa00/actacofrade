@@ -1,0 +1,23 @@
+<main class="legal">
+  <a class="legal__back" routerLink="/" aria-label="Volver a la página principal">← Volver</a>
+
+  <article class="legal__content">
+    <header class="legal__header">
+      <h1 class="legal__title">{{ title }}</h1>
+      @if (updatedAt) {
+        <p class="legal__updated">Última actualización: {{ updatedAt }}</p>
+      }
+    </header>
+
+    <ng-content />
+  </article>
+
+  <footer class="legal__footer">
+    <nav class="legal__nav" aria-label="Documentos legales">
+      <a routerLink="/terminos">Términos</a>
+      <a routerLink="/privacidad">Privacidad</a>
+      <a routerLink="/cookies">Cookies</a>
+    </nav>
+    <p class="legal__copyright">&copy; 2026 ActaCofrade</p>
+  </footer>
+</main>

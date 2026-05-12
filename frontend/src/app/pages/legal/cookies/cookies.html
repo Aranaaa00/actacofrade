@@ -1,0 +1,87 @@
+<app-legal-page title="Política de cookies" [updatedAt]="updatedAt">
+  <p>
+    Aquí explicamos, sin tecnicismos, qué se guarda en tu navegador cuando usas
+    ActaCofrade. Lo dividimos en dos bloques: lo imprescindible para que la
+    plataforma funcione y lo que es opcional y solo se activa si tú lo decides.
+  </p>
+
+  <h2>1. Esenciales — siempre activas</h2>
+  <p>
+    Son las que mantienen tu sesión y la seguridad. No se pueden desactivar
+    porque sin ellas no podrías iniciar sesión ni continuar trabajando en una
+    misma pestaña. Están exentas de consentimiento en aplicación del
+    artículo 22.2 de la LSSI.
+  </p>
+  <ul>
+    <li>
+      <strong>auth_token</strong> (<code>sessionStorage</code>): el JWT que te
+      identifica frente al servidor. Se borra al cerrar la pestaña o al cerrar
+      sesión.
+    </li>
+    <li>
+      <strong>auth_user</strong> (<code>sessionStorage</code>): tu nombre,
+      correo y rol, para no volver a pedirlos en cada navegación.
+    </li>
+    <li>
+      <strong>ac_cookie_consent_v1</strong> (<code>localStorage</code>): la
+      decisión que tomas en el aviso de cookies, junto con la fecha y las
+      categorías aceptadas. Es lo que evita que el aviso vuelva a aparecer en
+      cada visita.
+    </li>
+  </ul>
+
+  <h2>2. Opcionales — solo si las aceptas</h2>
+  <p>
+    Hoy por hoy <strong>no cargamos ningún script opcional</strong>: no usamos
+    Google Analytics, ni píxeles publicitarios, ni redes sociales embebidas, ni
+    herramientas de mapas de calor. Las categorías opcionales existen para que
+    el sistema sea coherente cuando incorporemos algo nuevo, no para activarse
+    en silencio.
+  </p>
+  <ul>
+    <li>
+      <strong>Medición y mejoras</strong>: estadísticas anónimas para entender
+      qué partes de la plataforma se usan más. Solo se activaría si pulsas
+      <em>Aceptar todo</em>.
+    </li>
+    <li>
+      <strong>Personalización externa</strong>: integraciones con servicios de
+      terceros (por ejemplo, vídeos o mapas embebidos). Solo se activaría si
+      pulsas <em>Aceptar todo</em>.
+    </li>
+  </ul>
+  <p>
+    Si pulsas <em>Solo esenciales</em>, ninguna de estas categorías se carga
+    —ni siquiera de forma temporal—. El servicio respeta tu elección hasta que
+    decidas cambiarla.
+  </p>
+
+  <h2>3. Cambiar tu decisión</h2>
+  <p>
+    Puedes volver a abrir el aviso en cualquier momento desde aquí. También
+    funciona borrar el almacenamiento local desde tu navegador, pero ten en
+    cuenta que perderás la sesión.
+  </p>
+  <p>
+    <button type="button"
+      class="button button--secondary"
+      (click)="reviewPreferences()">
+      Revisar mis preferencias
+    </button>
+  </p>
+
+  <h2>4. Terceros que sí intervienen siempre</h2>
+  <p>
+    Cargamos las tipografías <em>EB Garamond</em> e <em>Inter</em> desde Google
+    Fonts para mantener la identidad visual. Esta carga no instala cookies en
+    tu navegador y es necesaria para la correcta presentación del servicio, por
+    lo que se considera parte del propio servicio.
+  </p>
+
+  <h2>5. Cambios en esta política</h2>
+  <p>
+    Si en el futuro incorporamos analítica, notificaciones o cualquier otro
+    almacenamiento no esencial, actualizaremos este documento y volveremos a
+    pedirte consentimiento antes de activarlo.
+  </p>
+</app-legal-page>

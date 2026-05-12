@@ -1,0 +1,132 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+.legal {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: $space-24 $space-16 $space-32;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+
+  @include from-tablet {
+    padding: $space-48 $space-32 $space-48;
+  }
+}
+
+.legal__back {
+  align-self: flex-start;
+  margin-bottom: $space-16;
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+  color: var(--text-primary);
+
+  @include from-tablet {
+    margin-bottom: $space-24;
+  }
+}
+
+.legal__content {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: $space-24;
+  background-color: var(--bg-surface);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+
+  @include from-tablet {
+    padding: $space-48;
+  }
+}
+
+.legal__header {
+  margin-bottom: $space-32;
+  padding-bottom: $space-16;
+  border-bottom: $border-1 solid var(--border-default);
+}
+
+.legal__title {
+  @include heading($text-h2);
+  font-weight: $weight-bold;
+  margin-bottom: $space-8;
+
+  @include from-tablet {
+    font-size: $text-h1;
+  }
+}
+
+.legal__updated {
+  font-size: $text-meta;
+  color: var(--text-secondary);
+}
+
+.legal__content {
+  h2 {
+    @include heading($text-h4);
+    font-weight: $weight-semibold;
+    margin-top: $space-32;
+    margin-bottom: $space-12;
+  }
+
+  h3 {
+    font-family: $font-heading;
+    font-size: $text-body;
+    font-weight: $weight-semibold;
+    margin-top: $space-24;
+    margin-bottom: $space-8;
+  }
+
+  p {
+    margin-bottom: $space-16;
+    font-size: $text-body;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  ul {
+    margin: 0 0 $space-16;
+    padding-left: $space-24;
+    font-size: $text-body;
+    line-height: 1.7;
+
+    li {
+      margin-bottom: $space-8;
+    }
+  }
+
+  code {
+    padding: 0 $space-4;
+    font-family: $font-body;
+    font-size: $text-paragraph;
+    background-color: var(--bg-page);
+    border-radius: $radius-2;
+  }
+}
+
+.legal__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-12;
+  margin-top: $space-32;
+  padding: $space-24 $space-16;
+  text-align: center;
+}
+
+.legal__nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-16;
+  font-size: $text-paragraph;
+
+  a {
+    font-weight: $weight-semibold;
+  }
+}
+
+.legal__copyright {
+  font-size: $text-meta;
+  color: var(--text-secondary);
+}

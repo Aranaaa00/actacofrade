@@ -1,0 +1,162 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Anchored consent notice. Matches the platform's square geometry (radius 0)
+// and uses the wood/cream palette so it feels native to the layout instead of
+// a generic floating card. The component is rendered as a single column on
+// mobile and snaps to the bottom-right corner from tablet up.
+.cookie-banner {
+  position: fixed;
+  right: $space-16;
+  bottom: $space-16;
+  left: $space-16;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  max-width: 28rem;
+  margin-left: auto;
+  padding: $space-16;
+  background-color: var(--bg-surface);
+  border: $border-1 solid var(--border-default);
+  border-top: $border-2 solid var(--nav-active);
+  border-radius: $radius-2;
+  box-shadow: var(--shadow-md);
+  animation: cookie-banner-in $motion-hover $motion-ease both;
+
+  @include from-tablet {
+    right: $space-24;
+    bottom: $space-24;
+    left: auto;
+    padding: $space-24;
+    gap: $space-24;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes cookie-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY($space-12);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cookie-banner__head {
+  display: flex;
+  align-items: center;
+  gap: $space-12;
+}
+
+.cookie-banner__tag {
+  display: inline-flex;
+  align-items: center;
+  height: 1.25rem;
+  padding: 0 $space-8;
+  font-family: $font-body;
+  font-size: $text-badge;
+  font-weight: $weight-semibold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--badge-pending-text);
+  background-color: var(--badge-pending-bg);
+  border: $border-1 solid var(--badge-pending-border);
+}
+
+.cookie-banner__title {
+  margin: 0;
+  font-family: $font-heading;
+  font-size: $text-h4;
+  font-weight: $weight-semibold;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.cookie-banner__desc {
+  margin: 0;
+  font-family: $font-body;
+  font-size: $text-paragraph;
+  line-height: 1.6;
+  color: var(--text-secondary);
+
+  a {
+    font-weight: $weight-semibold;
+    color: var(--link-default);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+
+    &:hover {
+      color: var(--link-hover);
+    }
+  }
+}
+
+.cookie-banner__list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-8;
+  padding: $space-12 $space-16;
+  margin: 0;
+  list-style: none;
+  background-color: var(--bg-page);
+  border: $border-1 solid var(--border-default);
+}
+
+.cookie-banner__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: $space-12;
+  font-family: $font-body;
+  font-size: $text-paragraph;
+  color: var(--text-primary);
+}
+
+.cookie-banner__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--border-default);
+  border-radius: 50%;
+
+  .cookie-banner__item--on & {
+    background-color: var(--nav-active);
+  }
+}
+
+.cookie-banner__item-meta {
+  font-size: $text-label;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+
+  .cookie-banner__item--on & {
+    color: var(--badge-pending-text);
+  }
+}
+
+.cookie-banner__actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-8;
+
+  @include from-mobile {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: $space-12;
+  }
+}
+
+.cookie-banner__button {
+  flex: 1 1 auto;
+
+  @include from-mobile {
+    flex: 0 0 auto;
+    min-width: 9rem;
+  }
+}
