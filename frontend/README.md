@@ -1,59 +1,86 @@
-# Frontend
+# ActaCofrade Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
+SPA en Angular 19 (standalone components, lazy loading en todas las rutas) que consume la API REST del backend. En producción se construye con `ng build --configuration production` y se sirve desde una imagen `nginx:alpine` que además hace de reverse proxy hacia el backend. La descripción general del proyecto y la arquitectura completa están en el [README raíz](../README.md) y en [DEPLOY.md](../DEPLOY.md).
 
-## Development server
+## Índice
 
-To start a local development server, run:
+- [Stack y estructura](#stack-y-estructura)
+- [Desarrollo local](#desarrollo-local)
+- [Build de producción](#build-de-producción)
+- [Tests](#tests)
+- [Estilos y arquitectura SCSS](#estilos-y-arquitectura-scss)
 
-```bash
-ng serve
+---
+
+## Stack y estructura
+
+| Capa | Tecnología |
+|---|---|
+| Framework | Angular 19 (standalone, sin `NgModules`) |
+| Lenguaje | TypeScript 5 |
+| Estilos | SCSS con arquitectura ITCSS |
+| Iconos | Lucide Angular |
+| HTTP | `HttpClient` con interceptor JWT |
+| Tests | Karma + Jasmine, cobertura con Istanbul |
+
+```
+src/
+├── app/
+│   ├── guards/          authGuard, roleGuard
+│   ├── interceptors/    authInterceptor (inyecta el JWT)
+│   ├── layout/          shell de la aplicación (sidebar, header)
+│   ├── models/          tipos compartidos
+│   ├── pages/           páginas (lazy-loaded)
+│   ├── services/        clientes HTTP de la API
+│   └── shared/          componentes reutilizables
+├── styles/              ITCSS (00-settings → 06-utilities)
+├── testing/             utilidades de tests
+└── index.html           meta, OG, Twitter Card y carga de fuentes
+public/                  favicon, logos, robots.txt, sitemap.xml
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Desarrollo local
 
 ```bash
-ng generate component component-name
+npm ci
+npm start          # ng serve, escucha en http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+El backend en local se puede atacar de dos formas:
+
+- **Con todo el stack en Docker** (recomendado): `docker compose up -d --build` desde la raíz. La SPA queda en `http://localhost/` y nginx hace el proxy de `/api`. `ng serve` no es necesario.
+- **Solo el frontend en `ng serve`**: el proxy de Angular reescribe `/api` hacia `http://localhost:8080` mediante `proxy.conf.json`. Hay que tener el backend levantado por separado.
+
+## Build de producción
 
 ```bash
-ng generate --help
+npx ng build --configuration production
 ```
 
-## Building
+Genera los estáticos en `dist/frontend/browser/`. La imagen Docker (`Dockerfile`) hace este mismo build y lo copia a `/usr/share/nginx/html` dentro del contenedor.
 
-To build the project run:
+## Tests
 
 ```bash
-ng build
+npm test                       # ejecuta Karma una vez en modo headless
+npm test -- --watch=false      # idéntico, pensado para CI
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+El informe de cobertura se genera en `coverage/frontend/`. Los umbrales mínimos están configurados en `karma.conf.js` (≥ 85% en statements, branches, functions y lines).
 
-## Running unit tests
+## Estilos y arquitectura SCSS
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+La hoja de estilos sigue ITCSS:
 
-```bash
-ng test
-```
+| Capa | Para qué |
+|---|---|
+| `00-settings/` | Variables SCSS y custom properties (paleta, tipografía, espacios, breakpoints). |
+| `01-tools/` | Mixins (`from-mobile`, `from-tablet`, `from-desktop`, `from-wide`, `visually-hidden`). |
+| `02-generic/` | Reset y normalizaciones. |
+| `03-elements/` | Estilos base de elementos HTML (`body`, `a`, `button`, `input`, `:focus-visible`). |
+| `04-layout/` | Estructura global de la página. |
+| `05-components/` | Componentes reutilizables (botones, badges, tablas, modales, sidebar, datepicker...). Cada uno en su propio fichero. |
+| `06-utilities/` | Helpers atómicos. |
 
-## Running end-to-end tests
+Nomenclatura BEM en clases (`block__element--modifier`), media queries siempre a través de los mixins y nada de valores mágicos sueltos.
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
