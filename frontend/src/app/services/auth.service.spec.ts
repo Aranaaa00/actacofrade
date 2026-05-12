@@ -37,12 +37,37 @@ describe('AuthService', () => {
     expect(service.getUser()?.email).toBe(auth.email);
   });
 
-  it('registers and persists session', () => {
-    const auth = buildAuthResponse({ token: 't2' });
-    service.register({ fullName: 'x', email: 'a@b.c', password: 'p', roleCode: 'ADMINISTRADOR', hermandadNombre: 'X' }).subscribe();
+  it('registers without starting a session (pending email verification)', () => {
+    service.register({ fullName: 'x', email: 'a@b.c', password: 'p', roleCode: 'ADMINISTRADOR', hermandadNombre: 'X' })
+      .subscribe((res) => {
+        expect(res.status).toBe('pending_verification');
+      });
     const req = http.expectOne('/api/auth/register');
+    expect(req.request.method).toBe('POST');
+    req.flush({ status: 'pending_verification', message: 'ok' });
+    expect(service.getToken()).toBeNull();
+    expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('verifyEmail consumes the token and persists the session', () => {
+    const auth = buildAuthResponse({ token: 'verified-token' });
+    service.verifyEmail('abc').subscribe((res) => {
+      expect(res.token).toBe('verified-token');
+    });
+    const req = http.expectOne((r) => r.url === '/api/auth/verify-email' && r.params.get('token') === 'abc');
+    expect(req.request.method).toBe('GET');
     req.flush(auth);
-    expect(service.getToken()).toBe('t2');
+    expect(service.getToken()).toBe('verified-token');
+    expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('resendVerification posts the email and returns the generic status', () => {
+    service.resendVerification({ email: 'a@b.c' }).subscribe((res) => {
+      expect(res.status).toBe('pending_verification');
+    });
+    const req = http.expectOne('/api/auth/resend-verification');
+    expect(req.request.method).toBe('POST');
+    req.flush({ status: 'pending_verification', message: 'ok' });
   });
 
   it('lists hermandades', () => {
