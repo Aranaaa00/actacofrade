@@ -1,0 +1,41 @@
+<section class="auth-page" aria-labelledby="check-email-heading">
+  <article class="auth-page__card">
+    <header class="auth-page__brand">
+      <img class="auth-page__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="120" height="120">
+      <h1 class="auth-page__heading" id="check-email-heading">Confirma tu correo</h1>
+    </header>
+
+    <p class="auth-page__text">
+      Te hemos enviado un enlace de verificación
+      @if (email) {
+        a <strong>{{ email }}</strong>
+      }
+      para activar tu cuenta. Revisa la bandeja de entrada y la carpeta de spam.
+    </p>
+
+    <p class="auth-page__text auth-page__text--muted">
+      Tu cuenta no se crea hasta que confirmes el correo. El enlace caduca tras unos
+      minutos y solo puede usarse una vez.
+    </p>
+
+    <div class="auth-page__actions">
+      <button type="button"
+        class="button button--primary button--full-width"
+        [disabled]="resending"
+        [attr.aria-busy]="resending"
+        (click)="resend()">
+        Reenviar correo de verificación
+      </button>
+      <a class="auth-page__link" routerLink="/login">Volver a iniciar sesión</a>
+    </div>
+  </article>
+
+  <footer class="landing__footer">
+    <nav class="landing__legal" aria-label="Documentos legales">
+      <a routerLink="/terminos">Términos</a>
+      <a routerLink="/privacidad">Privacidad</a>
+      <a routerLink="/cookies">Cookies</a>
+    </nav>
+    <p class="landing__copyright">&copy; 2026 ActaCofrade — Secretaría General</p>
+  </footer>
+</section>

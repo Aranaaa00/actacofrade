@@ -1,0 +1,44 @@
+<section class="auth-page" aria-labelledby="verify-email-heading">
+  <article class="auth-page__card">
+    <header class="auth-page__brand">
+      <img class="auth-page__logo" src="logo-sin-texto.png" alt="Escudo institucional de ActaCofrade" width="120" height="120">
+      <h1 class="auth-page__heading" id="verify-email-heading">Verificación de correo</h1>
+    </header>
+
+    @switch (state) {
+      @case ('verifying') {
+        <p class="auth-page__text" role="status" aria-live="polite">
+          Estamos confirmando tu correo. Esto solo tardará un instante…
+        </p>
+      }
+      @case ('success') {
+        <p class="auth-page__text" role="status" aria-live="polite">
+          Tu correo ha sido verificado correctamente. Ya puedes acceder a tu cuenta.
+        </p>
+        <div class="auth-page__actions">
+          <a class="button button--primary button--full-width" routerLink="/dashboard">Ir al panel</a>
+        </div>
+      }
+      @case ('error') {
+        <p class="auth-page__text auth-page__text--muted" role="alert">
+          {{ errorMessage }}
+        </p>
+        <div class="auth-page__actions">
+          <a class="button button--primary button--full-width" routerLink="/register">
+            Volver a solicitar verificación
+          </a>
+          <a class="auth-page__link" routerLink="/login">Volver a iniciar sesión</a>
+        </div>
+      }
+    }
+  </article>
+
+  <footer class="landing__footer">
+    <nav class="landing__legal" aria-label="Documentos legales">
+      <a routerLink="/terminos">Términos</a>
+      <a routerLink="/privacidad">Privacidad</a>
+      <a routerLink="/cookies">Cookies</a>
+    </nav>
+    <p class="landing__copyright">&copy; 2026 ActaCofrade — Secretaría General</p>
+  </footer>
+</section>

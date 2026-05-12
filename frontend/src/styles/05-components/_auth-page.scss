@@ -1,0 +1,71 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Page used by stand-alone auth-related pages (check-email, verify-email).
+// Renders a centered card with the brand identity and keeps the legal
+// footer from the landing visible underneath.
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-32;
+  padding: $space-32 $space-16;
+  background-color: var(--bg-page);
+}
+
+.auth-page__card {
+  width: 100%;
+  max-width: 32rem;
+  margin: auto;
+  padding: $space-32 $space-24;
+  background-color: var(--bg-surface);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  text-align: center;
+}
+
+.auth-page__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-8;
+}
+
+.auth-page__logo {
+  width: 7.5rem;
+  height: auto;
+}
+
+.auth-page__heading {
+  font-family: $font-heading;
+  font-size: $text-h2;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.auth-page__text {
+  font-size: $text-body;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.auth-page__text--muted {
+  color: var(--text-secondary);
+}
+
+.auth-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-12;
+  margin-top: $space-8;
+}
+
+.auth-page__link {
+  font-size: $text-paragraph;
+  font-weight: $weight-semibold;
+}

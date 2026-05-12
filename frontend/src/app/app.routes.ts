@@ -30,6 +30,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register').then(m => m.Register)
   },
   {
+    path: 'auth/check-email',
+    title: pageTitle('Confirma tu correo'),
+    data: { description: 'Te hemos enviado un correo de verificación para activar la cuenta.' },
+    loadComponent: () => import('./pages/auth/check-email/check-email').then(m => m.CheckEmail)
+  },
+  {
+    path: 'auth/verify-email',
+    title: pageTitle('Verificación de correo'),
+    data: { description: 'Confirma tu correo y activa tu cuenta de ActaCofrade.' },
+    loadComponent: () => import('./pages/auth/verify-email/verify-email').then(m => m.VerifyEmail)
+  },
+  {
     path: 'terminos',
     title: pageTitle('Términos y condiciones'),
     data: { description: 'Condiciones de uso de ActaCofrade.' },
