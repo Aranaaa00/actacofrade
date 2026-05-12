@@ -35,7 +35,8 @@ export class Register implements OnInit {
     password: ['', [Validators.required, passwordStrength]],
     confirmPassword: ['', [Validators.required]],
     roleCode: ['COLABORADOR', [Validators.required]],
-    hermandadNombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200), Validators.pattern(/^[\p{L}\p{M}0-9 .,'()\-]{3,200}$/u)]]
+    hermandadNombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200), Validators.pattern(/^[\p{L}\p{M}0-9 .,'()\-]{3,200}$/u)]],
+    acceptTerms: [false, [Validators.requiredTrue]]
   });
 
   loading = false;
@@ -79,11 +80,15 @@ export class Register implements OnInit {
   }
 
   ngOnInit(): void {
-    // when used inside the users modal hermandad name is not asked again
+    // when used inside the users modal hermandad name and terms acceptance are not asked again
     if (this.embedded) {
       const hermandadControl = this.form.get('hermandadNombre');
       hermandadControl?.clearValidators();
       hermandadControl?.updateValueAndValidity();
+      const acceptTermsControl = this.form.get('acceptTerms');
+      acceptTermsControl?.clearValidators();
+      acceptTermsControl?.setValue(true);
+      acceptTermsControl?.updateValueAndValidity();
       return;
     }
 
@@ -116,7 +121,7 @@ export class Register implements OnInit {
     }
     this.loading = true;
 
-    const { confirmPassword, hermandadNombre, ...rest } = this.form.value;
+    const { confirmPassword, hermandadNombre, acceptTerms: _acceptTerms, ...rest } = this.form.value;
 
     if (this.embedded) {
       const request = sanitizeFormValues(rest);

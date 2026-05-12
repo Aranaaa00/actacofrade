@@ -53,11 +53,27 @@
 }
 
 .landing__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-12;
   padding: $space-16 $space-16;
   text-align: center;
 
   @include from-tablet {
     padding: $space-24 $space-32;
+  }
+}
+
+.landing__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $space-16;
+  font-size: $text-paragraph;
+
+  a {
+    font-weight: $weight-semibold;
   }
 }
 

@@ -88,3 +88,43 @@
     padding: $space-24 $space-32 $space-16;
   }
 }
+
+// Mandatory terms acceptance row
+.register__terms {
+  display: flex;
+  flex-direction: column;
+  gap: $space-4;
+  margin-top: $space-8;
+}
+
+.register__terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: $space-8;
+  font-size: $text-paragraph;
+  font-weight: $weight-regular;
+  color: var(--text-primary);
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.5;
+  cursor: pointer;
+
+  & input[type='checkbox'] {
+    flex-shrink: 0;
+    width: $size-icon-20;
+    height: $size-icon-20;
+    margin-top: 0.125rem;
+    accent-color: var(--nav-bg);
+    cursor: pointer;
+  }
+
+  & a {
+    font-weight: $weight-semibold;
+  }
+}
+
+.register__terms-error {
+  font-size: $text-meta;
+  line-height: 1.4;
+  color: var(--border-error);
+}

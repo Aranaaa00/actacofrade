@@ -71,6 +71,25 @@
         <button type="submit" class="button button--primary" [disabled]="loading || form.invalid || !passwordsMatch()" [attr.aria-busy]="loading">Crear usuario →</button>
       </footer>
     } @else {
+      <fieldset class="register__terms" [class.register__terms--error]="hasError('acceptTerms')">
+        <label class="register__terms-label">
+          <input id="register-accept-terms"
+            type="checkbox"
+            formControlName="acceptTerms"
+            [attr.aria-invalid]="hasError('acceptTerms') ? 'true' : null"
+            aria-describedby="register-accept-terms-error">
+          <span>
+            He leído y acepto los
+            <a routerLink="/terminos" target="_blank" rel="noopener">Términos y condiciones</a>
+            y la
+            <a routerLink="/privacidad" target="_blank" rel="noopener">Política de privacidad</a>.
+          </span>
+        </label>
+        @if (hasError('acceptTerms')) {
+          <small class="register__terms-error" id="register-accept-terms-error" role="alert">Debes aceptar los términos para continuar.</small>
+        }
+      </fieldset>
+
       <footer class="login__submit">
         <button type="submit" class="button register__submit-button button--full-width" [disabled]="loading || form.invalid || !passwordsMatch()" [attr.aria-busy]="loading">Crear cuenta →</button>
       </footer>

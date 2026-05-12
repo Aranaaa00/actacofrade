@@ -30,6 +30,24 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/register/register').then(m => m.Register)
   },
   {
+    path: 'terminos',
+    title: pageTitle('Términos y condiciones'),
+    data: { description: 'Condiciones de uso de ActaCofrade.' },
+    loadComponent: () => import('./pages/legal/terms/terms').then(m => m.Terms)
+  },
+  {
+    path: 'privacidad',
+    title: pageTitle('Política de privacidad'),
+    data: { description: 'Cómo tratamos tus datos en ActaCofrade.' },
+    loadComponent: () => import('./pages/legal/privacy/privacy').then(m => m.Privacy)
+  },
+  {
+    path: 'cookies',
+    title: pageTitle('Política de cookies'),
+    data: { description: 'Almacenamiento técnico utilizado en ActaCofrade.' },
+    loadComponent: () => import('./pages/legal/cookies/cookies').then(m => m.Cookies)
+  },
+  {
     path: '',
     loadComponent: () => import('./layout/main/main').then(m => m.Main),
     canActivate: [authGuard],
