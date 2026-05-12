@@ -4,6 +4,8 @@ import com.actacofrade.backend.dto.AuthResponse;
 import com.actacofrade.backend.dto.HermandadOption;
 import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
+import com.actacofrade.backend.dto.RegistrationStatusResponse;
+import com.actacofrade.backend.dto.ResendVerificationRequest;
 import com.actacofrade.backend.security.LoginRateLimiter;
 import com.actacofrade.backend.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,20 +18,25 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
-@Tag(name = "Auth", description = "Registro e inicio de sesión")
+@Validated
+@Tag(name = "Auth", description = "Registro, verificación de correo e inicio de sesión")
 @SecurityRequirements
 public class AuthController {
 
@@ -42,21 +49,45 @@ public class AuthController {
     }
 
     @Operation(
-            summary = "Registrar nuevo usuario y/o hermandad",
-            description = "Registra un usuario. Si el rol es ADMINISTRADOR y la hermandad no existe, se crea junto al usuario. Devuelve un JWT inmediatamente.")
+            summary = "Solicitar verificación de correo para un nuevo registro",
+            description = "Valida los datos y envía un correo de verificación. No se crea ningún usuario en base de datos hasta que el correo es confirmado.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuario registrado",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class),
-                            examples = @ExampleObject(name = "Registrado", value = "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"email\": \"admin@hermandad.es\",\n  \"name\": \"Admin\",\n  \"roles\": [\"ADMINISTRADOR\"]\n}"))),
-            @ApiResponse(responseCode = "400", description = "Datos inválidos",
-                    content = @Content(examples = @ExampleObject(value = "{\"status\":\"error\",\"message\":\"El email es obligatorio\",\"data\":null,\"errors\":[]}"))),
-            @ApiResponse(responseCode = "409", description = "Email ya registrado",
-                    content = @Content(examples = @ExampleObject(value = "{\"status\":\"error\",\"message\":\"El email ya está registrado\",\"data\":null,\"errors\":[]}")))
+            @ApiResponse(responseCode = "202", description = "Correo de verificación enviado",
+                    content = @Content(schema = @Schema(implementation = RegistrationStatusResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos"),
+            @ApiResponse(responseCode = "409", description = "Email o hermandad ya registrados")
     })
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        AuthResponse response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<RegistrationStatusResponse> register(@Valid @RequestBody RegisterRequest request) {
+        RegistrationStatusResponse response = authService.register(request);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
+    @Operation(summary = "Verificar el correo y completar el registro",
+            description = "Consume el token recibido por correo, crea el usuario en base de datos y devuelve el JWT inicial.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Verificación correcta",
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Token inválido o caducado"),
+            @ApiResponse(responseCode = "409", description = "El correo ya fue registrado en otro flujo")
+    })
+    @GetMapping("/verify-email")
+    public ResponseEntity<AuthResponse> verifyEmail(
+            @RequestParam("token")
+            @NotBlank(message = "El token es obligatorio")
+            @Size(max = 256, message = "Token no válido")
+            String token) {
+        AuthResponse response = authService.verifyEmail(token);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Reenviar correo de verificación",
+            description = "Si existe una solicitud pendiente para ese correo, se envía un nuevo enlace. La respuesta es genérica para evitar enumeración.")
+    @ApiResponse(responseCode = "202", description = "Solicitud aceptada")
+    @PostMapping("/resend-verification")
+    public ResponseEntity<RegistrationStatusResponse> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        RegistrationStatusResponse response = authService.resendVerification(request.email());
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
     @Operation(summary = "Listar hermandades disponibles",
@@ -67,12 +98,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.listHermandades());
     }
 
-    @Operation(summary = "Iniciar sesión", description = "Autentica con email y contraseña y devuelve un JWT.")
+    @Operation(summary = "Iniciar sesión", description = "Autentica con email y contraseña y devuelve un JWT. Solo válido tras verificar el correo.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Login correcto",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                    content = @Content(schema = @Schema(implementation = AuthResponse.class),
+                            examples = @ExampleObject(value = "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"email\": \"admin@hermandad.es\"\n}"))),
             @ApiResponse(responseCode = "400", description = "Cuerpo inválido"),
-            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas")
+            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas o cuenta sin verificar")
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
