@@ -4,6 +4,16 @@ Esta guía explica cómo desplegar ActaCofrade desde cero en cualquier máquina 
 
 Para la descripción del proyecto y la arquitectura general, ver [README.md](README.md). La API está documentada en [backend/README.md](backend/README.md).
 
+## Índice
+
+- [1. Requisitos](#1-requisitos)
+- [2. Despliegue desde cero](#2-despliegue-desde-cero)
+- [3. Variables de entorno](#3-variables-de-entorno)
+- [4. Verificación](#4-verificación)
+- [5. Servidor web y reverse proxy](#5-servidor-web-y-reverse-proxy)
+- [6. Integración continua](#6-integración-continua)
+- [7. Resolución de problemas](#7-resolución-de-problemas)
+
 ---
 
 ## 1. Requisitos
@@ -136,7 +146,7 @@ curl -s -X POST http://localhost/api/auth/login \
      -d '{"email":"admin@example.com","password":"TU_PASSWORD"}'
 ```
 
-Esperado: una respuesta JSON con un campo `accessToken`.
+Esperado: una respuesta JSON con los campos `token` (el JWT), `userId`, `email`, `fullName`, `roles`, `hermandadNombre` y `hasAvatar`.
 
 ### 4.6 Carga ligera
 
@@ -251,16 +261,17 @@ Nginx escribe `access.log` en `/dev/stdout` y `error.log` en `/dev/stderr` (conf
 
 ## 6. Integración continua
 
-Hay dos workflows en `.github/workflows/`:
+Hay tres workflows en `.github/workflows/`:
 
 | Workflow       | Se dispara con cambios en | Qué hace                                                        |
 |----------------|---------------------------|-----------------------------------------------------------------|
-| `backend.yml`  | `backend/**`              | Compila la API, ejecuta tests unitarios e integración y construye la imagen Docker del backend. |
-| `frontend.yml` | `frontend/**`             | Instala dependencias, lanza el build de producción de Angular, sube `dist/` y construye la imagen Docker del frontend. |
+| `backend.yml`  | `backend/**`              | CI del backend: compila la API, ejecuta tests unitarios e integración y, en push a `main`, publica la imagen en **GHCR** (`ghcr.io/aranaaa00/actacofrade-backend`). |
+| `frontend.yml` | `frontend/**`             | CI del frontend: instala dependencias, lanza el build de producción de Angular, sube `dist/` y, en push a `main`, publica la imagen en **GHCR** (`ghcr.io/aranaaa00/actacofrade-frontend`). |
+| `cd.yml`       | push a `main` (cualquier ruta) | CD: reconstruye y publica ambas imágenes también en **Docker Hub** (`aranaa00/actacofrade-{backend,frontend}`), con tags `latest` y SHA del commit. |
 
-Ambos también responden a `workflow_dispatch`, así que se pueden lanzar a mano desde la pestaña *Actions* de GitHub.
+Los tres responden a `workflow_dispatch`, así que se pueden lanzar a mano desde la pestaña *Actions* de GitHub.
 
-El build no necesita secretos reales. Si más adelante se añade un job de despliegue, las credenciales se configuran como **repository secrets** y nunca se escriben en el repositorio.
+Los workflows de CI no necesitan secretos externos. El de CD usa los *repository secrets* `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN`, que nunca se escriben en el repositorio. El `JWT_SECRET` que usan los tests también es un secret del repositorio.
 
 Flujo de Git del proyecto: ramas de feature con commits descriptivos en español, `main` siempre verde y nada que se mezcle con tests en rojo.
 
