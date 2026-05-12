@@ -1,0 +1,17 @@
+# ActaCofrade
+# Solo la landing publica es indexable; el resto de rutas viven detras del login.
+User-agent: *
+Allow: /$
+Allow: /login
+Allow: /register
+Disallow: /dashboard
+Disallow: /actos
+Disallow: /mis-tareas
+Disallow: /usuarios
+Disallow: /perfil
+Disallow: /historial
+Disallow: /api/
+Disallow: /swagger-ui
+Disallow: /v3/api-docs
+
+Sitemap: https://actacofrade.com/sitemap.xml
