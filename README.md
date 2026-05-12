@@ -137,6 +137,114 @@ Cuando los tres servicios aparezcan como `(healthy)`:
 - Roles: `SUPER_ADMIN`, `ADMINISTRADOR`, `RESPONSABLE`, `COLABORADOR`, `CONSULTA`.
 - Recursos principales: `auth`, `me`, `users`, `roles`, `hermandades`, `events`, `tasks`, `decisions`, `incidents`, `audit`, `dashboard`, `admin-change-requests`.
 
+### Ejemplos de uso
+
+Con el stack levantado en local, las operaciones más comunes se pueden probar directamente con `curl`.
+
+**1. Obtener un token (login)**
+
+```bash
+curl -s -X POST http://localhost/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"admin@example.com","password":"tu_password"}'
+```
+
+Respuesta `200 OK`:
+
+```json
+{
+  "userId": 1,
+  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBleGFtcGxlLmNvbSJ9...",
+  "email": "admin@example.com",
+  "fullName": "Ana García",
+  "roles": ["ADMINISTRADOR"],
+  "hermandadNombre": "Hermandad del Gran Poder",
+  "hasAvatar": false
+}
+```
+
+**2. Consultar el dashboard** (requiere token)
+
+```bash
+curl -s http://localhost/api/dashboard \
+     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..."
+```
+
+Respuesta `200 OK`:
+
+```json
+{
+  "recentEvents": [
+    {
+      "id": 3,
+      "title": "Ensayo general Semana Santa",
+      "eventType": "ENSAYO",
+      "status": "PREPARACION",
+      "eventDate": "2025-03-15",
+      "pendingTasks": 2,
+      "openIncidents": 0
+    }
+  ],
+  "alerts": [
+    {
+      "type": "TAREA_PENDIENTE",
+      "description": "Tarea sin aceptar en Ensayo general Semana Santa",
+      "eventId": 3,
+      "eventDate": "2025-03-15"
+    }
+  ],
+  "pendingTasksCount": 2,
+  "readyToCloseCount": 0
+}
+```
+
+**3. Crear un acto** (requiere rol `ADMINISTRADOR` o `RESPONSABLE`)
+
+```bash
+curl -s -X POST http://localhost/api/events \
+     -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..." \
+     -H "Content-Type: application/json" \
+     -d '{
+       "title": "Vía Crucis Cuaresmal",
+       "eventType": "CULTOS",
+       "eventDate": "2026-03-07",
+       "location": "Iglesia de San Salvador",
+       "responsibleId": 2,
+       "observations": "Preparación a cargo de la Priostía"
+     }'
+```
+
+Respuesta `201 Created`:
+
+```json
+{
+  "id": 15,
+  "reference": "CULTOS-2026-001",
+  "title": "Vía Crucis Cuaresmal",
+  "eventType": "CULTOS",
+  "status": "PLANIFICACION",
+  "eventDate": "2026-03-07",
+  "location": "Iglesia de San Salvador",
+  "responsibleName": "Carlos Moreno",
+  "isLockedForClosing": false,
+  "pendingTasks": 0,
+  "openIncidents": 0,
+  "totalTasks": 0,
+  "completedTasks": 0
+}
+```
+
+Cualquier petición con token inválido o rol insuficiente devuelve `401` o `403` con la estructura de error estándar:
+
+```json
+{
+  "status": "error",
+  "message": "Acceso denegado",
+  "data": null,
+  "errors": []
+}
+```
+
 El listado completo de endpoints, la máquina de estados de las tareas y la estructura de errores están detallados en [backend/README.md](backend/README.md). La API también se puede explorar en vivo desde Swagger UI (`http://localhost/swagger-ui.html`) o consultar como JSON crudo en `http://localhost/v3/api-docs`.
 
 ---

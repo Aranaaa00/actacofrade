@@ -1,5 +1,7 @@
 # 8. Despliegue
 
+> Las evidencias técnicas de evaluación (artefactos, verificación de red y capturas) están en [08-despliegue-eval.md](08-despliegue-eval.md).
+
 ## Dónde está desplegado
 
 Para el despliegue en producción opté por **Digital Ocean** con un Droplet básico. No era la opción más sencilla sobre el papel, pero sí la que más control me daba: acceso SSH directo al servidor, sin capas intermedias, y el mismo entorno Docker que tenía en local. Plataformas como Railway o Render las descarté porque quería que el stack se comportase exactamente igual en el servidor que en mi máquina, y eso solo lo garantizaba con una VPS donde puedo hacer lo que necesite.
@@ -203,6 +205,239 @@ curl -s -X POST https://www.actacofrade.com/api/auth/login \
 ```
 
 El tercer comando tiene que fallar. El backend no publica ningún puerto al exterior: solo es accesible desde dentro de la red interna de Docker, a través del proxy inverso de Nginx. Eso es exactamente lo que se busca.
+
+---
+
+## Servidor web: Nginx como reverse proxy
+
+Toda la configuración de Nginx está en un único fichero: [`frontend/nginx.conf`](frontend/nginx.conf). El Dockerfile lo copia a `/etc/nginx/conf.d/default.conf` en el momento del build, así que no hay que tocar nada en el servidor para que quede configurado correctamente. Lo primero que declara el fichero es el bloque `upstream` con el backend:
+
+```nginx
+upstream actacofrade_backend {
+    server backend:8080;
+    keepalive 32;
+}
+```
+
+`backend` es el nombre del servicio en el compose; el DNS interno de la red `actacofrade_network` lo resuelve automáticamente a la IP del contenedor. El `keepalive 32` mantiene un pool de hasta 32 conexiones TCP abiertas y reutilizables entre Nginx y el backend, evitando el coste de abrir y cerrar una nueva conexión TCP en cada petición proxiada.
+
+### Rutas que van al backend
+
+Cuatro bloques `location` desvían el tráfico al backend; todo lo demás lo sirve Nginx directamente desde el build de Angular:
+
+```nginx
+location /api/ {
+    proxy_pass http://actacofrade_backend;
+}
+
+location /v3/api-docs {
+    proxy_pass http://actacofrade_backend;
+}
+
+location /swagger-ui {
+    proxy_pass http://actacofrade_backend;
+}
+
+location = /swagger-ui.html {
+    proxy_pass http://actacofrade_backend;
+}
+```
+
+El SPA routing funciona gracias a `try_files $uri $uri/ /index.html`: cualquier ruta de Angular que no exista como fichero estático vuelve a `index.html` y el router del cliente la resuelve en el navegador.
+
+### Cabeceras de seguridad, caché y compresión
+
+Nginx añade en cada respuesta un conjunto de cabeceras defensivas con la directiva `always`, de forma que se emiten incluso en respuestas de error:
+
+```nginx
+add_header X-Frame-Options          "DENY"                            always;
+add_header X-Content-Type-Options   "nosniff"                         always;
+add_header Referrer-Policy          "strict-origin-when-cross-origin" always;
+add_header Permissions-Policy       "geolocation=(), microphone=(), camera=()" always;
+add_header Cross-Origin-Opener-Policy   "same-origin"                 always;
+add_header Cross-Origin-Resource-Policy "same-origin"                 always;
+```
+
+`server_tokens off` elimina la versión de Nginx de la cabecera `Server`. Los ficheros estáticos con hash en el nombre (todos los `.js` y `.css` que genera Angular en producción) llevan `Cache-Control: public, immutable` con un año de expiración. El `index.html` siempre va con `no-store` para que el navegador pida la versión más reciente en cada visita. La compresión gzip está activa sobre los tipos de texto habituales (`text/css`, `application/json`, `application/javascript`...), lo que reduce considerablemente el peso de transferencia de los assets estáticos.
+
+### HTTPS
+
+El stack no termina TLS internamente. En producción, Cloudflare actúa como CDN delante del Droplet: recibe las peticiones HTTPS del cliente, las descifra y las reenvía al puerto 80 del servidor. La conexión cliente ↔ Cloudflare va cifrada con certificado de Cloudflare; la conexión Cloudflare ↔ Droplet también va cifrada en modo "Full". El resultado es que actacofrade.com funciona completamente en HTTPS sin gestionar ningún certificado en el servidor.
+
+Para activar TLS directamente en Nginx (sin Cloudflare o detrás de otro terminador), al final del `nginx.conf` hay un bloque `server { listen 443 ssl http2; ... }` comentado con cifrados modernos (`TLSv1.2 + TLSv1.3`), cabecera `HSTS` con preload y redirección HTTP→HTTPS. Activarlo solo requiere tres pasos: montar el certificado en un volumen, publicar el puerto 443 en el compose y descomentar ese bloque.
+
+### Evidencias
+
+Petición al frontend a través del proxy:
+
+```bash
+curl -I https://www.actacofrade.com/
+```
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/html
+Cache-Control: no-store, no-cache, must-revalidate
+```
+
+La API llega a través del proxy (el backend no tiene ningún puerto publicado en el host):
+
+```bash
+curl -I https://www.actacofrade.com/v3/api-docs
+```
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+```
+
+```bash
+curl -I https://www.actacofrade.com/swagger-ui.html
+```
+
+```
+HTTP/1.1 302 Found
+Location: /swagger-ui/index.html
+```
+
+El endpoint de salud del proxy responde de forma independiente al backend:
+
+```bash
+curl https://www.actacofrade.com/healthz
+```
+
+```
+ok
+```
+
+![Respuesta de curl al frontend y a la API a través del proxy](/docs/assets/deploy-curl-frontend.png)
+
+**Logs del proxy con peticiones reales:**
+
+```bash
+docker compose logs --tail=20 frontend
+```
+
+Nginx escribe su `access_log` en `/dev/stdout`, así que `docker compose logs` captura todo el tráfico en tiempo real. Una sesión típica muestra una línea por petición:
+
+```
+172.68.x.x - - [..] "GET / HTTP/1.0" 200 689 "-" "Mozilla/5.0 ..."
+172.68.x.x - - [..] "GET /api/dashboard HTTP/1.0" 200 423 "-" "..."
+172.68.x.x - - [..] "HEAD /v3/api-docs HTTP/1.1" 200 0 "-" "curl/8.x"
+172.68.x.x - - [..] "GET /healthz HTTP/1.1" 200 2 "-" "curl/8.x"
+```
+
+---
+
+## Servidor de aplicaciones: Spring Boot
+
+El backend es un JAR de Spring Boot que arranca dentro del contenedor `actacofrade_backend` con `java -jar app.jar`. No necesita ningún servidor de aplicaciones externo: Tomcat está embebido en el propio JAR. El contenedor usa `expose: 8080` (no `ports`), así que el puerto solo es visible desde dentro de la red Docker interna, nunca desde el host.
+
+### Configuración
+
+Toda la configuración está en [`backend/src/main/resources/application.properties`](backend/src/main/resources/application.properties). Los valores sensibles se inyectan desde las variables de entorno definidas en el compose; el fichero solo declara los valores por defecto para desarrollo local:
+
+```properties
+# Conexión a base de datos
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/actacofrade}
+spring.datasource.username=${DB_USER:actacofrade_user}
+spring.datasource.password=${DB_PASSWORD:actacofrade_password}
+
+# Flyway gestiona el esquema; Hibernate solo valida, nunca modifica
+spring.jpa.hibernate.ddl-auto=validate
+
+# JWT (el secreto se inyecta siempre desde .env, sin valor por defecto)
+jwt.secret=${JWT_SECRET}
+jwt.expiration-ms=${JWT_EXPIRATION_MS:86400000}
+
+# CORS
+cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+# Subida de avatares
+spring.servlet.multipart.max-file-size=${AVATAR_MAX_SIZE:2MB}
+spring.servlet.multipart.max-request-size=${AVATAR_MAX_SIZE:2MB}
+
+# OpenAPI / Swagger UI
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.tryItOutEnabled=true
+```
+
+`spring.jpa.hibernate.ddl-auto=validate` es la opción más segura en producción: Hibernate comprueba que el esquema real de la base de datos coincide con las entidades, pero no toca nada. Cualquier cambio estructural pasa siempre por Flyway, que aplica las migraciones pendientes antes de que Spring levante el contexto completo. Con 17 migraciones acumuladas, este diseño garantiza que cualquier entorno —local, CI o producción— parte siempre del mismo estado exacto sin intervención manual.
+
+El `JWT_SECRET` no tiene ningún valor por defecto a propósito: si no se proporciona, el backend rechaza arrancar. Esto evita que alguien levante la aplicación en producción con un secreto de demo olvidado.
+
+### Arranque y logs
+
+Los primeros logs del backend siempre muestran las migraciones de Flyway seguidas del mensaje de arranque de Spring Boot:
+
+```
+Found 17 migration(s) resolved to the target version.
+Successfully applied 3 migration(s) to schema "public" (execution time 00:00.234s)
+Started BackendApplication in 18.432 seconds (process running for 20.1)
+```
+
+Si hay algún problema de configuración —`JWT_SECRET` demasiado corto, credenciales de base de datos incorrectas— el arranque falla antes de llegar a esa línea y el healthcheck de Docker marca el servicio como `unhealthy`.
+
+![Logs del backend con Flyway y arranque de Spring Boot](/docs/assets/deploy-logs-backend.png)
+
+### Prueba de funcionamiento
+
+Con el stack levantado, el documento OpenAPI confirma que el backend responde a través del proxy:
+
+```bash
+curl -fsS https://www.actacofrade.com/v3/api-docs | head -c 200
+```
+
+```json
+{"openapi":"3.1.0","info":{"title":"ActaCofrade Backend API","description":"API REST para la gestión de actos cofrades...
+```
+
+El flujo completo de autenticación:
+
+```bash
+curl -s -X POST https://www.actacofrade.com/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"admin@actacofrade.com","password":"TU_PASSWORD"}'
+```
+
+```json
+{
+  "userId": 1,
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "email": "admin@actacofrade.com",
+  "fullName": "Admin ActaCofrade",
+  "roles": ["ADMINISTRADOR"],
+  "hermandadNombre": "Hermandad de Prueba",
+  "hasAvatar": false
+}
+```
+
+### Prueba de carga ligera
+
+Para confirmar que el servidor aguanta peticiones repetidas sin degradarse, lancé 50 peticiones seguidas al documento OpenAPI midiendo el código de respuesta y el tiempo de cada una:
+
+```bash
+for i in $(seq 1 50); do
+  curl -s -o /dev/null -w "%{http_code} %{time_total}s\n" \
+       https://www.actacofrade.com/v3/api-docs
+done
+```
+
+Resultado en producción (Droplet, 2 GB RAM, CPU básica compartida):
+
+```
+200 0.048s
+200 0.041s
+200 0.039s
+200 0.044s
+...
+200 0.053s
+```
+
+Las 50 peticiones devolvieron `200` y los tiempos se mantuvieron entre 35 y 60 ms. Spring Boot usa Tomcat embebido con un pool de 200 hilos por defecto; para una carga de este nivel no hay ningún tipo de saturación. El primer arranque en frío puede tardar entre 15 y 20 segundos (Flyway aplica las migraciones y Spring levanta todo el contexto), pero una vez iniciado los tiempos de respuesta son completamente estables.
+
+![Salida del bucle de 50 peticiones con tiempos de respuesta](/docs/assets/deploy-carga-ligera.png)
 
 ---
 
