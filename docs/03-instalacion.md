@@ -1,5 +1,12 @@
 # 3. Instalación
 
+## Índice
+
+- [Requisitos previos](#requisitos-previos)
+- [Arquitectura del sistema](#arquitectura-del-sistema)
+
+---
+
 ## Requisitos previos
 
 Para desplegar ActaCofrade solo hace falta tener instalado **Docker**. No es necesario tener Java, Node.js ni ninguna otra herramienta en el sistema: las imágenes del proyecto lo compilan y ejecutan todo internamente.

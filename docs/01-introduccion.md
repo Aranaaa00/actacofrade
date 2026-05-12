@@ -1,5 +1,13 @@
 # 1. Introducción, objetivos y antecedentes
 
+## Índice
+
+- [Origen de la idea](#origen-de-la-idea)
+- [Expectativas y objetivos](#expectativas-y-objetivos)
+- [Aplicaciones similares](#aplicaciones-similares)
+
+---
+
 ## Origen de la idea
 
 Llevo toda mi vida rodeado de cofradías. Mi familia tiene raíces en el mundo cofrade y yo mismo soy miembro activo. Cada año, cuando se acerca la Semana Santa, vivo de cerca lo que significa organizar un acto: decisiones tomadas por WhatsApp a las doce de la noche, tareas que "alguien" dijo que haría y que nadie recuerda haber asumido, y dos o tres personas que acumulan todo el conocimiento en la cabeza sin dejarlo escrito en ningún sitio.

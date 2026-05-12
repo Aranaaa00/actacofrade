@@ -1,5 +1,13 @@
 # 2. Descripción
 
+## Índice
+
+- [Funcionalidades principales](#funcionalidades-principales)
+- [Interfaz de usuario y experiencia de usuario](#interfaz-de-usuario-y-experiencia-de-usuario)
+- [Usuarios objetivo y casos de uso](#usuarios-objetivo-y-casos-de-uso)
+
+---
+
 ## Funcionalidades principales
 
 A continuación se describen las funcionalidades que conforman el núcleo de la aplicación.

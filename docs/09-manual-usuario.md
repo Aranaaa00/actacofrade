@@ -1,5 +1,13 @@
 # 9. Manual de usuario
 
+## Índice
+
+- [Introducción](#introducción)
+- [Roles de usuario](#roles-de-usuario)
+- [Acceso a la aplicación](#acceso-a-la-aplicación)
+
+---
+
 ## Introducción
 
 Este manual explica cómo usar ActaCofrade. No hace falta tener conocimientos técnicos: si sabes usar el correo electrónico, te basta para manejar la aplicación sin ninguna dificultad.

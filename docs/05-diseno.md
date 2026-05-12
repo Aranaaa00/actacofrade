@@ -1,5 +1,15 @@
 # 5. Diseño
 
+## Índice
+
+- [Diagrama entidad-relación](#diagrama-entidad-relación)
+- [Diagrama de casos de uso](#diagrama-de-casos-de-uso)
+- [Diagramas de flujo](#diagramas-de-flujo)
+- [Arquitectura de la aplicación](#arquitectura-de-la-aplicación)
+- [Diseño de la API](#diseño-de-la-api)
+
+---
+
 ## Diagrama entidad-relación
 
 El esquema de la base de datos suma doce tablas que han ido creciendo a lo largo de diecisiete migraciones de Flyway. Todo gira en torno a dos ejes: la hermandad como unidad organizativa y el acto como elemento central de trabajo. El diagrama se generó con [dbdiagram.io](https://dbdiagram.io) a partir del esquema real de PostgreSQL.

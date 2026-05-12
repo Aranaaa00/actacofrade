@@ -2,6 +2,15 @@
 
 > Las evidencias técnicas de evaluación (artefactos, verificación de red y capturas) están en [08-despliegue-eval.md](08-despliegue-eval.md).
 
+## Índice
+
+- [Dónde está desplegado](#dónde-está-desplegado)
+- [CI/CD con GitHub Actions](#cicd-con-github-actions)
+- [Proceso de despliegue](#proceso-de-despliegue)
+- [Comprobaciones post-despliegue](#comprobaciones-post-despliegue)
+
+---
+
 ## Dónde está desplegado
 
 Para el despliegue en producción opté por **Digital Ocean** con un Droplet básico. No era la opción más sencilla sobre el papel, pero sí la que más control me daba: acceso SSH directo al servidor, sin capas intermedias, y el mismo entorno Docker que tenía en local. Plataformas como Railway o Render las descarté porque quería que el stack se comportase exactamente igual en el servidor que en mi máquina, y eso solo lo garantizaba con una VPS donde puedo hacer lo que necesite.
@@ -28,7 +37,7 @@ El dominio `actacofrade.com` apunta directamente a la IP pública del Droplet co
 
 Desde el principio quería que cada vez que subiera código a `main`, las imágenes de producción se regenerasen automáticamente. Lo monté con **GitHub Actions**, usando tres ficheros en `.github/workflows/`.
 
-La idea es sencilla: dos workflows de CI comprueban que el código compila y los tests pasan, y un tercero de CD construye las imágenes y las publica en **Docker Hub**. Solo cuando el código está validado llega algo a producción.
+La idea es sencilla: dos workflows de CI comprueban que el código compila y los tests pasan, y publican las imágenes en **GHCR** (`ghcr.io/aranaaa00/...`) como artefactos verificados. Un tercer workflow de CD construye las imágenes definitivas y las publica también en **Docker Hub** (`aranaa00/...`), que es desde donde el servidor las consume. Solo cuando el código está validado llega algo a producción.
 
 ### Los pipelines de CI
 

@@ -1,5 +1,12 @@
 # 6. Desarrollo
 
+## Índice
+
+- [Secuencia de desarrollo](#secuencia-de-desarrollo)
+- [Dificultades encontradas](#dificultades-encontradas)
+
+---
+
 ## Secuencia de desarrollo
 
 El proyecto no arrancó directamente con código. Antes de tocar el editor necesitaba tener claro cómo iba a quedar la interfaz, así que la primera fase fue dedicada íntegramente a Figma. Diseñé todas las pantallas principales: el dashboard, el listado de actos con filtros, el detalle del acto con sus pestañas, el formulario de creación y el flujo de cierre. Tener ese diseño resuelto de antemano me ahorró muchas idas y venidas después.

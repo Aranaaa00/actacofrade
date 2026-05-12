@@ -1,5 +1,13 @@
 # 10. Conclusiones
 
+## Índice
+
+- [Evaluación crítica de los objetivos](#evaluación-crítica-de-los-objetivos)
+- [Grado de cumplimiento del alcance propuesto](#grado-de-cumplimiento-del-alcance-propuesto)
+- [Mejoras futuras](#mejoras-futuras)
+
+---
+
 ## Evaluación crítica de los objetivos
 
 Este proyecto nació de algo que había visto de cerca durante años: que en las hermandades todo funciona a base de WhatsApp y de que dos o tres personas se acuerden de todo. Cuando una de esas personas no está, el caos está garantizado. Nadie sabe qué había que hacer, quién lo tenía que hacer ni qué se decidió en la última reunión. La idea de ActaCofrade era simple: que eso dejara de pasar. Que todo quedara escrito.

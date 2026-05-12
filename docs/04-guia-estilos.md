@@ -1,5 +1,12 @@
 # 4. Guía de estilos y prototipado
 
+## Índice
+
+- [Prototipo en Figma](#prototipo-en-figma)
+- [Guía de estilos](#guía-de-estilos)
+- [Wireframes y mockups](#wireframes-y-mockups)
+- [Componentes reutilizables](#componentes-reutilizables)
+
 ---
 
 ## Prototipo en Figma
