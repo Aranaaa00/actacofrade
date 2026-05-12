@@ -2,6 +2,12 @@
 
 > Este documento complementa [08-despliegue.md](08-despliegue.md) con las evidencias técnicas exigidas para la evaluación: gestión de artefactos, ficheros del despliegue y verificación de red.
 
+## Índice
+
+- [Gestión de ficheros y artefactos del despliegue](#gestión-de-ficheros-y-artefactos-del-despliegue)
+- [La API es accesible a través del reverse proxy](#la-api-es-accesible-a-través-del-reverse-proxy)
+- [El backend NO es accesible directamente desde el exterior](#el-backend-no-es-accesible-directamente-desde-el-exterior)
+
 ---
 
 ## Gestión de ficheros y artefactos del despliegue

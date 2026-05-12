@@ -2,6 +2,18 @@
 
 ActaCofrade es una aplicación web pensada para hermandades y cofradías. Sirve para organizar sus actos: planificar el programa, repartir las tareas entre los miembros, dejar por escrito las decisiones tomadas en cada reunión y guardar el historial de incidencias de cada edición.
 
+## Índice
+
+- [Documentación del TFG](#documentación-del-tfg)
+- [Arquitectura](#arquitectura)
+- [Estructura del repositorio](#estructura-del-repositorio)
+- [Arranque rápido](#arranque-rápido)
+- [Resumen de la API](#resumen-de-la-api)
+- [Integración continua](#integración-continua)
+- [Seguridad](#seguridad)
+
+---
+
 El proyecto tiene dos partes:
 
 - **Backend.** API REST en Spring Boot 4 sobre Java 21. Lleva la lógica de negocio, la base de datos y la autenticación.
@@ -31,11 +43,14 @@ La memoria del proyecto está dividida por capítulos en la carpeta [`docs/`](do
 | [6. Desarrollo](docs/06-desarrollo.md) | Estructura del código, flujo de trabajo y patrones aplicados. |
 | [7. Pruebas](docs/07-pruebas.md) | Estrategia de testing, cobertura y resultados. |
 | [8. Despliegue](docs/08-despliegue.md) | Despliegue del entorno completo (resumen de [DEPLOY.md](DEPLOY.md)). |
+| [8b. Despliegue — evidencias](docs/08-despliegue-eval.md) | Evidencias técnicas del despliegue: artefactos, red interna y verificaciones. |
 | [9. Manual de usuario](docs/09-manual-usuario.md) | Guía de uso de la aplicación por roles. |
 | [10. Conclusiones](docs/10-conclusiones.md) | Balance, lecciones aprendidas y líneas futuras. |
 
 Otros materiales de referencia:
 
+- [backend/README.md](backend/README.md) — documentación detallada de la API REST (endpoints, modelo, configuración).
+- [frontend/README.md](frontend/README.md) — guía técnica de la SPA Angular (estructura, build, tests, estilos).
 - [docs/propuesta.md](docs/propuesta.md) — propuesta original del TFG con la identificación de necesidades.
 - [docs/postman/ActaCofrade_API.postman_collection.json](docs/postman/ActaCofrade_API.postman_collection.json) — colección de Postman lista para importar.
 
@@ -251,19 +266,13 @@ El listado completo de endpoints, la máquina de estados de las tareas y la estr
 
 ## Integración continua
 
-El repositorio tiene dos workflows en GitHub Actions. Cada uno se ejecuta solo cuando cambia su parte del proyecto:
+El repositorio tiene tres workflows en GitHub Actions, cada uno con un papel distinto:
 
-- [.github/workflows/backend.yml](.github/workflows/backend.yml) — compila el backend, ejecuta los tests unitarios e integración, publica los informes de Surefire y construye la imagen Docker del backend.
-- [.github/workflows/frontend.yml](.github/workflows/frontend.yml) — instala dependencias con `npm ci`, ejecuta el `ng build` de producción, sube el `dist/` como artefacto y construye la imagen Docker del frontend.
+- [.github/workflows/backend.yml](.github/workflows/backend.yml) — CI del backend: compila, ejecuta los tests unitarios e integración, publica los informes de Surefire y construye la imagen del backend. En cada push a `main` la publica también en **GHCR** como `ghcr.io/aranaaa00/actacofrade-backend:{latest,<sha>}`.
+- [.github/workflows/frontend.yml](.github/workflows/frontend.yml) — CI del frontend: `npm ci`, `ng build --configuration production`, sube `dist/` como artefacto y construye la imagen del frontend. En cada push a `main` la publica también en **GHCR** como `ghcr.io/aranaaa00/actacofrade-frontend:{latest,<sha>}`.
+- [.github/workflows/cd.yml](.github/workflows/cd.yml) — CD de producción: en cada push a `main` reconstruye ambas imágenes y las publica además en **Docker Hub** bajo el namespace `aranaa00` (`aranaa00/actacofrade-backend` y `aranaa00/actacofrade-frontend`), con `latest` y el SHA del commit. Las credenciales viven en los *repository secrets* `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN`.
 
-Las pipelines no necesitan secretos externos: usan únicamente imágenes públicas y un `JWT_SECRET` de usar y tirar generado dentro del runner.
-
-En cada ejecución correcta sobre `main`, ambos workflows publican las imágenes resultantes en el **GitHub Container Registry** usando el `GITHUB_TOKEN` integrado:
-
-- `ghcr.io/aranaaa00/actacofrade-backend:latest`
-- `ghcr.io/aranaaa00/actacofrade-frontend:latest`
-
-Cada imagen se etiqueta también con el SHA del commit (`...:<sha>`), así que se puede recuperar cualquier build pasado. La lista completa está en <https://github.com/Aranaaa00?tab=packages>.
+Los workflows de CI no necesitan secretos externos: usan imágenes públicas y un `JWT_SECRET` de usar y tirar generado dentro del runner. La lista pública de imágenes GHCR está en <https://github.com/Aranaaa00?tab=packages>.
 
 ---
 
