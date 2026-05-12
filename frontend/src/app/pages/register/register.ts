@@ -144,11 +144,11 @@ export class Register implements OnInit {
       this.authService.register(request).subscribe({
         next: () => {
           this.loading = false;
-          this.toast.success('Cuenta creada correctamente.');
-          this.router.navigate(['/dashboard']);
+          this.toast.success('Te hemos enviado un correo de verificación.');
+          this.router.navigate(['/auth/check-email'], { queryParams: { email: request.email } });
         },
         error: (err) => {
-          this.toast.fromHttpError(err, 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+          this.toast.fromHttpError(err, 'No se pudo iniciar el registro. Inténtalo de nuevo.');
           this.loading = false;
         }
       });

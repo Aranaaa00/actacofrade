@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.model';
+import {
+  AuthResponse,
+  LoginRequest,
+  RegisterRequest,
+  RegistrationStatusResponse,
+  ResendVerificationRequest
+} from '../models/auth.model';
 import { EventResponse } from '../models/event.model';
 import { ROLES_ADMIN, ROLES_MANAGE, ROLES_SUPER_ADMIN, ROLES_WRITE, Role } from '../shared/constants/roles.const';
 
@@ -37,11 +43,24 @@ export class AuthService {
     );
   }
 
-  // Creates a new account and persists the session on success.
-  register(request: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/register`, request).pipe(
+  // Creates a new account request. The backend does NOT create the user yet:
+  // it stores the data temporarily and sends a verification email. The session
+  // is only established later, when the user follows the link in that email.
+  register(request: RegisterRequest): Observable<RegistrationStatusResponse> {
+    return this.http.post<RegistrationStatusResponse>(`${this.baseUrl}/register`, request);
+  }
+
+  // Consumes the verification token, creating the user in DB and starting the session.
+  verifyEmail(token: string): Observable<AuthResponse> {
+    const params = new HttpParams().set('token', token);
+    return this.http.get<AuthResponse>(`${this.baseUrl}/verify-email`, { params }).pipe(
       tap((response) => this.storeSession(response))
     );
+  }
+
+  // Asks the backend to resend a verification email if a pending request exists.
+  resendVerification(request: ResendVerificationRequest): Observable<RegistrationStatusResponse> {
+    return this.http.post<RegistrationStatusResponse>(`${this.baseUrl}/resend-verification`, request);
   }
 
   // Lists existing hermandades so non-admin users can pick theirs at registration.

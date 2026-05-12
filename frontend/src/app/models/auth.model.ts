@@ -20,3 +20,14 @@ export interface AuthResponse {
   hermandadNombre?: string;
   hasAvatar?: boolean;
 }
+
+// Returned by /register and /resend-verification: the response is intentionally
+// generic to avoid leaking whether the email is already registered.
+export interface RegistrationStatusResponse {
+  status: 'pending_verification' | string;
+  message: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
