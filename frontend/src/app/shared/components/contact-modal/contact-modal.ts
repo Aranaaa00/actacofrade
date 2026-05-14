@@ -9,8 +9,9 @@ import { ToastService } from '../../../services/toast.service';
 import { hasFieldError, getFieldError } from '../../utils/form-validation.utils';
 import { noHtmlValidator, sanitizeFormValues } from '../../utils/sanitize.utils';
 import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
+import { SUPPORT_CATEGORIES, SupportCategory, SupportCategoryKey } from '../../constants/support.const';
 
-// Reusable modal to send an admin change request from the sidebar.
+// Centralized support hub: admin change, password reset, manual verification and SuperAdmin contact.
 @Component({
   selector: 'app-contact-modal',
   imports: [ReactiveFormsModule, LucideAngularModule, FormField, ModalA11yDirective],
@@ -26,7 +27,10 @@ export class ContactModal {
   @Input() show = false;
   @Output() closed = new EventEmitter<void>();
 
+  readonly categories = SUPPORT_CATEGORIES;
+
   form: FormGroup = this.fb.group({
+    category: [SUPPORT_CATEGORIES[0].key as SupportCategoryKey, [Validators.required]],
     message: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000), noHtmlValidator()]],
   });
 
@@ -36,9 +40,21 @@ export class ContactModal {
     return this.auth.getUser()?.hermandadNombre ?? '';
   }
 
+  get activeCategory(): SupportCategory {
+    const key = this.form.controls['category'].value as SupportCategoryKey;
+    return this.categories.find(c => c.key === key) ?? this.categories[0];
+  }
+
   get remainingChars(): number {
     const value: string = this.form.controls['message'].value ?? '';
     return 2000 - value.length;
+  }
+
+  selectCategory(key: SupportCategoryKey): void {
+    if (this.submitting) {
+      return;
+    }
+    this.form.controls['category'].setValue(key);
   }
 
   hasError(field: string): boolean {
@@ -53,7 +69,7 @@ export class ContactModal {
     if (this.submitting) {
       return;
     }
-    this.form.reset({ message: '' });
+    this.form.reset({ category: this.categories[0].key, message: '' });
     this.closed.emit();
   }
 
@@ -69,14 +85,16 @@ export class ContactModal {
 
     this.submitting = true;
 
-    const payload = sanitizeFormValues(this.form.value) as { message: string };
+    const raw = sanitizeFormValues(this.form.value) as { category: SupportCategoryKey; message: string };
+    const category = this.categories.find(c => c.key === raw.category) ?? this.categories[0];
+    const payload = { message: `${category.prefix} ${raw.message}` };
     this.requestService.create(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.submitting = false;
           this.toast.success('Solicitud enviada correctamente. El equipo la revisará pronto.');
-          this.form.reset({ message: '' });
+          this.form.reset({ category: this.categories[0].key, message: '' });
           this.closed.emit();
         },
         error: (err) => {

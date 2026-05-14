@@ -2,14 +2,14 @@
   <section class="modal-overlay" appModalA11y role="presentation" (click)="onClose()" (keydown.escape)="onClose()">
     <article class="modal contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle" (click)="$event.stopPropagation()">
       <header class="modal__header">
-        <h2 id="contactModalTitle" class="modal__title">Solicitar cambio de administrador</h2>
+        <h2 id="contactModalTitle" class="modal__title">Soporte</h2>
         <button class="modal__close" type="button" (click)="onClose()" aria-label="Cerrar" [disabled]="submitting">
           <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
         </button>
       </header>
     <section class="modal__body contact-modal__body">
       <p class="contact-modal__intro">
-        Envía una solicitud al equipo de ActaCofrade indicando el motivo del cambio de administrador en tu hermandad.
+        Centro de soporte de ActaCofrade. Elige el tipo de solicitud y describe brevemente tu situación.
       </p>
 
       <article class="contact-modal__hermandad" aria-label="Hermandad">
@@ -20,15 +20,33 @@
         </section>
       </article>
 
+      <fieldset class="contact-modal__categories" [attr.aria-label]="'Tipo de solicitud'">
+        <legend class="visually-hidden">Tipo de solicitud</legend>
+        @for (cat of categories; track cat.key) {
+          <button
+            type="button"
+            class="contact-modal__category"
+            [class.contact-modal__category--active]="activeCategory.key === cat.key"
+            [attr.aria-pressed]="activeCategory.key === cat.key"
+            (click)="selectCategory(cat.key)"
+            [disabled]="submitting">
+            <lucide-icon [name]="cat.icon" class="contact-modal__category-icon" [size]="20" aria-hidden="true"></lucide-icon>
+            <span class="contact-modal__category-label">{{ cat.label }}</span>
+          </button>
+        }
+      </fieldset>
+
+      <p class="contact-modal__category-desc">{{ activeCategory.description }}</p>
+
       <form class="contact-modal__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-        <app-form-field label="Motivo de la solicitud" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
+        <app-form-field label="Mensaje" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
           <textarea
             id="contactMessage"
             class="contact-modal__textarea"
             formControlName="message"
             rows="6"
             maxlength="2000"
-            placeholder="Explica brevemente por qué necesitas un cambio de administrador en tu hermandad."
+            [placeholder]="activeCategory.placeholder"
             aria-describedby="contactCounter"></textarea>
           <small id="contactCounter" class="contact-modal__counter">{{ remainingChars }} caracteres restantes</small>
         </app-form-field>

@@ -81,9 +81,20 @@ describe('ContactModal', () => {
     m.form.controls['message'].setValue('this is a valid message text');
     m.onSubmit();
     expect(req.create).toHaveBeenCalled();
+    const arg = req.create.calls.mostRecent().args[0] as { message: string };
+    expect(arg.message.startsWith('[Cambio de administrador]')).toBeTrue();
     expect(toast.success).toHaveBeenCalled();
     expect(closed).toBe(1);
     expect(m.submitting).toBeFalse();
+  });
+
+  it('selectCategory updates the prefix used on submit', () => {
+    req.create.and.returnValue(of({} as any));
+    m.selectCategory('VERIFICATION');
+    m.form.controls['message'].setValue('this is a valid message text');
+    m.onSubmit();
+    const arg = req.create.calls.mostRecent().args[0] as { message: string };
+    expect(arg.message.startsWith('[Verificación manual]')).toBeTrue();
   });
 
   it('onSubmit reports http errors', () => {
