@@ -2,6 +2,8 @@ package com.actacofrade.backend.repository;
 
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,6 +22,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     long countByHermandadIdAndActiveTrue(Integer hermandadId);
 
     Optional<User> findByIdAndHermandadId(Integer id, Integer hermandadId);
+
+    @Query("SELECT u FROM User u " +
+           "WHERE (:query IS NULL OR :query = '' " +
+           "  OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "  OR LOWER(u.email)    LIKE LOWER(CONCAT('%', :query, '%')))")
+    Page<User> searchAll(@Param("query") String query, Pageable pageable);
 
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r " +
            "WHERE u.hermandad.id = :hermandadId " +

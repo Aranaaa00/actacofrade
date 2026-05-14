@@ -8,4 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Integer> {
 
     Page<AuditLog> findByEventIdOrderByPerformedAtDesc(Integer eventId, Pageable pageable);
+
+    Page<AuditLog> findByEntityTypeAndActionStartingWithOrderByPerformedAtDesc(
+            String entityType, String actionPrefix, Pageable pageable);
+
+    Page<AuditLog> findByEntityTypeAndEntityIdAndActionStartingWithOrderByPerformedAtDesc(
+            String entityType, Integer entityId, String actionPrefix, Pageable pageable);
 }

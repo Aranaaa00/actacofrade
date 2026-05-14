@@ -2,6 +2,8 @@ package com.actacofrade.backend.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,6 +48,30 @@ public class User {
 
     @Column(name = "active")
     private Boolean active = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    private AccountStatus status = AccountStatus.ACTIVE;
+
+    @Column(name = "status_reason", length = 500)
+    private String statusReason;
+
+    @Column(name = "status_changed_at")
+    private LocalDateTime statusChangedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_changed_by")
+    private User statusChangedBy;
+
+    @Column(name = "manually_verified", nullable = false)
+    private Boolean manuallyVerified = false;
+
+    @Column(name = "manually_verified_at")
+    private LocalDateTime manuallyVerifiedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manually_verified_by")
+    private User manuallyVerifiedBy;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
