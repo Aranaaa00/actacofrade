@@ -7,6 +7,7 @@ import { Badge } from '../../shared/components/badge/badge';
 import { Datepicker } from '../../shared/components/datepicker/datepicker';
 import { Pagination } from '../../shared/components/pagination/pagination';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
+import { VerifiedBadge } from '../../shared/components/verified-badge/verified-badge';
 import { ActEditor } from '../act-editor/act-editor';
 import { EventService } from '../../services/event.service';
 import { AuthService } from '../../services/auth.service';
@@ -22,7 +23,7 @@ import { formatDate } from '../../shared/utils/date.utils';
 
 @Component({
   selector: 'app-act-list',
-  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown],
+  imports: [RouterLink, Badge, LucideAngularModule, Datepicker, ActEditor, Pagination, FilterDropdown, VerifiedBadge],
   templateUrl: './act-list.html',
 })
 export class ActList implements OnInit, OnDestroy {
