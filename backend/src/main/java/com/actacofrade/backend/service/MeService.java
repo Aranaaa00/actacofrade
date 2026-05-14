@@ -54,6 +54,7 @@ public class MeService {
 
     public UserResponse updateProfile(UpdateProfileRequest request, String authenticatedEmail) {
         User user = loadUser(authenticatedEmail);
+        rejectIfSuperAdminEditingProtectedFields(user);
 
         String newEmail = SanitizationUtils.sanitize(request.email()).toLowerCase();
         String newName = SanitizationUtils.sanitize(request.fullName());
@@ -70,6 +71,7 @@ public class MeService {
 
     public void changePassword(ChangePasswordRequest request, String authenticatedEmail) {
         User user = loadUser(authenticatedEmail);
+        rejectIfSuperAdminEditingProtectedFields(user);
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
             throw new AccessDeniedException("La contraseña actual no es correcta");
@@ -108,6 +110,7 @@ public class MeService {
 
     public void deleteAccount(String authenticatedEmail) {
         User user = loadUser(authenticatedEmail);
+        rejectIfSuperAdminEditingProtectedFields(user);
         boolean isAdmin = user.getRoles().stream().anyMatch(r -> r.getCode() == RoleCode.ADMINISTRADOR);
         Hermandad hermandad = user.getHermandad();
 
@@ -195,6 +198,19 @@ public class MeService {
     private User loadUser(String authenticatedEmail) {
         return userRepository.findByEmail(authenticatedEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+    }
+
+    /**
+     * El SuperAdmin solo puede modificar su imagen de perfil. Cualquier otro
+     * cambio (email, nombre, contraseña, baja) queda bloqueado a nivel de servicio.
+     */
+    private void rejectIfSuperAdminEditingProtectedFields(User user) {
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(r -> r.getCode() == RoleCode.SUPER_ADMIN);
+        if (isSuperAdmin) {
+            throw new AccessDeniedException(
+                    "El SuperAdmin solo puede actualizar su imagen de perfil");
+        }
     }
 
     private UserResponse toResponse(User user) {
