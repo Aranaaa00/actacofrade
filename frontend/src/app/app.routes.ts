@@ -143,7 +143,7 @@ export const routes: Routes = [
       {
         path: 'super-admin',
         title: pageTitle('Super administrador'),
-        data: { description: 'Gestion de solicitudes de cambio de administrador entre hermandades.' },
+        data: { description: 'Gestión de solicitudes de soporte enviadas por las hermandades.' },
         canActivate: [roleGuard(ROLES_SUPER_ADMIN)],
         loadComponent: () => import('./pages/super-admin/super-admin').then(m => m.SuperAdmin)
       },
