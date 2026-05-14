@@ -5,10 +5,13 @@ import com.actacofrade.backend.dto.HermandadOption;
 import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
 import com.actacofrade.backend.dto.RegistrationStatusResponse;
+import com.actacofrade.backend.entity.AccountStatus;
 import com.actacofrade.backend.entity.Hermandad;
 import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
 import com.actacofrade.backend.entity.User;
+import com.actacofrade.backend.exception.AccountBannedException;
+import com.actacofrade.backend.exception.AccountSuspendedException;
 import com.actacofrade.backend.repository.HermandadRepository;
 import com.actacofrade.backend.repository.RoleRepository;
 import com.actacofrade.backend.repository.UserAvatarRepository;
@@ -209,6 +212,8 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
+        enforceAccountStatusOrFail(user);
+
         user.setLastLogin(LocalDateTime.now());
         log.info("Login exitoso: id={}, email={}", user.getId(), email);
 
@@ -220,5 +225,21 @@ public class AuthService {
         String hermandadNombre = user.getHermandad() != null ? user.getHermandad().getNombre() : null;
         return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre,
                 userAvatarRepository.existsByUserId(user.getId()));
+    }
+
+    /**
+     * Verifica el estado de la cuenta tras autenticar las credenciales.
+     * Solo se invoca con contraseña correcta para no filtrar el estado a atacantes.
+     */
+    private void enforceAccountStatusOrFail(User user) {
+        AccountStatus status = user.getStatus();
+        if (status == null || status == AccountStatus.ACTIVE) {
+            return;
+        }
+        log.warn("Acceso denegado por estado de cuenta: id={}, status={}", user.getId(), status);
+        if (status == AccountStatus.BANNED) {
+            throw new AccountBannedException(user.getStatusReason());
+        }
+        throw new AccountSuspendedException(user.getStatusReason());
     }
 }

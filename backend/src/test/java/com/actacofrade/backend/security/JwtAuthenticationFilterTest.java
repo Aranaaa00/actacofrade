@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,13 +35,15 @@ class JwtAuthenticationFilterTest {
     @Mock
     private CustomUserDetailsService userDetailsService;
     @Mock
+    private UserRepository userRepository;
+    @Mock
     private FilterChain filterChain;
 
     private JwtAuthenticationFilter filter;
 
     @BeforeEach
     void setUp() {
-        filter = new JwtAuthenticationFilter(jwtService, userDetailsService);
+        filter = new JwtAuthenticationFilter(jwtService, userDetailsService, userRepository);
     }
 
     @AfterEach

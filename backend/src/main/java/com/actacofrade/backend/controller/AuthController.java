@@ -6,8 +6,10 @@ import com.actacofrade.backend.dto.LoginRequest;
 import com.actacofrade.backend.dto.RegisterRequest;
 import com.actacofrade.backend.dto.RegistrationStatusResponse;
 import com.actacofrade.backend.dto.ResendVerificationRequest;
+import com.actacofrade.backend.dto.ResetPasswordRequest;
 import com.actacofrade.backend.security.LoginRateLimiter;
 import com.actacofrade.backend.service.AuthService;
+import com.actacofrade.backend.service.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -42,10 +44,14 @@ public class AuthController {
 
     private final AuthService authService;
     private final LoginRateLimiter loginRateLimiter;
+    private final PasswordResetService passwordResetService;
 
-    public AuthController(AuthService authService, LoginRateLimiter loginRateLimiter) {
+    public AuthController(AuthService authService,
+                          LoginRateLimiter loginRateLimiter,
+                          PasswordResetService passwordResetService) {
         this.authService = authService;
         this.loginRateLimiter = loginRateLimiter;
+        this.passwordResetService = passwordResetService;
     }
 
     @Operation(
@@ -117,6 +123,18 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         loginRateLimiter.recordSuccess(clientKey);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Restablecer contraseña con token",
+            description = "Consume un token de restablecimiento emitido (por el SuperAdmin u otro flujo) y establece la nueva contraseña.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Contraseña actualizada"),
+            @ApiResponse(responseCode = "400", description = "Token inválido, caducado o contraseña no permitida")
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.consumeAndResetPassword(request.token(), request.newPassword());
+        return ResponseEntity.noContent().build();
     }
 
     private String resolveClientKey(HttpServletRequest request, String email) {
