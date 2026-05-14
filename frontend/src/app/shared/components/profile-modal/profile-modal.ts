@@ -29,6 +29,7 @@ import { AuthResponse } from '../../../models/auth.model';
 import { passwordStrength } from '../../validators/password-strength.validator';
 import { sanitizeText, noHtmlValidator } from '../../utils/sanitize.utils';
 import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
+import { VerifiedBadge } from '../verified-badge/verified-badge';
 
 const NAME_PATTERN = /^[\p{L}\p{M} .'\-·]{3,150}$/u;
 
@@ -43,7 +44,7 @@ const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 @Component({
   selector: 'app-profile-modal',
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, ConfirmDialog, ModalA11yDirective],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, ConfirmDialog, ModalA11yDirective, VerifiedBadge],
   templateUrl: './profile-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

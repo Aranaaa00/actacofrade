@@ -6,6 +6,7 @@ export interface UserResponse {
   active: boolean;
   lastLogin: string | null;
   hasAvatar?: boolean;
+  manuallyVerified?: boolean;
 }
 
 export interface RoleStatsResponse {

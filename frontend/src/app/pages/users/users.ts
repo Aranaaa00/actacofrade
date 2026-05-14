@@ -8,6 +8,7 @@ import { Pagination } from '../../shared/components/pagination/pagination';
 import { FilterDropdown } from '../../shared/components/filter-dropdown/filter-dropdown';
 import { EditUserModal } from '../../shared/components/edit-user-modal/edit-user-modal';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { VerifiedBadge } from '../../shared/components/verified-badge/verified-badge';
 import { Register } from '../register/register';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
@@ -31,7 +32,7 @@ const PERMISSION_COLUMNS: PermissionColumn[] = [
 
 @Component({
   selector: 'app-users',
-  imports: [FormsModule, LucideAngularModule, Badge, Pagination, FilterDropdown, EditUserModal, ConfirmDialog, Register],
+  imports: [FormsModule, LucideAngularModule, Badge, Pagination, FilterDropdown, EditUserModal, ConfirmDialog, VerifiedBadge, Register],
   templateUrl: './users.html',
 })
 export class Users implements OnInit, OnDestroy {

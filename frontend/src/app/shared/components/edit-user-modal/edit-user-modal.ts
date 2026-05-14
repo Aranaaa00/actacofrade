@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { UserResponse } from '../../../models/user.model';
 import { ModalA11yDirective } from '../../directives/modal-a11y.directive';
+import { VerifiedBadge } from '../verified-badge/verified-badge';
 
 interface RoleOption {
   value: string;
@@ -11,7 +12,7 @@ interface RoleOption {
 
 @Component({
   selector: 'app-edit-user-modal',
-  imports: [FormsModule, LucideAngularModule, ModalA11yDirective],
+  imports: [FormsModule, LucideAngularModule, ModalA11yDirective, VerifiedBadge],
   templateUrl: './edit-user-modal.html',
 })
 export class EditUserModal implements OnChanges {

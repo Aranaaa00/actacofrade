@@ -2,7 +2,7 @@
   <section class="modal-overlay profile-modal__overlay" appModalA11y role="presentation" (click)="onCancel()" (keydown.escape)="onCancel()">
     <article class="modal profile-modal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle" (click)="$event.stopPropagation()">
       <header class="modal__header profile-modal__header">
-        <h2 id="profileModalTitle" class="modal__title">Mi perfil</h2>
+        <h2 id="profileModalTitle" class="modal__title">Mi perfil<app-verified-badge [verified]="user.manuallyVerified" [size]="18" /></h2>
         <button class="modal__close" type="button" (click)="onCancel()" aria-label="Cerrar">
           <lucide-icon name="x" [size]="20" aria-hidden="true"></lucide-icon>
         </button>

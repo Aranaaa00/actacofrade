@@ -19,6 +19,7 @@ export interface AuthResponse {
   roles: string[];
   hermandadNombre?: string;
   hasAvatar?: boolean;
+  manuallyVerified?: boolean;
 }
 
 // Returned by /register and /resend-verification: the response is intentionally

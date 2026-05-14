@@ -66,7 +66,7 @@
         <tr class="users-table__row">
           <td>
             <address class="users-table__user">
-              <strong class="users-table__name">{{ user.fullName }}</strong>
+              <strong class="users-table__name">{{ user.fullName }}<app-verified-badge [verified]="user.manuallyVerified" /></strong>
               <small class="users-table__email">{{ user.email }}</small>
             </address>
           </td>
@@ -133,7 +133,7 @@
           <tr class="users-table__row">
             <td>
               <address class="users-table__user">
-                <strong class="users-table__name">{{ user.fullName }}</strong>
+                <strong class="users-table__name">{{ user.fullName }}<app-verified-badge [verified]="user.manuallyVerified" /></strong>
                 <small class="users-table__email">{{ user.email }}</small>
               </address>
             </td>

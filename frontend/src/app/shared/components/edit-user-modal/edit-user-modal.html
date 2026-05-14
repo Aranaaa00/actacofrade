@@ -9,7 +9,7 @@
       </header>
       <section class="modal__body">
         <p class="edit-user__user">
-          <strong>{{ user.fullName }}</strong>
+          <strong>{{ user.fullName }}<app-verified-badge [verified]="user.manuallyVerified" /></strong>
           <small>{{ user.email }}</small>
         </p>
         <fieldset class="form-field">
