@@ -1,5 +1,6 @@
 import { ROLES_ALL, ROLES_MANAGE, ROLES_WRITE, ROLES_ADMIN, ROLES_SUPER_ADMIN, ROLE_LABELS, ROLE_BADGE_VARIANTS } from './roles.const';
 import { AREA_OPTIONS } from './areas.const';
+import { SUPPORT_CATEGORIES } from './support.const';
 
 describe('roles.const', () => {
   it('declares disjoint and consistent role groups', () => {
@@ -24,6 +25,22 @@ describe('areas.const', () => {
     AREA_OPTIONS.forEach((opt) => {
       expect(opt.value).toBeTruthy();
       expect(opt.label).toBeTruthy();
+    });
+  });
+});
+
+describe('support.const', () => {
+  it('declares the four support categories with unique keys and prefixes', () => {
+    expect(SUPPORT_CATEGORIES.length).toBe(4);
+    const keys = SUPPORT_CATEGORIES.map(c => c.key);
+    expect(new Set(keys).size).toBe(keys.length);
+    const prefixes = SUPPORT_CATEGORIES.map(c => c.prefix);
+    expect(new Set(prefixes).size).toBe(prefixes.length);
+    SUPPORT_CATEGORIES.forEach((c) => {
+      expect(c.label).toBeTruthy();
+      expect(c.icon).toBeTruthy();
+      expect(c.description).toBeTruthy();
+      expect(c.placeholder).toBeTruthy();
     });
   });
 });
