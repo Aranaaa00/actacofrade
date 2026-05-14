@@ -42,6 +42,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/auth/verify-email/verify-email').then(m => m.VerifyEmail)
   },
   {
+    path: 'auth/reset-password',
+    title: pageTitle('Restablecer contraseña'),
+    data: { description: 'Define una nueva contraseña tras la intervención del administrador.' },
+    loadComponent: () => import('./pages/auth/reset-password/reset-password').then(m => m.ResetPassword)
+  },
+  {
     path: 'terminos',
     title: pageTitle('Términos y condiciones'),
     data: { description: 'Condiciones de uso de ActaCofrade.' },
@@ -140,6 +146,13 @@ export const routes: Routes = [
         data: { description: 'Gestion de solicitudes de cambio de administrador entre hermandades.' },
         canActivate: [roleGuard(ROLES_SUPER_ADMIN)],
         loadComponent: () => import('./pages/super-admin/super-admin').then(m => m.SuperAdmin)
+      },
+      {
+        path: 'super-admin/usuarios',
+        title: pageTitle('Centro de Intervención'),
+        data: { description: 'Acciones manuales sobre cuentas: estado, verificación, rol y reseteo de contraseña.' },
+        canActivate: [roleGuard(ROLES_SUPER_ADMIN)],
+        loadComponent: () => import('./pages/super-admin-users/super-admin-users').then(m => m.SuperAdminUsers)
       }
     ]
   },
