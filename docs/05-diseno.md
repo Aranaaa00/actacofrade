@@ -250,3 +250,14 @@ Este módulo resuelve un caso concreto: qué pasa cuando el administrador de una
 | `GET` | `/api/admin-change-requests/{id}/candidates` | Lista los usuarios de la hermandad que pueden recibir el rol de administrador. | Super Admin | `200 OK` → `UserResponse[]` |
 | `PATCH` | `/api/admin-change-requests/{id}/approve` | Aprueba la solicitud y transfiere el rol al usuario seleccionado. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
 | `PATCH` | `/api/admin-change-requests/{id}/reject` | Rechaza la solicitud. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
+
+### Verificación manual de usuarios — `/api/super-admin/users`
+
+El Super Administrador puede marcar cualquier cuenta como verificada manualmente desde el centro de intervención. Esta marca es un simple indicador de confianza: se muestra como un icono junto al nombre en toda la interfaz (lista de usuarios, perfil, modal de edición, detalle del acto, asignaciones, revisiones e incidencias) pero **no concede privilegios adicionales, no altera los roles ni interviene en ninguna comprobación de autorización**. La separación entre verificación y RBAC se garantiza a propósito para que el icono sea puramente informativo.
+
+| Método | Ruta | Descripción | Roles | Respuesta |
+|--------|------|-------------|-------|-----------|
+| `POST` | `/api/super-admin/users/{id}/verify` | Activa la marca de verificación manual del usuario. Sin cuerpo. Idempotente. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
+| `POST` | `/api/super-admin/users/{id}/unverify` | Retira la marca de verificación manual. Sin cuerpo. Idempotente. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
+
+Ambas operaciones quedan registradas en el log de intervención del Super Administrador. El flag `manuallyVerified` se expone en los DTO `UserResponse`, `AuthResponse`, `EventResponse`, `TaskResponse`, `DecisionResponse` e `IncidentResponse` para que el frontend lo pueda pintar de forma consistente con el componente compartido `app-verified-badge`.

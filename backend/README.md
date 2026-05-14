@@ -164,6 +164,16 @@ object for paginated endpoints. HTTP statuses used: `200`, `201`, `204`,
 | **Dashboard** | `GET /api/dashboard` | Authenticated. Aggregated statistics. |
 | **Export** | `POST /api/events/{id}/export` (PDF or CSV) | Admin / responsable / colaborador. |
 | **Admin change requests** | `POST /api/admin-change-requests`, `GET /api/admin-change-requests`, `GET /api/admin-change-requests/{id}`, `GET /api/admin-change-requests/{id}/candidates`, `PATCH .../approve`, `PATCH .../reject` | Create: any non super-admin user. List / resolve: SUPER_ADMIN. |
+| **SuperAdmin users** | `GET /api/super-admin/users`, `GET /api/super-admin/users/{id}`, `PATCH .../status`, `PATCH .../role`, `POST .../verify`, `POST .../unverify`, `GET /api/super-admin/intervention-log` | SUPER_ADMIN only. |
+
+### Manual verification (trust marker)
+
+The SuperAdmin can toggle a manual verification mark on any account from the intervention center. This flag is **purely cosmetic / trust metadata**: it never grants extra roles, never changes RBAC, never bypasses guards. It is exposed read-only in `UserResponse`, `AuthResponse`, `EventResponse`, `TaskResponse`, `DecisionResponse` and `IncidentResponse` so that the frontend can render the badge consistently next to user names.
+
+| Method | Endpoint | Body | Returns | Role | Notes |
+|---|---|---|---|---|---|
+| POST | `/api/super-admin/users/{id}/verify` | — (no body) | `SuperAdminUserResponse` | SUPER_ADMIN | Idempotent. Sets `manuallyVerified = true`. Audit-logged. |
+| POST | `/api/super-admin/users/{id}/unverify` | — (no body) | `SuperAdminUserResponse` | SUPER_ADMIN | Idempotent. Sets `manuallyVerified = false`. Audit-logged. |
 
 ### Task state machine
 
