@@ -10,6 +10,7 @@ public record DecisionResponse(
         String status,
         Integer reviewedById,
         String reviewedByName,
+        boolean reviewedByVerified,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

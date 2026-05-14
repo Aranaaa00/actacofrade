@@ -9,8 +9,10 @@ public record IncidentResponse(
         String status,
         Integer reportedById,
         String reportedByName,
+        boolean reportedByVerified,
         Integer resolvedById,
         String resolvedByName,
+        boolean resolvedByVerified,
         LocalDateTime createdAt,
         LocalDateTime resolvedAt
 ) {}

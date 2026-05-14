@@ -160,16 +160,20 @@ public class IncidentService {
     private IncidentResponse toResponse(Incident incident) {
         Integer reportedById = null;
         String reportedByName = null;
+        boolean reportedByVerified = false;
         if (incident.getReportedBy() != null) {
             reportedById = incident.getReportedBy().getId();
             reportedByName = incident.getReportedBy().getFullName();
+            reportedByVerified = Boolean.TRUE.equals(incident.getReportedBy().getManuallyVerified());
         }
 
         Integer resolvedById = null;
         String resolvedByName = null;
+        boolean resolvedByVerified = false;
         if (incident.getResolvedBy() != null) {
             resolvedById = incident.getResolvedBy().getId();
             resolvedByName = incident.getResolvedBy().getFullName();
+            resolvedByVerified = Boolean.TRUE.equals(incident.getResolvedBy().getManuallyVerified());
         }
 
         return new IncidentResponse(
@@ -179,8 +183,10 @@ public class IncidentService {
                 incident.getStatus().name(),
                 reportedById,
                 reportedByName,
+                reportedByVerified,
                 resolvedById,
                 resolvedByName,
+                resolvedByVerified,
                 incident.getCreatedAt(),
                 incident.getResolvedAt()
         );

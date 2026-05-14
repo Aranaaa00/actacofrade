@@ -54,7 +54,7 @@ class DecisionControllerIntegrationTest {
 
     private DecisionResponse sample() {
         return new DecisionResponse(4, 1, "MAYORDOMIA", "Comprar varales",
-                "PROPUESTA", null, null, LocalDateTime.now(), LocalDateTime.now());
+                "PROPUESTA", null, null, false, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test

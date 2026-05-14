@@ -53,7 +53,7 @@ class IncidentControllerIntegrationTest {
 
     private IncidentResponse sample() {
         return new IncidentResponse(7, 1, "Caída del paso", "ABIERTA",
-                3, "Reportador", null, null, LocalDateTime.now(), null);
+                3, "Reportador", false, null, null, false, LocalDateTime.now(), null);
     }
 
     @Test

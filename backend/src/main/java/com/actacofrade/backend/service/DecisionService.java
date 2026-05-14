@@ -199,9 +199,11 @@ public class DecisionService {
     private DecisionResponse toResponse(Decision decision) {
         Integer reviewedById = null;
         String reviewedByName = null;
+        boolean reviewedByVerified = false;
         if (decision.getReviewedBy() != null) {
             reviewedById = decision.getReviewedBy().getId();
             reviewedByName = decision.getReviewedBy().getFullName();
+            reviewedByVerified = Boolean.TRUE.equals(decision.getReviewedBy().getManuallyVerified());
         }
 
         return new DecisionResponse(
@@ -212,6 +214,7 @@ public class DecisionService {
                 decision.getStatus().name(),
                 reviewedById,
                 reviewedByName,
+                reviewedByVerified,
                 decision.getCreatedAt(),
                 decision.getUpdatedAt()
         );
