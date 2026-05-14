@@ -62,6 +62,25 @@ const ACTION_LABELS: Readonly<Record<string, string>> = {
   SUPERADMIN_PASSWORD_RESET: 'Reseteo de contraseña',
 };
 
+const CHANGE_FIELD_LABELS: Readonly<Record<string, string>> = {
+  status: 'Estado',
+  reason: 'Motivo',
+  manuallyVerified: 'Verificación manual',
+  roles: 'Rol',
+};
+
+const STATUS_VALUE_LABELS: Readonly<Record<string, string>> = {
+  ACTIVE: 'Activa',
+  SUSPENDED: 'Suspendida',
+  BANNED: 'Baneada',
+};
+
+export interface ChangeRow {
+  readonly label: string;
+  readonly from: string;
+  readonly to: string;
+}
+
 /**
  * Centro de Intervención del Super Administrador. Permite buscar usuarios y
  * ejecutar acciones manuales: cambiar estado, verificación, rol y reseteo de
@@ -148,6 +167,55 @@ export class SuperAdminUsers implements OnInit {
 
   actionLabel(action: string): string {
     return ACTION_LABELS[action] ?? action;
+  }
+
+  formatChanges(raw: string | null): readonly ChangeRow[] {
+    if (!raw) {
+      return [];
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return [];
+    }
+    const rows: ChangeRow[] = [];
+    for (const [field, diff] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!diff || typeof diff !== 'object' || Array.isArray(diff)) {
+        continue;
+      }
+      const d = diff as { oldValue?: unknown; newValue?: unknown };
+      rows.push({
+        label: CHANGE_FIELD_LABELS[field] ?? field,
+        from: this.formatChangeValue(field, d.oldValue),
+        to: this.formatChangeValue(field, d.newValue),
+      });
+    }
+    return rows;
+  }
+
+  trackByChange(_: number, row: ChangeRow): string {
+    return row.label;
+  }
+
+  private formatChangeValue(field: string, value: unknown): string {
+    if (value === null || value === undefined || value === '') {
+      return '—';
+    }
+    const str = String(value);
+    if (field === 'status') {
+      return STATUS_VALUE_LABELS[str] ?? str;
+    }
+    if (field === 'manuallyVerified') {
+      return str === 'true' ? 'Sí' : 'No';
+    }
+    if (field === 'roles') {
+      return str.split(',').map((r) => this.roleLabels[r.trim()] ?? r.trim()).join(', ');
+    }
+    return str;
   }
 
   statusReasonLabel(status: AccountStatus): string {

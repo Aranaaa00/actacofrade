@@ -40,14 +40,22 @@
             (click)="select(user)"
           >
             <header class="super-admin-users__item-head">
-              <strong>{{ user.email }}</strong>
+              <strong>
+                {{ user.email }}
+                <lucide-icon
+                  *ngIf="user.manuallyVerified"
+                  name="badge-check"
+                  class="super-admin-users__verified"
+                  [size]="14"
+                  aria-label="Verificado"
+                ></lucide-icon>
+              </strong>
               <span class="badge" [ngClass]="statusBadgeClass(user.status)">
                 {{ statusLabel(user.status) }}
               </span>
             </header>
             <p class="super-admin-users__item-meta">
               <span>{{ user.fullName }}</span>
-              <span *ngIf="user.manuallyVerified" class="badge badge--wood">Verificado</span>
             </p>
           </button>
         </li>
@@ -62,7 +70,16 @@
       <ng-container *ngIf="selected() as user">
         <header class="super-admin-users__detail-head">
           <hgroup>
-            <h2 class="super-admin-users__detail-title">{{ user.fullName }}</h2>
+            <h2 class="super-admin-users__detail-title">
+              {{ user.fullName }}
+              <lucide-icon
+                *ngIf="user.manuallyVerified"
+                name="badge-check"
+                class="super-admin-users__verified"
+                [size]="16"
+                aria-label="Verificado"
+              ></lucide-icon>
+            </h2>
             <p class="super-admin-users__detail-sub">{{ user.email }}</p>
           </hgroup>
           <span class="badge" [ngClass]="statusBadgeClass(user.status)">
@@ -78,7 +95,13 @@
           <dt>Cofradía</dt>
           <dd>{{ user.hermandadNombre ?? '—' }}</dd>
           <dt>Verificado</dt>
-          <dd>{{ user.manuallyVerified ? 'Sí (manual)' : 'No' }}</dd>
+          <dd>
+            <ng-container *ngIf="user.manuallyVerified; else notVerified">
+              <lucide-icon name="badge-check" class="super-admin-users__verified" [size]="16" aria-hidden="true"></lucide-icon>
+              <span>Sí (manual)</span>
+            </ng-container>
+            <ng-template #notVerified>—</ng-template>
+          </dd>
           <dt>Último acceso</dt>
           <dd>{{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}</dd>
         </dl>
@@ -189,8 +212,20 @@
               <p class="super-admin-users__log-detail">
                 <span>Por: {{ entry.actorName ?? '—' }}</span>
                 <span *ngIf="entry.details"> · {{ entry.details }}</span>
-                <span *ngIf="entry.changes"> · {{ entry.changes }}</span>
               </p>
+              <dl
+                *ngIf="formatChanges(entry.changes).length > 0"
+                class="super-admin-users__log-changes"
+              >
+                <ng-container *ngFor="let row of formatChanges(entry.changes); trackBy: trackByChange">
+                  <dt>{{ row.label }}</dt>
+                  <dd>
+                    <span class="super-admin-users__log-from">{{ row.from }}</span>
+                    <lucide-icon name="arrow-right" [size]="14" aria-hidden="true"></lucide-icon>
+                    <span class="super-admin-users__log-to">{{ row.to }}</span>
+                  </dd>
+                </ng-container>
+              </dl>
             </li>
           </ul>
         </section>
