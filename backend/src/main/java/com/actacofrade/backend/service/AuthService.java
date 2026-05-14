@@ -190,7 +190,8 @@ public class AuthService {
         String jwt = jwtService.generateToken(user.getEmail());
         List<String> roles = user.getRoles().stream().map(r -> r.getCode().name()).toList();
         return new AuthResponse(user.getId(), jwt, user.getEmail(), user.getFullName(), roles,
-                hermandad.getNombre(), userAvatarRepository.existsByUserId(user.getId()));
+                hermandad.getNombre(), userAvatarRepository.existsByUserId(user.getId()),
+                Boolean.TRUE.equals(user.getManuallyVerified()));
     }
 
     @Transactional(readOnly = true)
@@ -224,7 +225,8 @@ public class AuthService {
 
         String hermandadNombre = user.getHermandad() != null ? user.getHermandad().getNombre() : null;
         return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre,
-                userAvatarRepository.existsByUserId(user.getId()));
+                userAvatarRepository.existsByUserId(user.getId()),
+                Boolean.TRUE.equals(user.getManuallyVerified()));
     }
 
     /**

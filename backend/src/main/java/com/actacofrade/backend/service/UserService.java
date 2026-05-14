@@ -186,7 +186,8 @@ public class UserService {
                 roles,
                 user.getActive(),
                 user.getLastLogin(),
-                userAvatarRepository.existsByUserId(user.getId())
+                userAvatarRepository.existsByUserId(user.getId()),
+                Boolean.TRUE.equals(user.getManuallyVerified())
         );
     }
 }

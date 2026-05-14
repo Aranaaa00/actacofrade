@@ -179,7 +179,8 @@ public class AdminChangeRequestService {
                 user.getRoles().stream().map(r -> r.getCode().name()).toList(),
                 user.getActive(),
                 user.getLastLogin(),
-                false
+                false,
+                Boolean.TRUE.equals(user.getManuallyVerified())
         );
     }
 

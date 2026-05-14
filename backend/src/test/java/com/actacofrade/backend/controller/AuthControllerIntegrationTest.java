@@ -126,7 +126,7 @@ class AuthControllerIntegrationTest {
     @Test
     void login_validRequest_returns200() throws Exception {
         AuthResponse resp = new AuthResponse(1, "TOKEN", "admin@hermandad.es",
-                "Admin", List.of("ADMINISTRADOR"), "Hermandad", false);
+                "Admin", List.of("ADMINISTRADOR"), "Hermandad", false, false);
         given(authService.login(any())).willReturn(resp);
 
         String body = "{\"email\":\"admin@hermandad.es\",\"password\":\"Pass1234.\"}";

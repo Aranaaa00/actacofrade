@@ -225,7 +225,8 @@ public class MeService {
                 roles,
                 user.getActive(),
                 user.getLastLogin(),
-                hasAvatar
+                hasAvatar,
+                Boolean.TRUE.equals(user.getManuallyVerified())
         );
     }
 }

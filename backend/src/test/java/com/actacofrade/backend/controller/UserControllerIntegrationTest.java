@@ -55,7 +55,7 @@ class UserControllerIntegrationTest {
 
     private UserResponse sample() {
         return new UserResponse(5, "Juan Pérez", "juan@hermandad.es",
-                List.of("RESPONSABLE"), true, LocalDateTime.now(), false);
+                List.of("RESPONSABLE"), true, LocalDateTime.now(), false, false);
     }
 
     @Test

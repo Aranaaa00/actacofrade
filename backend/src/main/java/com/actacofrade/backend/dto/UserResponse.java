@@ -10,5 +10,6 @@ public record UserResponse(
         List<String> roles,
         Boolean active,
         LocalDateTime lastLogin,
-        boolean hasAvatar
+        boolean hasAvatar,
+        boolean manuallyVerified
 ) {}

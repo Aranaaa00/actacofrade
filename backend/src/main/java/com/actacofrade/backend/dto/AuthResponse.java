@@ -9,5 +9,6 @@ public record AuthResponse(
         String fullName,
         List<String> roles,
         String hermandadNombre,
-        boolean hasAvatar
+        boolean hasAvatar,
+        boolean manuallyVerified
 ) {}

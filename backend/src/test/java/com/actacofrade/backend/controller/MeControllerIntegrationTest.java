@@ -59,7 +59,7 @@ class MeControllerIntegrationTest {
 
     private UserResponse sample() {
         return new UserResponse(1, "Admin Hermandad", "admin@hermandad.es",
-                List.of("ADMINISTRADOR"), true, LocalDateTime.now(), false);
+                List.of("ADMINISTRADOR"), true, LocalDateTime.now(), false, false);
     }
 
     @Test
