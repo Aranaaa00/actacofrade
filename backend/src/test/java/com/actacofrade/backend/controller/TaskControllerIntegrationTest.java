@@ -57,8 +57,8 @@ class TaskControllerIntegrationTest {
     }
 
     private TaskResponse sample() {
-        return new TaskResponse(10, 1, "Tarea X", "desc", 5, "Juan", 2,
-                "PLANIFICADA", LocalDate.of(2030, 4, 1), null, null, null,
+        return new TaskResponse(10, 1, "Tarea X", "desc", 5, "Juan", false, 2,
+                "PLANIFICADA", LocalDate.of(2030, 4, 1), null, null, null, false,
                 null, null, LocalDateTime.now(), LocalDateTime.now());
     }
 

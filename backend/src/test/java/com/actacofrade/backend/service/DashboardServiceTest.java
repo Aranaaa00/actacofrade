@@ -82,7 +82,7 @@ class DashboardServiceTest {
         Page<Event> page = new PageImpl<>(List.of(event));
         when(eventRepository.<Event>findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
         EventResponse er = new EventResponse(10, "2026/0001", "Acto", "CABILDO",
-                LocalDate.now(), null, null, "PLANNING", 1, "User 1", false,
+                LocalDate.now(), null, null, "PLANNING", 1, "User 1", false, false,
                 0, 0, 0, 0, null, null);
         when(eventService.toResponse(event)).thenReturn(er);
 
@@ -111,7 +111,7 @@ class DashboardServiceTest {
         when(eventRepository.<Event>findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
         when(eventService.toResponse(any(Event.class))).thenReturn(
                 new EventResponse(10, "r", "t", "CABILDO", LocalDate.now(), null, null, "PLANNING",
-                        1, "U", false, 0, 0, 0, 0, null, null));
+                        1, "U", false, false, 0, 0, 0, 0, null, null));
         when(taskRepository.findByAssignedToIdAndStatusInAndEventHermandadIdOrderByCreatedAtDesc(any(), any(), any()))
                 .thenReturn(List.of());
         when(incidentRepository.findByReportedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(any(), any(), any()))

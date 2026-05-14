@@ -432,18 +432,22 @@ public class TaskService {
     private TaskResponse toResponse(Task task) {
         Integer assignedToId = null;
         String assignedToName = null;
+        boolean assignedToVerified = false;
         if (task.getAssignedTo() != null) {
             assignedToId = task.getAssignedTo().getId();
             assignedToName = task.getAssignedTo().getFullName();
+            assignedToVerified = Boolean.TRUE.equals(task.getAssignedTo().getManuallyVerified());
         }
 
         Integer createdByUserId = task.getCreatedBy() != null ? task.getCreatedBy().getId() : null;
 
         Integer confirmedById = null;
         String confirmedByName = null;
+        boolean confirmedByVerified = false;
         if (task.getConfirmedBy() != null) {
             confirmedById = task.getConfirmedBy().getId();
             confirmedByName = task.getConfirmedBy().getFullName();
+            confirmedByVerified = Boolean.TRUE.equals(task.getConfirmedBy().getManuallyVerified());
         }
 
         return new TaskResponse(
@@ -453,12 +457,14 @@ public class TaskService {
                 task.getDescription(),
                 assignedToId,
                 assignedToName,
+                assignedToVerified,
                 createdByUserId,
                 task.getStatus().name(),
                 task.getDeadline(),
                 task.getRejectionReason(),
                 confirmedById,
                 confirmedByName,
+                confirmedByVerified,
                 task.getConfirmedAt(),
                 task.getCompletedAt(),
                 task.getCreatedAt(),

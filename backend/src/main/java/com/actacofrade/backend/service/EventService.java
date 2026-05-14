@@ -361,9 +361,11 @@ public class EventService {
     public EventResponse toResponse(Event event) {
         Integer responsibleId = null;
         String responsibleName = null;
+        boolean responsibleVerified = false;
         if (event.getResponsible() != null) {
             responsibleId = event.getResponsible().getId();
             responsibleName = event.getResponsible().getFullName();
+            responsibleVerified = Boolean.TRUE.equals(event.getResponsible().getManuallyVerified());
         }
 
         long pendingTasks = eventRepository.countPendingTasksByEventId(event.getId());
@@ -382,6 +384,7 @@ public class EventService {
                 event.getStatus().name(),
                 responsibleId,
                 responsibleName,
+                responsibleVerified,
                 event.getIsLockedForClosing(),
                 pendingTasks,
                 openIncidents,

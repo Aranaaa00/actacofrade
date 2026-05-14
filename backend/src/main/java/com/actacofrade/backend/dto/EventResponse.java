@@ -14,6 +14,7 @@ public record EventResponse(
         String status,
         Integer responsibleId,
         String responsibleName,
+        boolean responsibleVerified,
         Boolean isLockedForClosing,
         long pendingTasks,
         long openIncidents,

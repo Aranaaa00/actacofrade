@@ -74,7 +74,7 @@ class EventControllerIntegrationTest {
         return new EventResponse(1, "EVT-001", "Salida procesional",
                 "PROCESION", LocalDate.of(2026, 4, 3),
                 "Sevilla", "obs", "PLANIFICACION",
-                10, "Admin", false,
+                10, "Admin", false, false,
                 3L, 0L, 5L, 2L,
                 LocalDateTime.now(), LocalDateTime.now());
     }
