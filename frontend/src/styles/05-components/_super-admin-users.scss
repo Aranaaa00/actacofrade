@@ -1,0 +1,320 @@
+@use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
+
+// Centro de Intervención SuperAdmin.
+// Solo layout: tipografía, inputs, botones y chips se delegan al sistema de
+// diseño (.button, .badge y estilos globales de input/select/textarea) para
+// garantizar coherencia visual con el resto de la aplicación.
+.super-admin-users {
+  display: flex;
+  flex-direction: column;
+  gap: $space-16;
+  padding: $space-16;
+
+  @include from-tablet {
+    gap: $space-24;
+    padding: $space-24;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    margin: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-heading;
+    font-size: $text-h3;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    margin: 0;
+    font-size: $text-body;
+    color: var(--text-secondary);
+  }
+
+  &__search {
+    display: flex;
+    flex-direction: column;
+    gap: $space-12;
+    padding: $space-12;
+    background-color: var(--bg-surface);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+
+    @include from-tablet {
+      flex-direction: row;
+      align-items: flex-end;
+      padding: $space-16;
+    }
+  }
+
+  &__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-16;
+
+    @include from-desktop {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.8fr);
+      align-items: start;
+      gap: $space-24;
+    }
+  }
+
+  &__panel {
+    display: flex;
+    flex-direction: column;
+    gap: $space-12;
+    padding: $space-12;
+    background-color: var(--bg-surface);
+    border: $border-1 solid var(--border-default);
+    border-top: $border-2 solid var(--nav-bg);
+    border-radius: $radius-2;
+    min-width: 0;
+
+    @include from-tablet {
+      padding: $space-16;
+      gap: $space-16;
+    }
+
+    &--list {
+      max-height: 36rem;
+      overflow-y: auto;
+    }
+  }
+
+  &__hint {
+    margin: 0;
+    font-size: $text-meta;
+    color: var(--text-secondary);
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: $space-8;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__item {
+    @include focus-visible;
+    @include transition(background-color, border-color);
+    display: flex;
+    flex-direction: column;
+    gap: $space-4;
+    width: 100%;
+    padding: $space-8 $space-12;
+    text-align: left;
+    background-color: var(--bg-page);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+    color: var(--text-primary);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--bg-surface-hover);
+      border-color: var(--nav-bg);
+    }
+
+    &--active {
+      background-color: var(--bg-surface-hover);
+      border-color: var(--nav-bg);
+      box-shadow: inset $space-4 0 0 0 var(--nav-bg);
+    }
+  }
+
+  &__item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $space-8;
+    flex-wrap: wrap;
+    word-break: break-all;
+  }
+
+  &__item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $space-4;
+    margin: 0;
+    font-size: $text-meta;
+    color: var(--text-secondary);
+  }
+
+  &__detail-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: $space-12;
+    flex-wrap: wrap;
+    padding-block-end: $space-12;
+    border-block-end: $border-1 solid var(--border-default);
+
+    hgroup {
+      display: flex;
+      flex-direction: column;
+      gap: $space-4;
+      margin: 0;
+      min-width: 0;
+    }
+  }
+
+  &__detail-title {
+    margin: 0;
+    font-family: $font-heading;
+    font-size: $text-h3;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  &__detail-sub {
+    margin: 0;
+    font-size: $text-meta;
+    color: var(--text-secondary);
+    word-break: break-all;
+  }
+
+  &__props {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-8 $space-16;
+    margin: 0;
+
+    @include from-tablet {
+      grid-template-columns: max-content 1fr;
+      align-items: baseline;
+    }
+
+    dt {
+      margin: 0;
+      font-size: $text-label;
+      font-weight: $weight-semibold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    dd {
+      display: flex;
+      flex-wrap: wrap;
+      gap: $space-4;
+      margin: 0;
+      font-size: $text-body;
+      color: var(--text-primary);
+    }
+  }
+
+  &__warn {
+    margin: 0;
+    padding: $space-8 $space-12;
+    background-color: var(--badge-pending-bg);
+    border: $border-1 solid var(--badge-pending-border);
+    border-radius: $radius-2;
+    color: var(--badge-pending-text);
+    font-size: $text-meta;
+  }
+
+  &__action {
+    display: flex;
+    flex-direction: column;
+    gap: $space-12;
+    margin: 0;
+    padding: $space-12;
+    background-color: var(--bg-page);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+
+    @include from-tablet {
+      padding: $space-16;
+    }
+
+    > legend {
+      padding: 0 $space-4;
+      font-family: $font-heading;
+      font-size: $text-h4;
+      color: var(--text-primary);
+    }
+
+    &[disabled] {
+      opacity: 0.6;
+    }
+  }
+
+  &__action-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $space-12;
+
+    @include from-tablet {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+      align-items: start;
+    }
+  }
+
+  &__action-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: $space-8;
+  }
+
+  &__logs {
+    display: flex;
+    flex-direction: column;
+    gap: $space-8;
+  }
+
+  &__logs-head h3 {
+    margin: 0;
+    font-family: $font-heading;
+    font-size: $text-h4;
+    color: var(--text-primary);
+  }
+
+  &__log-list {
+    display: flex;
+    flex-direction: column;
+    gap: $space-8;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 24rem;
+    overflow-y: auto;
+  }
+
+  &__log-item {
+    padding: $space-8 $space-12;
+    background-color: var(--bg-surface);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+  }
+
+  &__log-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $space-8;
+    flex-wrap: wrap;
+    font-size: $text-body;
+    color: var(--text-primary);
+
+    time {
+      font-size: $text-meta;
+      color: var(--text-secondary);
+    }
+  }
+
+  &__log-detail {
+    margin: $space-4 0 0;
+    font-size: $text-meta;
+    color: var(--text-secondary);
+    word-break: break-word;
+  }
+}

@@ -63,6 +63,11 @@ export class AuthService {
     return this.http.post<RegistrationStatusResponse>(`${this.baseUrl}/resend-verification`, request);
   }
 
+  // Consume el token recibido por correo y establece la nueva contraseña.
+  resetPassword(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reset-password`, { token, newPassword });
+  }
+
   // Lists existing hermandades so non-admin users can pick theirs at registration.
   listHermandades(): Observable<{ id: number; nombre: string }[]> {
     return this.http.get<{ id: number; nombre: string }[]>(`${this.baseUrl}/hermandades`);

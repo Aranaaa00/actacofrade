@@ -1,0 +1,211 @@
+<section class="super-admin-users" aria-labelledby="super-admin-users-title">
+  <hgroup class="super-admin-users__heading">
+    <h1 id="super-admin-users-title" class="super-admin-users__title">Centro de Intervención</h1>
+    <p class="super-admin-users__subtitle">
+      Busca cuentas por correo o nombre y aplica acciones manuales. Todas las
+      decisiones quedan registradas en el log auditable.
+    </p>
+  </hgroup>
+
+  <form class="super-admin-users__search" (ngSubmit)="search()">
+    <app-form-field label="Buscar" fieldId="super-admin-users-query">
+      <input
+        id="super-admin-users-query"
+        type="search"
+        name="query"
+        [(ngModel)]="query"
+        placeholder="email, nombre, apellidos…"
+        autocomplete="off"
+        maxlength="120"
+      />
+    </app-form-field>
+    <button type="submit" class="button button--primary" [disabled]="loading()" [attr.aria-busy]="loading()">
+      <lucide-icon name="search" [size]="16" aria-hidden="true"></lucide-icon>
+      Buscar
+    </button>
+  </form>
+
+  <section class="super-admin-users__layout">
+    <article class="super-admin-users__panel super-admin-users__panel--list" aria-label="Resultados de búsqueda">
+      <p *ngIf="loading()" class="super-admin-users__hint">Cargando…</p>
+      <p *ngIf="!loading() && users().length === 0" class="super-admin-users__hint">
+        Sin resultados.
+      </p>
+      <ul class="super-admin-users__items" *ngIf="!loading() && users().length > 0">
+        <li *ngFor="let user of users(); trackBy: trackById">
+          <button
+            type="button"
+            class="super-admin-users__item"
+            [class.super-admin-users__item--active]="selected()?.id === user.id"
+            (click)="select(user)"
+          >
+            <header class="super-admin-users__item-head">
+              <strong>{{ user.email }}</strong>
+              <span class="badge" [ngClass]="statusBadgeClass(user.status)">
+                {{ statusLabel(user.status) }}
+              </span>
+            </header>
+            <p class="super-admin-users__item-meta">
+              <span>{{ user.fullName }}</span>
+              <span *ngIf="user.manuallyVerified" class="badge badge--wood">Verificado</span>
+            </p>
+          </button>
+        </li>
+      </ul>
+    </article>
+
+    <article class="super-admin-users__panel super-admin-users__panel--detail" aria-label="Detalle del usuario">
+      <p *ngIf="!selected()" class="super-admin-users__hint">
+        Selecciona un usuario para ver sus acciones disponibles.
+      </p>
+
+      <ng-container *ngIf="selected() as user">
+        <header class="super-admin-users__detail-head">
+          <hgroup>
+            <h2 class="super-admin-users__detail-title">{{ user.fullName }}</h2>
+            <p class="super-admin-users__detail-sub">{{ user.email }}</p>
+          </hgroup>
+          <span class="badge" [ngClass]="statusBadgeClass(user.status)">
+            {{ statusLabel(user.status) }}
+          </span>
+        </header>
+
+        <dl class="super-admin-users__props">
+          <dt>Roles</dt>
+          <dd>
+            <span *ngFor="let r of user.roles" class="badge badge--neutral">{{ roleLabels[r] }}</span>
+          </dd>
+          <dt>Cofradía</dt>
+          <dd>{{ user.hermandadNombre ?? '—' }}</dd>
+          <dt>Verificado</dt>
+          <dd>{{ user.manuallyVerified ? 'Sí (manual)' : 'No' }}</dd>
+          <dt>Último acceso</dt>
+          <dd>{{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}</dd>
+        </dl>
+
+        <p *ngIf="isSelf(user)" class="super-admin-users__warn" role="status">
+          No puedes ejecutar acciones críticas sobre tu propia cuenta.
+        </p>
+
+        <fieldset class="super-admin-users__action" [disabled]="processing() || isSelf(user)">
+          <legend>Estado de la cuenta</legend>
+          <p class="super-admin-users__hint">
+            Suspender o bloquear la cuenta envía un correo al usuario con el motivo indicado.
+          </p>
+          <section class="super-admin-users__action-grid">
+            <app-form-field label="Nuevo estado" fieldId="status-select">
+              <select id="status-select" name="status" [(ngModel)]="statusForm.status">
+                <option value="ACTIVE">Activa</option>
+                <option value="SUSPENDED">Suspendida</option>
+                <option value="BANNED">Baneada</option>
+              </select>
+            </app-form-field>
+            <app-form-field [label]="statusReasonLabel(statusForm.status)" fieldId="status-reason">
+              <textarea
+                id="status-reason"
+                name="statusReason"
+                [(ngModel)]="statusForm.reason"
+                maxlength="500"
+                rows="2"
+              ></textarea>
+            </app-form-field>
+          </section>
+          <footer class="super-admin-users__action-footer">
+            <button type="button" class="button button--primary" (click)="requestStatus()" [attr.aria-busy]="processing()">
+              Aplicar estado
+            </button>
+          </footer>
+        </fieldset>
+
+        <fieldset class="super-admin-users__action" [disabled]="processing() || isSelf(user) || isSuperAdmin(user)">
+          <legend>Verificación manual</legend>
+          <p class="super-admin-users__hint">
+            Marca la cuenta como verificada de forma manual cuando la verificación por correo no sea posible.
+          </p>
+          <footer class="super-admin-users__action-footer">
+            <button
+              type="button"
+              class="button button--primary"
+              (click)="requestVerify(!user.manuallyVerified)"
+              [attr.aria-busy]="processing()"
+            >
+              {{ user.manuallyVerified ? 'Retirar verificación' : 'Verificar' }}
+            </button>
+          </footer>
+        </fieldset>
+
+        <fieldset class="super-admin-users__action" [disabled]="processing() || isSelf(user) || isSuperAdmin(user)">
+          <legend>Forzar rol</legend>
+          <section class="super-admin-users__action-grid">
+            <app-form-field label="Rol asignable" fieldId="role-select">
+              <select id="role-select" name="roleCode" [(ngModel)]="roleForm.roleCode">
+                <option *ngFor="let r of assignableRoles" [value]="r">{{ roleLabels[r] }}</option>
+              </select>
+            </app-form-field>
+            <app-form-field label="Motivo *" fieldId="role-reason">
+              <textarea
+                id="role-reason"
+                name="roleReason"
+                [(ngModel)]="roleForm.reason"
+                maxlength="500"
+                rows="2"
+                required
+              ></textarea>
+            </app-form-field>
+          </section>
+          <footer class="super-admin-users__action-footer">
+            <button type="button" class="button button--primary" (click)="requestRole()" [attr.aria-busy]="processing()">
+              Forzar rol
+            </button>
+          </footer>
+        </fieldset>
+
+        <fieldset class="super-admin-users__action" [disabled]="processing() || isSelf(user)">
+          <legend>Reseteo de contraseña</legend>
+          <p class="super-admin-users__hint">
+            Se enviará un enlace de un solo uso al correo de la cuenta (válido 7 días).
+          </p>
+          <footer class="super-admin-users__action-footer">
+            <button type="button" class="button button--secondary" (click)="requestPasswordReset()" [attr.aria-busy]="processing()">
+              Enviar correo de restablecimiento
+            </button>
+          </footer>
+        </fieldset>
+
+        <section class="super-admin-users__logs" aria-label="Historial de intervenciones">
+          <header class="super-admin-users__logs-head">
+            <h3>Historial de intervenciones</h3>
+          </header>
+          <p *ngIf="logsLoading()" class="super-admin-users__hint">Cargando historial…</p>
+          <p *ngIf="!logsLoading() && logs().length === 0" class="super-admin-users__hint">
+            Sin registros previos.
+          </p>
+          <ul class="super-admin-users__log-list" *ngIf="!logsLoading() && logs().length > 0">
+            <li *ngFor="let entry of logs(); trackBy: trackByLogId" class="super-admin-users__log-item">
+              <header class="super-admin-users__log-head">
+                <strong>{{ actionLabel(entry.action) }}</strong>
+                <time [attr.datetime]="entry.performedAt">{{ entry.performedAt | date:'short' }}</time>
+              </header>
+              <p class="super-admin-users__log-detail">
+                <span>Por: {{ entry.actorName ?? '—' }}</span>
+                <span *ngIf="entry.details"> · {{ entry.details }}</span>
+                <span *ngIf="entry.changes"> · {{ entry.changes }}</span>
+              </p>
+            </li>
+          </ul>
+        </section>
+      </ng-container>
+    </article>
+  </section>
+
+  <app-confirm-dialog
+    *ngIf="pending() as p"
+    [title]="pendingTitle()"
+    [message]="pendingMessage()"
+    [confirmLabel]="'Confirmar'"
+    [cancelLabel]="'Cancelar'"
+    [variant]="pendingVariant()"
+    (confirmed)="confirmPending()"
+    (cancelled)="cancelPending()"
+  ></app-confirm-dialog>
+</section>

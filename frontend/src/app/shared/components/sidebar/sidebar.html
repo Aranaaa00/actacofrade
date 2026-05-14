@@ -56,9 +56,15 @@
     }
     @if (auth.isSuperAdmin()) {
       <li>
-        <a class="sidebar__link" routerLink="/super-admin" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/super-admin" routerLinkActive="sidebar__link--active" [routerLinkActiveOptions]="{ exact: true }" (click)="closed.emit()">
           <lucide-icon name="shield" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Solicitudes
+        </a>
+      </li>
+      <li>
+        <a class="sidebar__link" routerLink="/super-admin/usuarios" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+          <lucide-icon name="user-cog" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          Centro de Intervención
         </a>
       </li>
     }
