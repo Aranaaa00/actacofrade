@@ -5,6 +5,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { FormField } from '../../../shared/components/form-field/form-field';
 
 type State = 'form' | 'loading' | 'success' | 'invalid';
 
@@ -16,7 +17,7 @@ type State = 'form' | 'loading' | 'success' | 'invalid';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, FormField],
   templateUrl: './reset-password.html',
 })
 export class ResetPassword implements OnInit {
