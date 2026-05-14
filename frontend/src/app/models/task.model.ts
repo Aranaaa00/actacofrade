@@ -5,12 +5,14 @@ export interface TaskResponse {
   description: string;
   assignedToId: number | null;
   assignedToName: string | null;
+  assignedToVerified?: boolean;
   createdByUserId: number | null;
   status: string;
   deadline: string | null;
   rejectionReason: string | null;
   confirmedById: number | null;
   confirmedByName: string | null;
+  confirmedByVerified?: boolean;
   confirmedAt: string | null;
   completedAt: string | null;
   createdAt: string;

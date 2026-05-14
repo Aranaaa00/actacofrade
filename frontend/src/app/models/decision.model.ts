@@ -6,6 +6,7 @@ export interface DecisionResponse {
   status: string;
   reviewedById: number | null;
   reviewedByName: string | null;
+  reviewedByVerified?: boolean;
   createdAt: string;
   updatedAt: string;
 }

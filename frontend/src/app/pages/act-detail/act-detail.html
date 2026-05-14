@@ -15,7 +15,7 @@
           {{ formatDate(event.eventDate) }}
         </p>
         <p class="act-detail__meta">
-          {{ event.location }} · {{ event.responsibleName || '—' }}
+          {{ event.location }} · {{ event.responsibleName || '—' }}<app-verified-badge [verified]="!!event.responsibleVerified" />
         </p>
       </section>
       <aside class="act-detail__header-side">
@@ -85,7 +85,7 @@
                       <small class="act-detail__task-desc">{{ task.description }}</small>
                     }
                   </td>
-                  <td data-label="Asignado a">{{ task.assignedToName || '—' }}</td>
+                  <td data-label="Asignado a">{{ task.assignedToName || '—' }}<app-verified-badge [verified]="!!task.assignedToVerified" /></td>
                   <td data-label="Estado"><app-badge [variant]="getTaskBadgeVariant(task.status)">{{ getTaskStatusLabel(task.status) }}</app-badge></td>
                   <td class="act-detail__date" data-label="Fecha límite">{{ formatDate(task.deadline) }}</td>
                   <td>
@@ -167,7 +167,7 @@
                 <tr [attr.id]="'decision-' + decision.id"
                     [class.act-detail__row--highlighted]="highlightedRowId === 'decision-' + decision.id">
                   <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
-                  <td data-label="Revisado por">{{ decision.reviewedByName || '—' }}</td>
+                  <td data-label="Revisado por">{{ decision.reviewedByName || '—' }}<app-verified-badge [verified]="!!decision.reviewedByVerified" /></td>
                   <td data-label="Estado"><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
                   <td data-label="Área">{{ getAreaLabel(decision.area) }}</td>
                   <td>
@@ -213,9 +213,9 @@
                 <tr [attr.id]="'incident-' + incident.id"
                     [class.act-detail__row--highlighted]="highlightedRowId === 'incident-' + incident.id">
                   <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
-                  <td data-label="Reportado por">{{ incident.reportedByName || '—' }}</td>
+                  <td data-label="Reportado por">{{ incident.reportedByName || '—' }}<app-verified-badge [verified]="!!incident.reportedByVerified" /></td>
                   <td data-label="Estado"><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
-                  <td data-label="Resuelto por">{{ incident.resolvedByName || '—' }}</td>
+                  <td data-label="Resuelto por">{{ incident.resolvedByName || '—' }}<app-verified-badge [verified]="!!incident.resolvedByVerified" /></td>
                   <td>
                     <nav class="act-detail__row-actions" aria-label="Acciones de incidencia">
                       @if (canActOnIncident(incident)) {

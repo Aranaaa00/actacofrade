@@ -9,6 +9,7 @@ export interface EventResponse {
   status: string;
   responsibleId: number | null;
   responsibleName: string | null;
+  responsibleVerified?: boolean;
   isLockedForClosing: boolean;
   pendingTasks: number;
   openIncidents: number;

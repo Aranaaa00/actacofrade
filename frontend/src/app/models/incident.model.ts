@@ -5,8 +5,10 @@ export interface IncidentResponse {
   status: string;
   reportedById: number | null;
   reportedByName: string | null;
+  reportedByVerified?: boolean;
   resolvedById: number | null;
   resolvedByName: string | null;
+  resolvedByVerified?: boolean;
   createdAt: string;
   resolvedAt: string | null;
 }

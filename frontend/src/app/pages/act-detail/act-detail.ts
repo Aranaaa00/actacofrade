@@ -11,6 +11,7 @@ import { Tabs } from '../../shared/components/tabs/tabs';
 import { RejectModal } from '../../shared/components/reject-modal/reject-modal';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
+import { VerifiedBadge } from '../../shared/components/verified-badge/verified-badge';
 import { ElementForm } from '../element-form/element-form';
 import { CloseEvent } from '../close-event/close-event';
 import { EventService } from '../../services/event.service';
@@ -55,7 +56,7 @@ interface EditData {
 
 @Component({
   selector: 'app-act-detail',
-  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay, ConfirmDialog],
+  imports: [Badge, Banner, Pagination, Tabs, LucideAngularModule, ElementForm, CloseEvent, RejectModal, ModalOverlay, ConfirmDialog, VerifiedBadge],
   templateUrl: './act-detail.html',
 })
 export class ActDetail implements OnInit {
