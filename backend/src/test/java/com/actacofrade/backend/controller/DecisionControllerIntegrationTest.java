@@ -54,7 +54,7 @@ class DecisionControllerIntegrationTest {
 
     private DecisionResponse sample() {
         return new DecisionResponse(4, 1, "MAYORDOMIA", "Comprar varales",
-                "PROPUESTA", null, null, false, LocalDateTime.now(), LocalDateTime.now());
+                null, null, "PROPUESTA", null, null, false, LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Test
@@ -78,7 +78,7 @@ class DecisionControllerIntegrationTest {
     @Test
     void create_validRequest_returns201() throws Exception {
         given(decisionService.create(eq(1), any(), anyString())).willReturn(sample());
-        String body = "{\"area\":\"MAYORDOMIA\",\"title\":\"Comprar varales\",\"reviewedById\":null}";
+        String body = "{\"area\":\"MAYORDOMIA\",\"title\":\"Comprar varales\",\"reviewedById\":3,\"deadline\":\"2099-01-01\"}";
 
         mockMvc.perform(post("/api/events/{eventId}/decisions", 1)
                         .contentType(MediaType.APPLICATION_JSON).content(body))

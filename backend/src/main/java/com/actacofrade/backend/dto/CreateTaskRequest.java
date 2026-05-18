@@ -2,6 +2,7 @@ package com.actacofrade.backend.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -18,8 +19,10 @@ public record CreateTaskRequest(
         @Pattern(regexp = "^[^<>]*$", message = "La descripción contiene caracteres no permitidos")
         String description,
 
+        @NotNull(message = "Debes asignar la tarea a un usuario")
         Integer assignedToId,
 
+        @NotNull(message = "La fecha limite es obligatoria")
         @FutureOrPresent(message = "La fecha limite no puede ser anterior a hoy")
         LocalDate deadline
 ) {}

@@ -92,7 +92,7 @@ class IncidentServiceTest {
         mockUser(admin);
         mockEvent();
         when(userRepository.findById(3)).thenReturn(Optional.of(colaborador));
-        IncidentResponse res = service.create(10, new CreateIncidentRequest("desc", 3), admin.getEmail());
+        IncidentResponse res = service.create(10, new CreateIncidentRequest("desc", 3, null, java.time.LocalDate.now()), admin.getEmail());
         assertThat(res.reportedById()).isEqualTo(3);
     }
 
@@ -100,7 +100,7 @@ class IncidentServiceTest {
     void create_collaborator_isForcedAsReporter() {
         mockUser(colaborador);
         mockEvent();
-        IncidentResponse res = service.create(10, new CreateIncidentRequest("desc", 999), colaborador.getEmail());
+        IncidentResponse res = service.create(10, new CreateIncidentRequest("desc", 999, null, java.time.LocalDate.now()), colaborador.getEmail());
         assertThat(res.reportedById()).isEqualTo(colaborador.getId());
     }
 
@@ -109,7 +109,7 @@ class IncidentServiceTest {
         mockUser(admin);
         mockEvent();
         when(userRepository.findById(4)).thenReturn(Optional.of(consultor));
-        assertThatThrownBy(() -> service.create(10, new CreateIncidentRequest("d", 4), admin.getEmail()))
+        assertThatThrownBy(() -> service.create(10, new CreateIncidentRequest("d", 4, null, java.time.LocalDate.now()), admin.getEmail()))
                 .isInstanceOf(AccessDeniedException.class);
     }
 
@@ -118,7 +118,7 @@ class IncidentServiceTest {
         event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         mockEvent();
-        assertThatThrownBy(() -> service.create(10, new CreateIncidentRequest("d", null), admin.getEmail()))
+        assertThatThrownBy(() -> service.create(10, new CreateIncidentRequest("d", null, null, java.time.LocalDate.now()), admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
     }
 

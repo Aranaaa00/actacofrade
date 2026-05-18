@@ -69,6 +69,10 @@ public class DecisionService {
         decision.setArea(area);
         decision.setTitle(SanitizationUtils.sanitize(request.title()));
         decision.setReviewedBy(reviewedBy);
+        if (request.description() != null) {
+            decision.setDescription(SanitizationUtils.sanitize(request.description()));
+        }
+        decision.setDeadline(request.deadline());
 
         decisionRepository.save(decision);
         auditLogService.log(event, "DECISION", decision.getId(), "DECISION_CREATED", currentUser, decision.getTitle());
@@ -102,6 +106,15 @@ public class DecisionService {
             Integer newId = newReviewer != null ? newReviewer.getId() : null;
             diff.track("reviewedById", oldId, newId);
             decision.setReviewedBy(newReviewer);
+        }
+        if (request.description() != null) {
+            String newDesc = SanitizationUtils.sanitize(request.description());
+            diff.track("description", decision.getDescription(), newDesc);
+            decision.setDescription(newDesc);
+        }
+        if (request.deadline() != null) {
+            diff.track("deadline", decision.getDeadline(), request.deadline());
+            decision.setDeadline(request.deadline());
         }
 
         decision.setUpdatedAt(LocalDateTime.now());
@@ -211,6 +224,8 @@ public class DecisionService {
                 decision.getEvent().getId(),
                 decision.getArea().name(),
                 decision.getTitle(),
+                decision.getDescription(),
+                decision.getDeadline(),
                 decision.getStatus().name(),
                 reviewedById,
                 reviewedByName,

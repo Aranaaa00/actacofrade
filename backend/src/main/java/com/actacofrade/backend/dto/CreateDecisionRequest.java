@@ -1,8 +1,11 @@
 package com.actacofrade.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 
 public record CreateDecisionRequest(
 
@@ -15,5 +18,13 @@ public record CreateDecisionRequest(
         @Pattern(regexp = "^[^<>]*$", message = "El título contiene caracteres no permitidos")
         String title,
 
-        Integer reviewedById
+        @NotNull(message = "Debes asignar a un responsable de revisar la decision")
+        Integer reviewedById,
+
+        @Size(max = 1000, message = "La descripción no puede superar los 1000 caracteres")
+        @Pattern(regexp = "^[^<>]*$", message = "La descripción contiene caracteres no permitidos")
+        String description,
+
+        @NotNull(message = "La fecha limite es obligatoria")
+        LocalDate deadline
 ) {}

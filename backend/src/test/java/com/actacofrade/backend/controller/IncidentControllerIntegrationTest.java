@@ -52,7 +52,7 @@ class IncidentControllerIntegrationTest {
     }
 
     private IncidentResponse sample() {
-        return new IncidentResponse(7, 1, "Caída del paso", "ABIERTA",
+        return new IncidentResponse(7, 1, "Caída del paso", null, null, "ABIERTA",
                 3, "Reportador", false, null, null, false, LocalDateTime.now(), null);
     }
 
@@ -87,7 +87,7 @@ class IncidentControllerIntegrationTest {
     @Test
     void create_validRequest_returns201() throws Exception {
         given(incidentService.create(eq(1), any(), anyString())).willReturn(sample());
-        String body = "{\"description\":\"Caída del paso\",\"reportedById\":3}";
+        String body = "{\"description\":\"Caída del paso\",\"reportedById\":3,\"deadline\":\"2099-01-01\"}";
 
         mockMvc.perform(post("/api/events/{eventId}/incidents", 1)
                         .contentType(MediaType.APPLICATION_JSON).content(body))

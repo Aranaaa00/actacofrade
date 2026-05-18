@@ -104,7 +104,7 @@ class DecisionServiceTest {
         mockUser(admin);
         mockEvent();
         when(userRepository.findById(2)).thenReturn(Optional.of(responsable));
-        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "Titulo", 2);
+        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "Titulo", 2, null, java.time.LocalDate.now());
         DecisionResponse res = service.create(10, req, admin.getEmail());
         assertThat(res.reviewedById()).isEqualTo(2);
     }
@@ -113,7 +113,7 @@ class DecisionServiceTest {
     void create_collaborator_isForcedAsReviewer() {
         mockUser(colaborador);
         mockEvent();
-        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", 999);
+        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", 999, null, java.time.LocalDate.now());
         DecisionResponse res = service.create(10, req, colaborador.getEmail());
         assertThat(res.reviewedById()).isEqualTo(colaborador.getId());
     }
@@ -123,7 +123,7 @@ class DecisionServiceTest {
         mockUser(admin);
         mockEvent();
         when(userRepository.findById(4)).thenReturn(Optional.of(consultor));
-        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", 4);
+        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", 4, null, java.time.LocalDate.now());
         assertThatThrownBy(() -> service.create(10, req, admin.getEmail()))
                 .isInstanceOf(AccessDeniedException.class);
     }
@@ -133,7 +133,7 @@ class DecisionServiceTest {
         event.setStatus(EventStatus.CLOSED);
         mockUser(admin);
         mockEvent();
-        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", null);
+        CreateDecisionRequest req = new CreateDecisionRequest("SECRETARIA", "T", null, null, java.time.LocalDate.now());
         assertThatThrownBy(() -> service.create(10, req, admin.getEmail()))
                 .isInstanceOf(IllegalStateException.class);
     }
@@ -144,7 +144,7 @@ class DecisionServiceTest {
         mockEvent();
         mockDecision();
         when(userRepository.findById(2)).thenReturn(Optional.of(responsable));
-        UpdateDecisionRequest req = new UpdateDecisionRequest("PRIOSTIA", "Nuevo", 2);
+        UpdateDecisionRequest req = new UpdateDecisionRequest("PRIOSTIA", "Nuevo", 2, "detalle", java.time.LocalDate.now().plusDays(1));
         DecisionResponse res = service.update(10, 30, req, admin.getEmail());
         assertThat(res.title()).isEqualTo("Nuevo");
         assertThat(res.area()).isEqualTo("PRIOSTIA");
@@ -155,7 +155,7 @@ class DecisionServiceTest {
         mockUser(colaborador);
         mockEvent();
         mockDecision();
-        UpdateDecisionRequest req = new UpdateDecisionRequest(null, "x", null);
+        UpdateDecisionRequest req = new UpdateDecisionRequest(null, "x", null, null, null);
         assertThatThrownBy(() -> service.update(10, 30, req, colaborador.getEmail()))
                 .isInstanceOf(AccessDeniedException.class);
     }

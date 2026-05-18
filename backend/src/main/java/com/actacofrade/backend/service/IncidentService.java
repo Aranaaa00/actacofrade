@@ -65,6 +65,10 @@ public class IncidentService {
         incident.setEvent(event);
         incident.setDescription(SanitizationUtils.sanitize(request.description()));
         incident.setReportedBy(reportedBy);
+        if (request.notes() != null) {
+            incident.setNotes(SanitizationUtils.sanitize(request.notes()));
+        }
+        incident.setDeadline(request.deadline());
 
         incidentRepository.save(incident);
         auditLogService.log(event, "INCIDENT", incident.getId(), "INCIDENT_CREATED", currentUser, incident.getDescription());
@@ -180,6 +184,8 @@ public class IncidentService {
                 incident.getId(),
                 incident.getEvent().getId(),
                 incident.getDescription(),
+                incident.getNotes(),
+                incident.getDeadline(),
                 incident.getStatus().name(),
                 reportedById,
                 reportedByName,
