@@ -43,7 +43,7 @@ export class ActEditor implements OnInit {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       eventType: ['', [Validators.required]],
-      eventDate: ['', [Validators.required]],
+      eventDate: [this.todayIso(), [Validators.required]],
       location: ['', [Validators.maxLength(255), noHtmlValidator()]],
       responsibleId: [null, [Validators.required]],
       observations: ['', [Validators.maxLength(1000), noHtmlValidator()]]
@@ -58,6 +58,15 @@ export class ActEditor implements OnInit {
       this.eventId = Number(id);
       this.loadEvent(this.eventId);
     }
+  }
+
+  private todayIso(): string {
+    // local time so the user doesnt see yesterdays date due to UTC offsets
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   get canPickResponsible(): boolean {
@@ -145,6 +154,13 @@ export class ActEditor implements OnInit {
   onDateSelected(date: string): void {
     this.form.patchValue({ eventDate: date });
     this.form.get('eventDate')?.markAsTouched();
+  }
+
+  get todayLabel(): string {
+    // human readable date shown next to the type select when creating a new act
+    const iso = this.form?.get('eventDate')?.value || this.todayIso();
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
   }
 
   hasError(field: string): boolean {

@@ -18,15 +18,21 @@
         </select>
       </app-form-field>
 
-      <app-form-field label="Fecha" fieldId="act-date" styleClass="act-editor__field--bordered" [hasError]="hasError('eventDate')" [errorMessage]="hasError('eventDate') ? getError('eventDate') : ''">
-        <app-datepicker
-          [selectedDate]="form.get('eventDate')?.value || ''"
-          [allSelectable]="true"
-          [disablePast]="true"
-          placeholder="Seleccionar fecha"
-          (dateSelected)="onDateSelected($event)">
-        </app-datepicker>
-      </app-form-field>
+      @if (isEditMode) {
+        <app-form-field label="Fecha" fieldId="act-date" styleClass="act-editor__field--bordered" [hasError]="hasError('eventDate')" [errorMessage]="hasError('eventDate') ? getError('eventDate') : ''">
+          <app-datepicker
+            [selectedDate]="form.get('eventDate')?.value || ''"
+            [allSelectable]="true"
+            [disablePast]="true"
+            placeholder="Seleccionar fecha"
+            (dateSelected)="onDateSelected($event)">
+          </app-datepicker>
+        </app-form-field>
+      } @else {
+        <app-form-field label="Fecha" fieldId="act-date" styleClass="act-editor__field--bordered">
+          <input id="act-date" type="text" [value]="todayLabel" readonly aria-readonly="true" tabindex="-1">
+        </app-form-field>
+      }
     </section>
 
     <app-form-field label="Ubicación" fieldId="act-location" [hasError]="hasError('location')" [errorMessage]="hasError('location') ? getError('location') : ''">
