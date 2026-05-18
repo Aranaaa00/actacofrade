@@ -97,6 +97,12 @@ const ENTITY_TYPE_LABELS: Record<string, string> = {
   'EVENT': 'Acto',
 };
 
+const ALERT_TYPE_LABELS: Record<string, string> = {
+  'TASK': 'TAREA',
+  'INCIDENT': 'INCIDENCIA',
+  'DECISION': 'DECISIÓN',
+};
+
 const HISTORY_BADGE_VARIANTS: Record<string, string> = {
   'TASK': 'pending',
   'DECISION': 'confirmed',
@@ -159,6 +165,10 @@ export function getActionLabel(action: string): string {
 
 export function getEntityTypeLabel(entityType: string): string {
   return ENTITY_TYPE_LABELS[entityType] || entityType;
+}
+
+export function getAlertTypeLabel(type: string): string {
+  return ALERT_TYPE_LABELS[type] || type;
 }
 
 export function getHistoryBadgeVariant(entityType: string): string {

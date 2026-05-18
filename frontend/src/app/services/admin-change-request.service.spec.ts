@@ -30,5 +30,7 @@ describe('AdminChangeRequestService', () => {
     expect(http.expectOne('/api/admin-change-requests/2/approve').request.method).toBe('PATCH');
     service.reject(2).subscribe();
     expect(http.expectOne('/api/admin-change-requests/2/reject').request.method).toBe('PATCH');
+    service.resolve(2).subscribe();
+    expect(http.expectOne('/api/admin-change-requests/2/resolve').request.method).toBe('PATCH');
   });
 });

@@ -44,4 +44,9 @@ export class AdminChangeRequestService {
   reject(id: number): Observable<AdminChangeRequestResponse> {
     return this.http.patch<AdminChangeRequestResponse>(`${this.baseUrl}/${id}/reject`, {});
   }
+
+  // Marks a non-admin-change support request as resolved (verification / password reset / contact).
+  resolve(id: number): Observable<AdminChangeRequestResponse> {
+    return this.http.patch<AdminChangeRequestResponse>(`${this.baseUrl}/${id}/resolve`, {});
+  }
 }
