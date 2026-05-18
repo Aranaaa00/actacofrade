@@ -452,11 +452,93 @@
     flex-wrap: wrap;
 
     .button {
-      flex: 1 1 12rem;
+      flex: 1 1 8rem;
+      min-width: 0;
 
       @include from-tablet {
         flex: 0 0 auto;
       }
+    }
+  }
+
+  // Type chip on detail header (larger than list chip).
+  &__detail-type {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-8;
+    padding: $space-4 $space-12;
+    font-size: $text-label;
+    font-weight: $weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+    line-height: 1;
+  }
+
+  &__detail[data-accent='admin'] &__detail-type {
+    color: $color-wood;
+    border-color: $color-wood;
+  }
+  &__detail[data-accent='security'] &__detail-type {
+    color: $color-black;
+    border-color: $color-black;
+  }
+  &__detail[data-accent='verification'] &__detail-type {
+    color: $color-gold-text;
+    border-color: $color-gold;
+  }
+  &__detail[data-accent='contact'] &__detail-type {
+    color: $color-warm-gray-text;
+    border-color: $color-warm-gray-text;
+  }
+
+  &__detail-meta-name {
+    display: block;
+  }
+
+  &__detail-meta-secondary {
+    display: block;
+    margin-top: $space-4;
+    font-size: $text-meta;
+    color: var(--text-secondary);
+  }
+
+  // Informational hint shown for non-admin-change pending requests.
+  &__detail-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: $space-12;
+    padding: $space-12 $space-16;
+    background-color: var(--bg-page);
+    border: $border-1 solid var(--border-default);
+    border-left: $border-2 solid var(--nav-bg);
+    border-radius: $radius-2;
+
+    lucide-icon {
+      flex-shrink: 0;
+      color: var(--nav-bg);
+      margin-top: 0.125rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: $text-body;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+  }
+
+  &__detail-hint-link {
+    @include focus-visible;
+    color: var(--link-default);
+    text-decoration: underline;
+    font-weight: $weight-bold;
+
+    &:hover {
+      color: var(--link-hover);
     }
   }
 }
