@@ -14,6 +14,7 @@ export class Datepicker {
   @Input() placeholder = 'Fecha';
   @Input() allSelectable = false;
   @Input() disablePast = false;
+  @Input() minDate = '';
   @Output() dateSelected = new EventEmitter<string>();
 
   open = false;
@@ -37,6 +38,13 @@ export class Datepicker {
   }
 
   get canGoPrev(): boolean {
+    if (this.minDate) {
+      const min = new Date(this.minDate + 'T00:00:00');
+      if (this.viewYear < min.getFullYear() ||
+        (this.viewYear === min.getFullYear() && this.viewMonth <= min.getMonth())) {
+        return false;
+      }
+    }
     if (!this.disablePast) {
       return true;
     }
@@ -70,6 +78,9 @@ export class Datepicker {
   }
 
   isAvailable(day: number): boolean {
+    if (this.minDate && this.toIso(day) < this.minDate) {
+      return false;
+    }
     if (this.disablePast) {
       const date = new Date(this.viewYear, this.viewMonth, day);
       const today = new Date();

@@ -251,4 +251,32 @@ describe('Datepicker', () => {
       expect(event.defaultPrevented).toBeTrue();
     });
   }
+
+  it('isAvailable blocks days before minDate', () => {
+    dp.viewYear = 2025;
+    dp.viewMonth = 4;
+    dp.allSelectable = true;
+    dp.minDate = '2025-05-15';
+    expect(dp.isAvailable(14)).toBeFalse();
+    expect(dp.isAvailable(15)).toBeTrue();
+    expect(dp.isAvailable(20)).toBeTrue();
+  });
+
+  it('canGoPrev false when viewing minDate month or earlier', () => {
+    dp.minDate = '2025-05-15';
+    dp.viewYear = 2025;
+    dp.viewMonth = 4;
+    expect(dp.canGoPrev).toBeFalse();
+    dp.viewMonth = 3;
+    expect(dp.canGoPrev).toBeFalse();
+    dp.viewMonth = 5;
+    expect(dp.canGoPrev).toBeTrue();
+  });
+
+  it('canGoPrev with minDate from a previous year still allows navigation', () => {
+    dp.minDate = '2024-05-15';
+    dp.viewYear = 2025;
+    dp.viewMonth = 0;
+    expect(dp.canGoPrev).toBeTrue();
+  });
 });
