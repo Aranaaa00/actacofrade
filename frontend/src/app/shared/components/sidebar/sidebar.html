@@ -11,7 +11,7 @@
   <ul class="sidebar__nav" role="list">
     @if (!auth.isSuperAdmin()) {
       <li>
-        <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/dashboard" routerLinkActive="sidebar__link--active" #rlaDash="routerLinkActive" [attr.aria-current]="rlaDash.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="house" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Inicio
         </a>
@@ -25,13 +25,13 @@
         @if (actsMenuOpen) {
           <ul class="sidebar__submenu" role="list">
             <li>
-              <a class="sidebar__sublink" routerLink="/events" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+              <a class="sidebar__sublink" routerLink="/events" routerLinkActive="sidebar__sublink--active" #rlaEvents="routerLinkActive" [attr.aria-current]="rlaEvents.isActive ? 'page' : null" (click)="closed.emit()">
                 Registro de Actos
               </a>
             </li>
             @if (!auth.isConsulta()) {
               <li>
-                <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" (click)="closed.emit()">
+                <a class="sidebar__sublink" routerLink="/my-tasks" routerLinkActive="sidebar__sublink--active" #rlaTasks="routerLinkActive" [attr.aria-current]="rlaTasks.isActive ? 'page' : null" (click)="closed.emit()">
                   Mis Tareas
                 </a>
               </li>
@@ -40,7 +40,7 @@
         }
       </li>
       <li>
-        <a class="sidebar__link" routerLink="/history" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/history" routerLinkActive="sidebar__link--active" #rlaHist="routerLinkActive" [attr.aria-current]="rlaHist.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="clock" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Historial
         </a>
@@ -48,7 +48,7 @@
     }
     @if (auth.isAdmin()) {
       <li>
-        <a class="sidebar__link" routerLink="/users" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/users" routerLinkActive="sidebar__link--active" #rlaUsers="routerLinkActive" [attr.aria-current]="rlaUsers.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="users" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Usuarios
         </a>
@@ -56,13 +56,13 @@
     }
     @if (auth.isSuperAdmin()) {
       <li>
-        <a class="sidebar__link" routerLink="/super-admin" routerLinkActive="sidebar__link--active" [routerLinkActiveOptions]="{ exact: true }" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/super-admin" routerLinkActive="sidebar__link--active" [routerLinkActiveOptions]="{ exact: true }" #rlaSuperAdmin="routerLinkActive" [attr.aria-current]="rlaSuperAdmin.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="shield" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Solicitudes
         </a>
       </li>
       <li>
-        <a class="sidebar__link" routerLink="/super-admin/usuarios" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/super-admin/usuarios" routerLinkActive="sidebar__link--active" #rlaSuperUsers="routerLinkActive" [attr.aria-current]="rlaSuperUsers.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="user-cog" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Centro de Intervención
         </a>
@@ -70,7 +70,7 @@
     }
     @if (!auth.isSuperAdmin()) {
       <li>
-        <a class="sidebar__link" routerLink="/settings" routerLinkActive="sidebar__link--active" (click)="closed.emit()">
+        <a class="sidebar__link" routerLink="/settings" routerLinkActive="sidebar__link--active" #rlaSettings="routerLinkActive" [attr.aria-current]="rlaSettings.isActive ? 'page' : null" (click)="closed.emit()">
           <lucide-icon name="settings" class="sidebar__icon" [size]="20" aria-hidden="true"></lucide-icon>
           Configuración
         </a>

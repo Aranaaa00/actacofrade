@@ -1,5 +1,5 @@
 <section class="datepicker" [class.datepicker--open]="open">
-  <button class="datepicker__trigger" type="button" (click)="toggle()" aria-label="Seleccionar fecha">
+  <button class="datepicker__trigger" type="button" (click)="toggle()" [attr.aria-label]="selectedDate ? 'Fecha seleccionada: ' + displayValue : 'Seleccionar fecha'">
     <lucide-icon name="calendar" [size]="16" aria-hidden="true"></lucide-icon>
     <span class="datepicker__value">{{ displayValue }}</span>
     <lucide-icon name="chevron-down" [size]="14" aria-hidden="true"></lucide-icon>

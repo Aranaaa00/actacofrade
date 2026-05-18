@@ -106,6 +106,28 @@
   @include visually-hidden;
 }
 
+.screen-reader-only--focusable:focus {
+  position: fixed;
+  top: $space-8;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: auto;
+  height: auto;
+  padding: $space-8 $space-16;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: $weight-semibold;
+  border: $border-2 solid $color-black;
+  border-radius: $radius-2;
+  text-decoration: none;
+  outline-offset: $space-4;
+}
+
 // Responsive
 .hide-on-mobile {
   display: none;

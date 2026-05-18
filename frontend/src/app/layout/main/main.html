@@ -1,3 +1,5 @@
+<a href="#main-content" class="screen-reader-only screen-reader-only--focusable">Ir al contenido principal</a>
+
 <section class="app-shell">
   <app-sidebar
     [open]="sidebarOpen"
@@ -14,7 +16,7 @@
       [user]="user"
       (toggledSidebar)="toggleSidebar()" />
 
-    <main class="app-shell__content">
+    <main class="app-shell__content" id="main-content">
       <router-outlet />
     </main>
   </section>
