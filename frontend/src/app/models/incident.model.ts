@@ -2,6 +2,8 @@ export interface IncidentResponse {
   id: number;
   eventId: number;
   description: string;
+  notes: string | null;
+  deadline: string | null;
   status: string;
   reportedById: number | null;
   reportedByName: string | null;
@@ -15,5 +17,7 @@ export interface IncidentResponse {
 
 export interface CreateIncidentRequest {
   description: string;
+  notes?: string | null;
+  deadline?: string | null;
   reportedById?: number | null;
 }

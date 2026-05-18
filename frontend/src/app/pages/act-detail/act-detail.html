@@ -169,7 +169,12 @@
               @for (decision of decisions; track decision.id) {
                 <tr [attr.id]="'decision-' + decision.id"
                     [class.act-detail__row--highlighted]="highlightedRowId === 'decision-' + decision.id">
-                  <td><strong class="act-detail__task-title">{{ decision.title }}</strong></td>
+                  <td>
+                    <strong class="act-detail__task-title">{{ decision.title }}</strong>
+                    @if (decision.description) {
+                      <small class="act-detail__task-desc">{{ decision.description }}</small>
+                    }
+                  </td>
                   <td data-label="Revisado por"><span class="act-detail__user-cell">{{ decision.reviewedByName || '—' }}<app-verified-badge [verified]="!!decision.reviewedByVerified" /></span></td>
                   <td data-label="Estado"><app-badge [variant]="getDecisionBadgeVariant(decision.status)">{{ getDecisionStatusLabel(decision.status) }}</app-badge></td>
                   <td data-label="Área">{{ getAreaLabel(decision.area) }}</td>
@@ -215,7 +220,12 @@
               @for (incident of incidents; track incident.id) {
                 <tr [attr.id]="'incident-' + incident.id"
                     [class.act-detail__row--highlighted]="highlightedRowId === 'incident-' + incident.id">
-                  <td><strong class="act-detail__task-title">{{ incident.description }}</strong></td>
+                  <td>
+                    <strong class="act-detail__task-title">{{ incident.description }}</strong>
+                    @if (incident.notes) {
+                      <small class="act-detail__task-desc">{{ incident.notes }}</small>
+                    }
+                  </td>
                   <td data-label="Reportado por"><span class="act-detail__user-cell">{{ incident.reportedByName || '—' }}<app-verified-badge [verified]="!!incident.reportedByVerified" /></span></td>
                   <td data-label="Estado"><app-badge [variant]="getIncidentBadgeVariant(incident.status)">{{ getIncidentStatusLabel(incident.status) }}</app-badge></td>
                   <td data-label="Resuelto por"><span class="act-detail__user-cell">{{ incident.resolvedByName || '—' }}<app-verified-badge [verified]="!!incident.resolvedByVerified" /></span></td>
@@ -288,6 +298,7 @@
     <app-element-form
       [eventId]="eventId"
       [eventResponsibleId]="event?.responsibleId ?? null"
+      [eventDate]="event?.eventDate ?? ''"
       [initialTab]="elementFormTab"
       [editData]="elementEditData"
       (closed)="onElementClosed()"

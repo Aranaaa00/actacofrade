@@ -437,8 +437,8 @@ export class ActDetail implements OnInit {
       id: decision.id,
       title: decision.title,
       assignedToId: decision.reviewedById,
-      deadline: '',
-      notes: '',
+      deadline: decision.deadline || '',
+      notes: decision.description || '',
       area: decision.area
     };
     this.showElementForm = true;

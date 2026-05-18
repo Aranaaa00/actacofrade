@@ -49,7 +49,7 @@
     }
 
     <section class="element-form__row">
-      <app-form-field [label]="activeTab === 'decision' ? 'Revisado por' : 'Asignado a'" fieldId="element-assigned" styleClass="element-form__field--half">
+      <app-form-field [label]="activeTab === 'decision' ? 'Revisado por' : 'Asignado a'" fieldId="element-assigned" styleClass="element-form__field--half" [hasError]="hasError('assignedToId')" [errorMessage]="hasError('assignedToId') ? getError('assignedToId') : ''">
         <select id="element-assigned" formControlName="assignedToId">
           <option [ngValue]="null">Seleccionar responsable</option>
           @for (user of users; track user.id) {
@@ -58,18 +58,19 @@
         </select>
       </app-form-field>
 
-      <app-form-field label="Fecha límite" fieldId="element-deadline" styleClass="element-form__field--half">
+      <app-form-field label="Fecha límite" fieldId="element-deadline" styleClass="element-form__field--half" [hasError]="hasError('deadline')" [errorMessage]="hasError('deadline') ? getError('deadline') : ''">
         <app-datepicker
           [selectedDate]="form.get('deadline')?.value || ''"
           [allSelectable]="true"
           [disablePast]="true"
+          [minDate]="eventDate"
           placeholder="Fecha límite"
           (dateSelected)="onDeadlineSelected($event)">
         </app-datepicker>
       </app-form-field>
     </section>
 
-    <app-form-field label="Notas" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
+    <app-form-field label="Descripción" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
       <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones…" maxlength="1000"></textarea>
     </app-form-field>
 

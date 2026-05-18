@@ -42,6 +42,7 @@ export class ElementForm implements OnInit {
 
   @Input() eventId!: number;
   @Input() eventResponsibleId: number | null = null;
+  @Input() eventDate: string = '';
   @Input() initialTab: ElementTab = 'task';
   @Input() editData: EditData | null = null;
   @Output() closed = new EventEmitter<void>();
@@ -94,8 +95,8 @@ export class ElementForm implements OnInit {
 
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
-      assignedToId: [null],
-      deadline: [''],
+      assignedToId: [null, [Validators.required]],
+      deadline: ['', [Validators.required]],
       notes: ['', [Validators.maxLength(1000), noHtmlValidator()]],
       area: ['MAYORDOMIA']
     });
@@ -217,6 +218,8 @@ export class ElementForm implements OnInit {
     const payload = {
       area: val['area'] as string,
       title: sanitizeText(val['title'] as string),
+      description: sanitizeText(val['notes'] as string || ''),
+      deadline: val['deadline'] as string || null,
       reviewedById: val['assignedToId'] as number | null
     };
 
@@ -233,6 +236,8 @@ export class ElementForm implements OnInit {
   private submitIncident(val: Record<string, unknown>): void {
     const payload = {
       description: sanitizeText(val['title'] as string),
+      notes: sanitizeText(val['notes'] as string || ''),
+      deadline: val['deadline'] as string || null,
       reportedById: val['assignedToId'] as number | null
     };
 
