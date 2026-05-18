@@ -26,13 +26,20 @@
 
 .act-list__title {
   font-family: $font-heading;
-  font-size: $text-h2;
+  font-size: $text-h3;
   font-weight: $weight-bold;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  max-inline-size: 100%;
 
   @include from-tablet {
+    font-size: $text-h2;
+  }
+
+  @include from-desktop {
     font-size: $text-h1;
   }
 }
@@ -51,6 +58,11 @@
 
 .act-list__filter-dropdown {
   position: relative;
+  flex-shrink: 0;
+}
+
+.act-list__filters > app-datepicker {
+  width: auto;     // override the width:100% from _form-field.scss in filter context
   flex-shrink: 0;
 }
 
@@ -246,6 +258,10 @@
 
   & .act-card__step--done .act-card__step-gem lucide-icon {
     color: var(--nav-active);
+  }
+
+  & .verified-badge {
+    color: var(--text-on-dark);
   }
 }
 

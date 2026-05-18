@@ -86,13 +86,17 @@
   margin-top: $space-8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+
+  & .verified-badge {
+    color: var(--text-on-dark-muted);
+  }
 }
 
 .act-detail__header-side {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: $space-12;
+  gap: $space-24;
   flex-shrink: 0;
 
   @include from-tablet {
@@ -237,7 +241,9 @@
       var(--border-default) var(--connector-fill, 0%),
       var(--border-default) 100%
     );
-    transition: background 0.3s ease;
+    @include motion-safe {
+      transition: background 0.3s ease;
+    }
   }
 
   &--connector-done:not(:last-child)::after {
@@ -251,7 +257,10 @@
   height: 0.875rem;
   border: $border-2 solid var(--border-default);
   flex-shrink: 0;
-  transition: background-color 0.4s ease, border-color 0.4s ease;
+
+  @include motion-safe {
+    transition: background-color 0.4s ease, border-color 0.4s ease;
+  }
 }
 
 .act-detail__step--done .act-detail__step-dot {
@@ -342,7 +351,9 @@
 }
 
 .act-detail__row--highlighted {
-  animation: act-detail-row-highlight 2.5s ease-out;
+  @include motion-safe {
+    animation: act-detail-row-highlight 2.5s ease-out;
+  }
 }
 
 @keyframes act-detail-row-highlight {
@@ -566,6 +577,15 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     flex-shrink: 0;
+  }
+
+  // Group name + verified badge so they stay together on the right in mobile layout
+  .act-detail__table tbody td .act-detail__user-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-4;
+    margin-inline-start: auto;
+    text-align: end;
   }
 
   // First cell (title) highlighted on top
