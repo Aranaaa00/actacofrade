@@ -50,9 +50,20 @@ public class SuperAdminInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        if (!StringUtils.hasText(email) || !StringUtils.hasText(password) || !StringUtils.hasText(fullName)) {
-            log.info("Variables de super administrador no configuradas. Inicializacion omitida.");
+        boolean hasEmail = StringUtils.hasText(email);
+        boolean hasPassword = StringUtils.hasText(password);
+        boolean hasFullName = StringUtils.hasText(fullName);
+
+        // All-or-nothing: refuse to start with a half-configured super admin to
+        // avoid silently leaving the platform without a working SUPER_ADMIN.
+        if (!hasEmail && !hasPassword && !hasFullName) {
+            log.warn("Variables de super administrador no configuradas. Inicializacion omitida.");
             return;
+        }
+        if (!(hasEmail && hasPassword && hasFullName)) {
+            throw new IllegalStateException(
+                    "Configuracion incompleta del super administrador: SUPERADMIN_EMAIL, "
+                            + "SUPERADMIN_PASSWORD y SUPERADMIN_FULL_NAME deben definirse en conjunto.");
         }
         if (userRepository.findByEmail(email).isPresent()) {
             return;

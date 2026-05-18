@@ -33,12 +33,12 @@ that sends the request.
 | Language / runtime | Java 21 |
 | Framework | Spring Boot 4.0 (Web MVC, Data JPA, Security, Validation) |
 | Database | PostgreSQL 15+ |
-| Migrations | Flyway (V1 … V16) |
+| Migrations | Flyway (V1 … V21, V5 reservado — ver nota en `V6__add_hermandad.sql`) |
 | Auth | JWT (jjwt 0.12, HS256) |
 | API docs | OpenAPI 3 + Swagger UI (springdoc 2.8) |
 | PDF export | OpenPDF 1.3 |
 | Tests | JUnit 5, Mockito, Spring Test, MockMvc |
-| Coverage | JaCoCo (≥ 85 % line coverage required to pass `verify`) |
+| Coverage | JaCoCo (≥ 80 % line coverage required to pass `verify`) |
 | Build | Maven (`./mvnw`) |
 
 ---
@@ -66,7 +66,7 @@ backend/
     │   │   └── util/                       — SanitizationUtils, AuthorizationHelper
     │   └── resources/
     │       ├── application.properties
-    │       └── db/migration/               — Flyway scripts V1__…V16__
+    │       └── db/migration/               — Flyway scripts V1__…V21__ (V5 reserved)
     └── test/
         └── java/com/actacofrade/backend/
             ├── controller/                 — MockMvc integration tests
@@ -321,7 +321,7 @@ cd backend
 ```
 
 `verify` compiles, runs every unit and integration test, and enforces the
-JaCoCo line-coverage rule (≥ 85 % on `service`, `controller`, `security` and
+JaCoCo line-coverage rule (≥ 80 % on `service`, `controller`, `security` and
 `util`). The HTML coverage report is written to
 `target/site/jacoco/index.html`.
 

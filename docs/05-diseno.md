@@ -48,7 +48,7 @@ Se han elaborado tres diagramas para los procesos más relevantes del sistema: e
 
 ### Frontend — Angular + nginx
 
-La SPA está construida con Angular 19 en modo standalone, sin `NgModules`. Cada componente declara sus propias dependencias en el array `imports`, lo que hace que cada fichero sea autocontenido. El routing usa lazy loading en todas las rutas para que el bundle inicial sea lo más pequeño posible y la carga inicial sea rápida incluso en conexiones lentas.
+La SPA está construida con Angular 20 en modo standalone, sin `NgModules`. Cada componente declara sus propias dependencias en el array `imports`, lo que hace que cada fichero sea autocontenido. El routing usa lazy loading en todas las rutas para que el bundle inicial sea lo más pequeño posible y la carga inicial sea rápida incluso en conexiones lentas.
 
 nginx sirve los ficheros estáticos compilados y actúa al mismo tiempo como reverse proxy: redirige las peticiones a `/api/`, `/swagger-ui/` y `/v3/api-docs/` hacia el contenedor del backend a través de la red interna de Docker. El `nginx.conf` también configura las cabeceras de seguridad HTTP que se añaden en cada respuesta: `X-Frame-Options` para bloquear ataques de clickjacking, `X-Content-Type-Options` para que el navegador no intente adivinar el tipo MIME del contenido, `Referrer-Policy` para controlar qué información se filtra en las cabeceras de referencia y `Permissions-Policy` para deshabilitar explícitamente el acceso a APIs sensibles del navegador como geolocalización o micrófono. Además habilita compresión gzip, lo que reduce considerablemente el peso de transferencia de los assets estáticos.
 

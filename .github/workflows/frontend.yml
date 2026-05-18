@@ -69,7 +69,20 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
+          load: true
+          provenance: false
+          sbom: false
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: |
             ghcr.io/aranaaa00/actacofrade-frontend:latest
             ghcr.io/aranaaa00/actacofrade-frontend:${{ github.sha }}
+
+      - name: Scan frontend image with Trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ghcr.io/aranaaa00/actacofrade-frontend:${{ github.sha }}
+          format: table
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          vuln-type: os,library

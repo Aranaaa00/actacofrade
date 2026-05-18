@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "ActaCofrade"
+message: "If you use this software or reference it in an academic work, please cite it using the metadata in this file."
+type: software
+authors:
+  - given-names: Manuel
+    family-names: Arana
+    affiliation: "Final Degree Project"
+repository-code: "https://github.com/Aranaaa00/actacofrade"
+url: "https://www.actacofrade.com"
+abstract: >-
+  Web application for brotherhoods and confraternities. It allows users to plan
+  events, assign tasks to members, record decisions made in each meeting, and
+  keep a history of incidents for each edition. Backend built with Spring Boot 4
+  on Java 21, frontend with Angular 20, and PostgreSQL 15 as the database. The
+  full stack is deployed with Docker Compose.
+keywords:
+  - confraternities
+  - brotherhoods
+  - event management
+  - Spring Boot
+  - Angular
+  - PostgreSQL
+  - TFG
+version: 1.0.0
+date-released: "2026-05-18"

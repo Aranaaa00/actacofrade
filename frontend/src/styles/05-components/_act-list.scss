@@ -208,60 +208,64 @@
   }
 }
 
-// Dark row (visually odd)
+// Dark row (visually odd) — only applied from tablet upwards. On mobile the
+// list is a single column and alternating light/dark bars create visual noise
+// without adding information, so we keep all rows in the base palette.
 .act-card--dark {
-  background-color: var(--bg-inverse);
+  @include from-tablet {
+    background-color: var(--bg-inverse);
 
-  & .act-card__title {
-    color: var(--text-on-dark);
-  }
+    & .act-card__title {
+      color: var(--text-on-dark);
+    }
 
-  & .act-card__meta-label {
-    color: var(--nav-active);
-  }
-
-  & .act-card__meta-value {
-    color: var(--text-on-dark);
-  }
-
-  & .act-card__action {
-    color: var(--text-on-dark-muted);
-
-    &:hover,
-    &:active {
+    & .act-card__meta-label {
       color: var(--nav-active);
     }
-  }
 
-  & .badge--pending {
-    border-color: var(--nav-active);
-    color: var(--nav-active);
-  }
+    & .act-card__meta-value {
+      color: var(--text-on-dark);
+    }
 
-  & .badge--neutral {
-    background-color: transparent;
-    border-color: var(--text-on-dark-muted);
-    color: var(--text-on-dark-muted);
-  }
+    & .act-card__action {
+      color: var(--text-on-dark-muted);
 
-  & .act-card__step-bar {
-    background-color: var(--text-on-dark-disabled);
-  }
+      &:hover,
+      &:active {
+        color: var(--nav-active);
+      }
+    }
 
-  & .act-card__step--done .act-card__step-bar {
-    background-color: var(--nav-active);
-  }
+    & .badge--pending {
+      border-color: var(--nav-active);
+      color: var(--nav-active);
+    }
 
-  & .act-card__step-gem lucide-icon {
-    color: var(--text-on-dark-disabled);
-  }
+    & .badge--neutral {
+      background-color: transparent;
+      border-color: var(--text-on-dark-muted);
+      color: var(--text-on-dark-muted);
+    }
 
-  & .act-card__step--done .act-card__step-gem lucide-icon {
-    color: var(--nav-active);
-  }
+    & .act-card__step-bar {
+      background-color: var(--text-on-dark-disabled);
+    }
 
-  & .verified-badge {
-    color: var(--text-on-dark);
+    & .act-card__step--done .act-card__step-bar {
+      background-color: var(--nav-active);
+    }
+
+    & .act-card__step-gem lucide-icon {
+      color: var(--text-on-dark-disabled);
+    }
+
+    & .act-card__step--done .act-card__step-gem lucide-icon {
+      color: var(--nav-active);
+    }
+
+    & .verified-badge {
+      color: var(--text-on-dark);
+    }
   }
 }
 

@@ -104,7 +104,7 @@ La configuración de CORS se gestiona en `SecurityConfig` y el origen permitido 
 
 ### Flyway para migraciones
 
-El esquema de la base de datos se gestiona íntegramente con Flyway. Cada cambio estructural es un fichero SQL versionado en `src/main/resources/db/migration`. En el historial del proyecto se pueden ver las 17 versiones que fue acumulando el esquema: desde el esquema inicial con los enums de PostgreSQL (V1) hasta la adición del sistema de solicitudes de cambio de administrador (V16) o las cascadas de borrado (V17). Flyway aplica automáticamente las migraciones pendientes en el arranque, así que cualquier entorno nuevo parte siempre del mismo estado.
+El esquema de la base de datos se gestiona íntegramente con Flyway. Cada cambio estructural es un fichero SQL versionado en `src/main/resources/db/migration`. En el historial del proyecto se pueden ver las 20 versiones aplicadas —la V5 quedó reservada y no se reutiliza—: desde el esquema inicial con los enums de PostgreSQL (V1) hasta la adición del tipo de solicitud de soporte (V21), pasando por las cascadas de borrado (V17), el estado de cuenta (V18) o los tokens de reseteo de contraseña (V20). Flyway aplica automáticamente las migraciones pendientes en el arranque, así que cualquier entorno nuevo parte siempre del mismo estado.
 
 ### Docker Compose como único punto de entrada
 

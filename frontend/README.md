@@ -1,6 +1,6 @@
 # ActaCofrade Frontend
 
-SPA en Angular 19 (standalone components, lazy loading en todas las rutas) que consume la API REST del backend. En producción se construye con `ng build --configuration production` y se sirve desde una imagen `nginx:alpine` que además hace de reverse proxy hacia el backend. La descripción general del proyecto y la arquitectura completa están en el [README raíz](../README.md) y en [DEPLOY.md](../DEPLOY.md).
+SPA en Angular 20 (standalone components, lazy loading en todas las rutas) que consume la API REST del backend. En producción se construye con `ng build --configuration production` y se sirve desde una imagen `nginx:alpine` que además hace de reverse proxy hacia el backend. La descripción general del proyecto y la arquitectura completa están en el [README PRINCIPAL](../README.md) y en [DEPLOY.md](../DEPLOY.md).
 
 ## Índice
 
@@ -16,7 +16,7 @@ SPA en Angular 19 (standalone components, lazy loading en todas las rutas) que c
 
 | Capa | Tecnología |
 |---|---|
-| Framework | Angular 19 (standalone, sin `NgModules`) |
+| Framework | Angular 20 (standalone, sin `NgModules`) |
 | Lenguaje | TypeScript 5 |
 | Estilos | SCSS con arquitectura ITCSS |
 | Iconos | Lucide Angular |

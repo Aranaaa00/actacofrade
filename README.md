@@ -1,5 +1,7 @@
 # ActaCofrade
 
+[![Backend CI](https://github.com/Aranaaa00/actacofrade/actions/workflows/backend.yml/badge.svg?branch=main)](https://github.com/Aranaaa00/actacofrade/actions/workflows/backend.yml) [![Frontend CI](https://github.com/Aranaaa00/actacofrade/actions/workflows/frontend.yml/badge.svg?branch=main)](https://github.com/Aranaaa00/actacofrade/actions/workflows/frontend.yml) [![CD](https://github.com/Aranaaa00/actacofrade/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Aranaaa00/actacofrade/actions/workflows/cd.yml) [![Java 21](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)](https://adoptium.net/temurin/releases/?version=21) [![Spring Boot 4.0](https://img.shields.io/badge/Spring%20Boot-4.0-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot) [![Angular 20](https://img.shields.io/badge/Angular-20-DD0031?logo=angular&logoColor=white)](https://angular.dev/) [![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Docker Compose](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/) [![Backend coverage ≥ 80%](https://img.shields.io/badge/backend%20coverage-%E2%89%A5%2080%25-brightgreen?logo=jacoco&logoColor=white)](backend/README.md#7-tests-and-coverage) [![Frontend coverage ≥ 85%](https://img.shields.io/badge/frontend%20coverage-%E2%89%A5%2085%25-brightgreen?logo=karma&logoColor=white)](frontend/README.md) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-FE5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/)
+
 ActaCofrade es una aplicación web pensada para hermandades y cofradías. Sirve para organizar sus actos: planificar el programa, repartir las tareas entre los miembros, dejar por escrito las decisiones tomadas en cada reunión y guardar el historial de incidencias de cada edición.
 
 ## Índice
@@ -287,3 +289,14 @@ Los workflows de CI no necesitan secretos externos: usan imágenes públicas y u
 - La autenticación se basa en JWT firmados con HS256, y el secreto debe tener al menos 32 bytes. El endpoint de login está limitado por IP y por email para frenar intentos de fuerza bruta.
 
 HTTPS no se termina dentro del stack. En producción, Cloudflare actúa como CDN delante del Droplet y termina TLS antes de reenviar las peticiones al Nginx del contenedor (modo "Full"). Para despliegues sin Cloudflare o sin otro terminador externo, al final de `nginx.conf` hay un bloque comentado con configuración TLS lista para activar (TLSv1.2 + TLSv1.3, HSTS, redirección HTTP→HTTPS).
+
+---
+
+## Comunidad y mantenimiento
+
+- Historial de cambios: [CHANGELOG.md](CHANGELOG.md).
+- Cómo contribuir, estilo de commits y flujo de pull requests: [CONTRIBUTING.md](CONTRIBUTING.md).
+- Normas de convivencia: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+- Cita académica: [CITATION.cff](CITATION.cff) (GitHub la reconoce automáticamente y ofrece el botón *Cite this repository*).
+
+Las actualizaciones automáticas de dependencias se gestionan con Dependabot (ver [.github/dependabot.yml](.github/dependabot.yml)) y cada imagen Docker publicada por CI se escanea con Trivy en busca de vulnerabilidades HIGH y CRITICAL.

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +43,7 @@ public class TestUsersInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final HermandadRepository hermandadRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Environment environment;
 
     @Value("${app.seed.test-users:false}")
     private boolean enabled;
@@ -52,11 +54,13 @@ public class TestUsersInitializer implements CommandLineRunner {
     public TestUsersInitializer(UserRepository userRepository,
                                 RoleRepository roleRepository,
                                 HermandadRepository hermandadRepository,
-                                PasswordEncoder passwordEncoder) {
+                                PasswordEncoder passwordEncoder,
+                                Environment environment) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.hermandadRepository = hermandadRepository;
         this.passwordEncoder = passwordEncoder;
+        this.environment = environment;
     }
 
     @Override
@@ -64,6 +68,14 @@ public class TestUsersInitializer implements CommandLineRunner {
     public void run(String... args) {
         if (!enabled) {
             return;
+        }
+        // Hard guard: even if the operator sets app.seed.test-users=true by mistake,
+        // we refuse to seed shared accounts when the prod profile is active.
+        for (String active : environment.getActiveProfiles()) {
+            if ("prod".equalsIgnoreCase(active) || "production".equalsIgnoreCase(active)) {
+                log.warn("Seed de usuarios de prueba IGNORADO: perfil de produccion activo ({}).", active);
+                return;
+            }
         }
         Hermandad hermandad = hermandadRepository.findByNombreIgnoreCase(TEST_HERMANDAD)
                 .orElseGet(() -> {
