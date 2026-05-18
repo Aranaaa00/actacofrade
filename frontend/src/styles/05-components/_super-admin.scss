@@ -34,14 +34,21 @@
 
   &__title {
     font-family: $font-heading;
-    font-size: $text-h2;
+    font-size: $text-h3;
     font-weight: $weight-bold;
     color: var(--text-primary);
     line-height: 1.2;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    max-inline-size: 100%;
 
     @include from-tablet {
+      font-size: $text-h2;
+    }
+
+    @include from-desktop {
       font-size: $text-h1;
     }
   }
@@ -180,6 +187,64 @@
     color: var(--text-primary);
   }
 
+  // Type chip for each list item: visually communicates the support flow.
+  &__item-type {
+    display: inline-flex;
+    align-items: center;
+    gap: $space-4;
+    padding: $space-4 $space-8;
+    font-size: $text-meta;
+    font-weight: $weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-primary);
+    background-color: var(--bg-surface);
+    border: $border-1 solid var(--border-default);
+    border-radius: $radius-2;
+    white-space: nowrap;
+    line-height: 1;
+
+    lucide-icon {
+      flex-shrink: 0;
+    }
+  }
+
+  &__item-type-label {
+    line-height: 1;
+  }
+
+  // Accent variants applied via [data-accent] on the chip and on the item button
+  // border-left for quick recognition. All accents use existing palette tokens.
+  &__item[data-accent='admin'] {
+    border-left: $border-2 solid $color-wood;
+  }
+  &__item[data-accent='security'] {
+    border-left: $border-2 solid $color-black;
+  }
+  &__item[data-accent='verification'] {
+    border-left: $border-2 solid $color-gold;
+  }
+  &__item[data-accent='contact'] {
+    border-left: $border-2 solid $color-warm-gray-text;
+  }
+
+  &__item-type[data-accent='admin'] {
+    color: $color-wood;
+    border-color: $color-wood;
+  }
+  &__item-type[data-accent='security'] {
+    color: $color-black;
+    border-color: $color-black;
+  }
+  &__item-type[data-accent='verification'] {
+    color: $color-gold-text;
+    border-color: $color-gold;
+  }
+  &__item-type[data-accent='contact'] {
+    color: $color-warm-gray-text;
+    border-color: $color-warm-gray-text;
+  }
+
   &__detail {
     display: flex;
     flex-direction: column;
@@ -221,7 +286,7 @@
   &__detail-meta {
     display: grid;
     grid-template-columns: 1fr;
-    gap: $space-8 $space-16;
+    gap: $space-12 $space-16;
     padding: $space-12;
     margin: 0;
     background-color: var(--bg-page);
@@ -229,8 +294,12 @@
     border-radius: $radius-2;
 
     @include from-tablet {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       padding: $space-16;
+    }
+
+    @include from-desktop {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     dt {
@@ -239,6 +308,7 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-secondary);
+      margin-bottom: $space-4;
     }
 
     dd {
@@ -247,6 +317,12 @@
       color: var(--text-primary);
       word-break: break-word;
     }
+  }
+
+  &__detail-meta-item {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
   &__detail-section {
@@ -330,7 +406,10 @@
     border-radius: 50%;
     background-color: var(--bg-surface);
     cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    @include motion-safe {
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
 
     &:hover {
       border-color: var(--nav-bg);
