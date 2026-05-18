@@ -248,16 +248,28 @@ Este módulo resuelve un caso concreto: qué pasa cuando el administrador de una
 | `GET` | `/api/admin-change-requests` | Lista todas las solicitudes, tanto pendientes como ya resueltas. | Super Admin | `200 OK` → `AdminChangeRequestResponse[]` |
 | `GET` | `/api/admin-change-requests/{id}` | Detalle de una solicitud por ID. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
 | `GET` | `/api/admin-change-requests/{id}/candidates` | Lista los usuarios de la hermandad que pueden recibir el rol de administrador. | Super Admin | `200 OK` → `UserResponse[]` |
-| `PATCH` | `/api/admin-change-requests/{id}/approve` | Aprueba la solicitud y transfiere el rol al usuario seleccionado. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
-| `PATCH` | `/api/admin-change-requests/{id}/reject` | Rechaza la solicitud. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
+| `PATCH` | `/api/admin-change-requests/{id}/approve` | Aprueba la solicitud. En cambios de administrador transfiere el rol al usuario indicado en el cuerpo (`newAdminUserId`); en solicitudes de soporte simplemente la marca como atendida. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
+| `PATCH` | `/api/admin-change-requests/{id}/reject` | Rechaza la solicitud sin aplicar cambios. | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
+| `PATCH` | `/api/admin-change-requests/{id}/resolve` | Marca como resuelta una solicitud informativa (categorías de soporte que no requieren aprobación, como dudas o sugerencias). | Super Admin | `200 OK` → `AdminChangeRequestResponse` |
+
+Cada solicitud lleva un campo `type` que distingue entre el cambio de administrador propiamente dicho y las distintas categorías del centro de soporte (dudas, sugerencias, incidencias, etc.). El estado siempre cambia siguiendo el ciclo `PENDING → APPROVED | REJECTED`, y el Super Admin que la resuelve queda registrado en `resolvedByUserId`/`resolvedAt` para auditoría.
 
 ### Verificación manual de usuarios — `/api/super-admin/users`
 
 El Super Administrador puede marcar cualquier cuenta como verificada manualmente desde el centro de intervención. Esta marca es un simple indicador de confianza: se muestra como un icono junto al nombre en toda la interfaz (lista de usuarios, perfil, modal de edición, detalle del acto, asignaciones, revisiones e incidencias) pero **no concede privilegios adicionales, no altera los roles ni interviene en ninguna comprobación de autorización**. La separación entre verificación y RBAC se garantiza a propósito para que el icono sea puramente informativo.
 
+Además de la verificación, el centro de intervención permite al Super Administrador buscar usuarios de cualquier hermandad, bloquearlos temporalmente, cambiarles el rol asignado, disparar un reseteo de contraseña y consultar el historial completo de intervenciones realizadas sobre la cuenta. Todas las acciones quedan registradas en el log de intervención y son auditables.
+
 | Método | Ruta | Descripción | Roles | Respuesta |
 |--------|------|-------------|-------|-----------|
+| `GET` | `/api/super-admin/users` | Búsqueda paginada de usuarios. Acepta `query` (nombre o correo), `page` y `size`. | Super Admin | `200 OK` → `PageResponse<SuperAdminUserResponse>` |
+| `GET` | `/api/super-admin/users/{id}` | Ficha completa del usuario con su rol, estado y marca de verificación. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
+| `PATCH` | `/api/super-admin/users/{id}/status` | Activa o suspende la cuenta. El cuerpo lleva `active` y un motivo opcional (`reason`) que se guarda en el log. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
 | `POST` | `/api/super-admin/users/{id}/verify` | Activa la marca de verificación manual del usuario. Sin cuerpo. Idempotente. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
 | `POST` | `/api/super-admin/users/{id}/unverify` | Retira la marca de verificación manual. Sin cuerpo. Idempotente. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
+| `PATCH` | `/api/super-admin/users/{id}/role` | Sobrescribe el rol del usuario (cuerpo: `role`). Útil para corregir asignaciones erróneas dentro de la hermandad. | Super Admin | `200 OK` → `SuperAdminUserResponse` |
+| `POST` | `/api/super-admin/users/{id}/password-reset` | Dispara el envío del correo de restablecimiento de contraseña al usuario. Sin cuerpo. | Super Admin | `204 No Content` |
+| `GET` | `/api/super-admin/users/{id}/logs` | Historial paginado de intervenciones realizadas sobre ese usuario concreto. | Super Admin | `200 OK` → `PageResponse<InterventionLogEntry>` |
+| `GET` | `/api/super-admin/users/logs` | Historial global paginado con todas las intervenciones del Super Administrador. | Super Admin | `200 OK` → `PageResponse<InterventionLogEntry>` |
 
-Ambas operaciones quedan registradas en el log de intervención del Super Administrador. El flag `manuallyVerified` se expone en los DTO `UserResponse`, `AuthResponse`, `EventResponse`, `TaskResponse`, `DecisionResponse` e `IncidentResponse` para que el frontend lo pueda pintar de forma consistente con el componente compartido `app-verified-badge`.
+Las acciones de cambio de estado, rol, verificación y reseteo de contraseña quedan registradas en el log de intervención del Super Administrador. El flag `manuallyVerified` se expone en los DTO `UserResponse`, `AuthResponse`, `EventResponse`, `TaskResponse`, `DecisionResponse` e `IncidentResponse` para que el frontend lo pueda pintar de forma consistente con el componente compartido `app-verified-badge`.

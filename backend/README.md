@@ -163,8 +163,8 @@ object for paginated endpoints. HTTP statuses used: `200`, `201`, `204`,
 | **Audit log** | `GET /api/events/{eventId}/history` | Authenticated. Paginated. |
 | **Dashboard** | `GET /api/dashboard` | Authenticated. Aggregated statistics. |
 | **Export** | `POST /api/events/{id}/export` (PDF or CSV) | Admin / responsable / colaborador. |
-| **Admin change requests** | `POST /api/admin-change-requests`, `GET /api/admin-change-requests`, `GET /api/admin-change-requests/{id}`, `GET /api/admin-change-requests/{id}/candidates`, `PATCH .../approve`, `PATCH .../reject` | Create: any non super-admin user. List / resolve: SUPER_ADMIN. |
-| **SuperAdmin users** | `GET /api/super-admin/users`, `GET /api/super-admin/users/{id}`, `PATCH .../status`, `PATCH .../role`, `POST .../verify`, `POST .../unverify`, `GET /api/super-admin/intervention-log` | SUPER_ADMIN only. |
+| **Admin change requests** | `POST /api/admin-change-requests`, `GET /api/admin-change-requests`, `GET /api/admin-change-requests/{id}`, `GET /api/admin-change-requests/{id}/candidates`, `PATCH .../approve`, `PATCH .../reject`, `PATCH .../resolve` | Create: any authenticated user except SUPER_ADMIN. List / detail / candidates / approve / reject / resolve: SUPER_ADMIN. Requests carry a `type` field that splits them into admin-handover requests and support-center categories (questions, suggestions, incidents…). Approve transfers the admin role for handover requests; resolve closes informational categories that don't need approval. |
+| **SuperAdmin users** | `GET /api/super-admin/users` (paginated search by name/email), `GET /api/super-admin/users/{id}`, `PATCH .../status` (activate / suspend with optional reason), `PATCH .../role`, `POST .../verify`, `POST .../unverify`, `POST .../password-reset`, `GET /api/super-admin/users/{id}/logs`, `GET /api/super-admin/users/logs` | SUPER_ADMIN only. Every action is written to the intervention log so it can be audited from the same controller. |
 
 ### Manual verification (trust marker)
 
@@ -237,12 +237,23 @@ Main relationships:
 * `Task` N—1 `User` for `assignedTo`, `createdBy` and `confirmedBy`.
 * `Incident` N—1 `User` for `reportedBy` and `resolvedBy`.
 * `Decision` N—1 `User` for `reviewedBy`.
+* `AdminChangeRequest` N—1 `Hermandad`, N—1 `User` (requester), and optionally
+  N—1 `User` for the proposed new admin and for the SUPER_ADMIN that
+  resolves it. The `type` column distinguishes the original admin-handover
+  flow from the support-center categories that reuse the same table.
 
 Every primary key is an auto-increment `INTEGER`. Status fields use native
 PostgreSQL enums (`role_code`, `event_status`, `event_type`, `task_status`,
 `decision_status`, `incident_status`, `hermandad_area`,
 `admin_change_request_status`). Performance indexes exist on the most common
-foreign keys (`hermandad_id`, `event_id`, `assigned_to`, `responsible_id`).
+foreign keys (`hermandad_id`, `event_id`, `assigned_to`, `responsible_id`)
+and on `admin_change_requests.status`, `.hermandad_id` and `.type` so the
+SuperAdmin queues open instantly even with many historical rows.
+
+The intervention log surfaced through `/api/super-admin/users/.../logs` is
+built on top of the existing `audit_log` table by filtering the rows whose
+actor holds the SUPER_ADMIN role — no extra table is required, which keeps
+the audit trail centralised.
 
 The schema is owned exclusively by Flyway: `spring.jpa.hibernate.ddl-auto`
 is set to `validate`, so Hibernate never touches the schema at runtime.
