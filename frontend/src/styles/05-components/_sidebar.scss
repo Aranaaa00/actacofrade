@@ -106,6 +106,7 @@
   border-inline-start: 0.25rem solid transparent;
   cursor: pointer;
   min-height: 3rem;
+  width: 100%;
 
   &:hover {
     background-color: var(--surface-inverse-hover);
@@ -114,7 +115,7 @@
 
   &--active {
     background-color: var(--surface-inverse-active);
-    color: var(--nav-active);
+    color: var(--text-on-dark);
     border-inline-start-color: var(--nav-active);
   }
 
@@ -165,7 +166,7 @@
   }
 
   &--active {
-    color: var(--nav-active);
+    color: var(--text-on-dark);
     background-color: var(--surface-inverse-active);
     border-inline-start-color: var(--nav-active);
   }
@@ -314,22 +315,16 @@
 
 .topbar__toggle {
   @include focus-visible;
-  display: flex;
+  display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   color: var(--text-on-dark);
   background-color: var(--nav-bg);
   border-radius: 50%;
-  box-shadow: 0 0.25rem 0.75rem var(--overlay-strong);
   cursor: pointer;
-
-  // Floats bottom-left on mobile/tablet to avoid clutter
-  position: fixed;
-  inset-block-end: $space-16;
-  inset-inline-start: $space-16;
-  z-index: 80;
 
   & lucide-icon {
     width: $size-icon-24;
@@ -383,11 +378,4 @@
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-
-  // Reserves bottom space on mobile/tablet for the floating hamburger button
-  padding-block-end: 5rem;
-
-  @include from-desktop {
-    padding-block-end: 0;
-  }
 }
