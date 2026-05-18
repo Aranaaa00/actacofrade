@@ -31,14 +31,21 @@
   &__title {
     margin: 0;
     font-family: $font-heading;
-    font-size: $text-h2;
+    font-size: $text-h3;
     font-weight: $weight-bold;
     color: var(--text-primary);
     line-height: 1.2;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    max-inline-size: 100%;
 
     @include from-tablet {
+      font-size: $text-h2;
+    }
+
+    @include from-desktop {
       font-size: $text-h1;
     }
   }
@@ -101,8 +108,12 @@
     }
 
     &--list {
-      max-height: 36rem;
+      max-height: 22rem;
       overflow-y: auto;
+
+      @include from-tablet {
+        max-height: 36rem;
+      }
     }
   }
 
@@ -154,7 +165,8 @@
     justify-content: space-between;
     gap: $space-8;
     flex-wrap: wrap;
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   &__item-meta {
@@ -200,7 +212,8 @@
     margin: 0;
     font-size: $text-meta;
     color: var(--text-secondary);
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   &__props {
@@ -307,8 +320,12 @@
     list-style: none;
     margin: 0;
     padding: 0;
-    max-height: 24rem;
+    max-height: 18rem;
     overflow-y: auto;
+
+    @include from-tablet {
+      max-height: 24rem;
+    }
   }
 
   &__log-item {
@@ -342,9 +359,13 @@
 
   &__log-changes {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: 1fr;
     gap: $space-4 $space-12;
     margin: $space-8 0 0;
+
+    @include from-tablet {
+      grid-template-columns: max-content 1fr;
+    }
 
     dt {
       margin: 0;
