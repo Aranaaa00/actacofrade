@@ -14,6 +14,8 @@ import { ToastService } from '../../../services/toast.service';
   templateUrl: './check-email.html'
 })
 export class CheckEmail {
+  private static readonly RESEND_THROTTLE_MS = 30_000;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
@@ -30,7 +32,7 @@ export class CheckEmail {
       return;
     }
     // Light client-side throttle to discourage abuse (server also rate-limits).
-    if (this.lastResendAt && Date.now() - this.lastResendAt < 30_000) {
+    if (this.lastResendAt && Date.now() - this.lastResendAt < CheckEmail.RESEND_THROTTLE_MS) {
       this.toast.info('Espera unos segundos antes de volver a reenviar el correo.');
       return;
     }
