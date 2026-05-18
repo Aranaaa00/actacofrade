@@ -103,7 +103,7 @@
             <ng-template #notVerified>—</ng-template>
           </dd>
           <dt>Último acceso</dt>
-          <dd>{{ user.lastLogin ? (user.lastLogin | date:'short') : 'Nunca' }}</dd>
+          <dd>{{ user.lastLogin ? (user.lastLogin | date:'dd/MM/yyyy HH:mm') : 'Nunca' }}</dd>
         </dl>
 
         <p *ngIf="isSelf(user)" class="super-admin-users__warn" role="status">
@@ -207,7 +207,7 @@
             <li *ngFor="let entry of logs(); trackBy: trackByLogId" class="super-admin-users__log-item">
               <header class="super-admin-users__log-head">
                 <strong>{{ actionLabel(entry.action) }}</strong>
-                <time [attr.datetime]="entry.performedAt">{{ entry.performedAt | date:'short' }}</time>
+                <time [attr.datetime]="entry.performedAt">{{ entry.performedAt | date:'dd/MM/yyyy HH:mm' }}</time>
               </header>
               <p class="super-admin-users__log-detail">
                 <span>Por: {{ entry.actorName ?? '—' }}</span>

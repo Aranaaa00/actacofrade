@@ -37,7 +37,7 @@ export class SuperAdmin implements OnInit {
 
   onSelectRequest(request: AdminChangeRequestResponse): void {
     this.selected = request;
-    if (request.status === 'PENDING') {
+    if (request.status === 'PENDING' && request.type === 'ADMIN_CHANGE') {
       this.loadCandidates(request.id);
     } else {
       this.candidates = [];
@@ -61,6 +61,27 @@ export class SuperAdmin implements OnInit {
         error: (err) => {
           this.processing = false;
           this.toast.fromHttpError(err, 'No se pudo aprobar la solicitud.');
+        },
+      });
+  }
+
+  onResolve(): void {
+    if (!this.selected || this.processing) {
+      return;
+    }
+    const id = this.selected.id;
+    this.processing = true;
+    this.service.resolve(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (updated) => {
+          this.processing = false;
+          this.toast.success('Solicitud marcada como resuelta.');
+          this.applyUpdated(updated);
+        },
+        error: (err) => {
+          this.processing = false;
+          this.toast.fromHttpError(err, 'No se pudo resolver la solicitud.');
         },
       });
   }

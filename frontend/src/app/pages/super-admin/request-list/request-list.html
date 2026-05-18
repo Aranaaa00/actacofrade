@@ -3,16 +3,23 @@
     <li class="super-admin__empty">No hay solicitudes registradas.</li>
   }
   @for (request of requests; track trackById($index, request)) {
+    @let type = typeConfig(request);
     <li>
       <button
         type="button"
         class="super-admin__item"
         [class.super-admin__item--active]="selectedId === request.id"
+        [attr.data-accent]="type.accent"
+        [attr.aria-label]="type.label + ' de ' + request.hermandadNombre"
         (click)="onSelect(request)">
         <header class="super-admin__item-head">
-          <strong class="super-admin__item-title">{{ request.hermandadNombre }}</strong>
+          <span class="super-admin__item-type" [attr.data-accent]="type.accent">
+            <lucide-icon [name]="type.icon" [size]="16" aria-hidden="true"></lucide-icon>
+            <span class="super-admin__item-type-label">{{ type.shortLabel }}</span>
+          </span>
           <app-badge [variant]="statusVariant(request.status)">{{ statusLabel(request.status) }}</app-badge>
         </header>
+        <strong class="super-admin__item-title">{{ request.hermandadNombre }}</strong>
         <p class="super-admin__item-meta">
           <span>{{ request.requesterFullName }}</span>
           <span aria-hidden="true">·</span>

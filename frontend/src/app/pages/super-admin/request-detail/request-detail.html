@@ -1,38 +1,56 @@
 @if (!request) {
   <p class="super-admin__placeholder" role="status">Selecciona una solicitud para ver el detalle.</p>
 } @else {
-  <article class="super-admin__detail" aria-labelledby="request-detail-title">
+  <article class="super-admin__detail" aria-labelledby="request-detail-title" [attr.data-accent]="typeConfig.accent">
     <header class="super-admin__detail-head">
-      <hgroup class="super-admin__detail-titles">
-        <h2 id="request-detail-title" class="super-admin__detail-title">{{ request.hermandadNombre }}</h2>
-        <p class="super-admin__detail-subtitle">
-          Solicitada por
-          <strong>{{ request.requesterFullName }}</strong>
-          ({{ request.requesterEmail }})
-        </p>
-      </hgroup>
+      <span class="super-admin__detail-type" [attr.data-accent]="typeConfig.accent">
+        <lucide-icon [name]="typeConfig.icon" [size]="20" aria-hidden="true"></lucide-icon>
+        <span>{{ typeConfig.label }}</span>
+      </span>
       <app-badge [variant]="statusVariant(request.status)">{{ statusLabel(request.status) }}</app-badge>
     </header>
 
+    <hgroup class="super-admin__detail-titles">
+      <h2 id="request-detail-title" class="super-admin__detail-title">{{ typeConfig.detailTitle }}</h2>
+      <p class="super-admin__detail-subtitle">{{ typeConfig.detailSummary }}</p>
+    </hgroup>
+
     <dl class="super-admin__detail-meta">
-      <dt>Fecha de envío</dt>
-      <dd>{{ formattedDate(request.createdAt) }}</dd>
+      <div class="super-admin__detail-meta-item">
+        <dt>Hermandad</dt>
+        <dd>{{ request.hermandadNombre }}</dd>
+      </div>
+      <div class="super-admin__detail-meta-item">
+        <dt>Solicitante</dt>
+        <dd>
+          <span class="super-admin__detail-meta-name">{{ request.requesterFullName }}</span>
+          <small class="super-admin__detail-meta-secondary">{{ request.requesterEmail }}</small>
+        </dd>
+      </div>
+      <div class="super-admin__detail-meta-item">
+        <dt>Fecha de envío</dt>
+        <dd>{{ formattedDate(request.createdAt) }}</dd>
+      </div>
       @if (request.resolvedAt) {
-        <dt>Fecha de resolución</dt>
-        <dd>{{ formattedDate(request.resolvedAt) }}</dd>
+        <div class="super-admin__detail-meta-item">
+          <dt>Fecha de resolución</dt>
+          <dd>{{ formattedDate(request.resolvedAt) }}</dd>
+        </div>
       }
       @if (request.newAdminFullName) {
-        <dt>Nuevo administrador</dt>
-        <dd>{{ request.newAdminFullName }}</dd>
+        <div class="super-admin__detail-meta-item">
+          <dt>Nuevo administrador</dt>
+          <dd>{{ request.newAdminFullName }}</dd>
+        </div>
       }
     </dl>
 
     <section class="super-admin__detail-section" aria-label="Mensaje del solicitante">
-      <h3 class="super-admin__detail-section-title">Mensaje</h3>
+      <h3 class="super-admin__detail-section-title">{{ typeConfig.messageHeading }}</h3>
       <p class="super-admin__detail-message">{{ request.message }}</p>
     </section>
 
-    @if (isPending) {
+    @if (isPending && isAdminChange) {
       <section class="super-admin__detail-section" aria-label="Asignar nuevo administrador">
         <h3 class="super-admin__detail-section-title">Asignar nuevo administrador</h3>
         @if (loadingCandidates) {
@@ -64,23 +82,36 @@
           </fieldset>
         }
       </section>
+    } @else if (isPending) {
+      <aside class="super-admin__detail-hint" role="note">
+        <lucide-icon name="info" [size]="18" aria-hidden="true"></lucide-icon>
+        <p>
+          Atiende esta solicitud desde el
+          <a class="super-admin__detail-hint-link" routerLink="/super-admin/usuarios">Centro de Intervención</a>
+          y márcala como resuelta cuando completes la acción.
+        </p>
+      </aside>
+    }
 
+    @if (isPending) {
       <footer class="super-admin__detail-actions">
         <button
           class="button button--secondary"
           type="button"
           (click)="onReject()"
-          [disabled]="processing">
+          [disabled]="processing"
+          aria-label="Rechazar la solicitud">
           <lucide-icon name="x" class="button__icon" [size]="18" aria-hidden="true"></lucide-icon>
           Rechazar
         </button>
         <button
           class="button button--primary"
           type="button"
-          (click)="onApprove()"
-          [disabled]="processing || selectedCandidateId === null">
+          (click)="onConfirm()"
+          [disabled]="!canConfirm"
+          [attr.aria-label]="typeConfig.primaryActionAriaLabel">
           <lucide-icon name="check" class="button__icon" [size]="18" aria-hidden="true"></lucide-icon>
-          Aprobar y asignar
+          {{ typeConfig.primaryActionLabel }}
         </button>
       </footer>
     }
