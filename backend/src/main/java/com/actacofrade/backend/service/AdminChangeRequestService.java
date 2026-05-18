@@ -9,6 +9,7 @@ import com.actacofrade.backend.entity.AdminChangeRequestStatus;
 import com.actacofrade.backend.entity.Hermandad;
 import com.actacofrade.backend.entity.Role;
 import com.actacofrade.backend.entity.RoleCode;
+import com.actacofrade.backend.entity.SupportRequestType;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.AdminChangeRequestRepository;
 import com.actacofrade.backend.repository.RoleRepository;
@@ -62,13 +63,14 @@ public class AdminChangeRequestService {
         AdminChangeRequest entity = new AdminChangeRequest();
         entity.setHermandad(hermandad);
         entity.setRequester(requester);
+        entity.setType(request.resolvedType());
         entity.setMessage(SanitizationUtils.sanitize(request.message()));
         entity.setStatus(AdminChangeRequestStatus.PENDING);
         entity.setCreatedAt(OffsetDateTime.now());
 
         requestRepository.save(entity);
-        log.info("Solicitud de cambio de admin creada id={} hermandad={} solicitante={}",
-                entity.getId(), hermandad.getId(), requester.getEmail());
+        log.info("Solicitud de soporte creada id={} tipo={} hermandad={} solicitante={}",
+                entity.getId(), entity.getType(), hermandad.getId(), requester.getEmail());
         return toResponse(entity);
     }
 
@@ -90,6 +92,9 @@ public class AdminChangeRequestService {
     @Transactional(readOnly = true)
     public List<UserResponse> findCandidates(Integer requestId) {
         AdminChangeRequest request = getOrThrow(requestId);
+        if (request.getType() != SupportRequestType.ADMIN_CHANGE) {
+            return List.of();
+        }
         Integer hermandadId = request.getHermandad().getId();
         // Any active member of the hermandad except the current admin and the super admin can be promoted.
         return userRepository.findByHermandadId(hermandadId).stream()
@@ -104,6 +109,9 @@ public class AdminChangeRequestService {
     public AdminChangeRequestResponse approve(Integer id, AdminChangeRequestApprove payload, String authenticatedEmail) {
         AdminChangeRequest request = getOrThrow(id);
         ensurePending(request);
+        if (request.getType() != SupportRequestType.ADMIN_CHANGE) {
+            throw new IllegalStateException("Esta solicitud no admite asignación de administrador. Usa la acción 'Resolver'.");
+        }
 
         User newAdmin = userRepository.findById(payload.newAdminUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario destinatario no encontrado"));
@@ -151,6 +159,27 @@ public class AdminChangeRequestService {
         return toResponse(request);
     }
 
+    /**
+     * Mark a non-admin-change request as APPROVED (resolved) without any role mutation.
+     * Use the dedicated approve endpoint for ADMIN_CHANGE requests.
+     */
+    public AdminChangeRequestResponse resolve(Integer id, String authenticatedEmail) {
+        AdminChangeRequest request = getOrThrow(id);
+        ensurePending(request);
+        if (request.getType() == SupportRequestType.ADMIN_CHANGE) {
+            throw new IllegalStateException("Las solicitudes de cambio de administrador deben resolverse asignando un nuevo administrador.");
+        }
+
+        User resolver = userRepository.findByEmail(authenticatedEmail).orElse(null);
+        request.setStatus(AdminChangeRequestStatus.APPROVED);
+        request.setResolvedBy(resolver);
+        request.setResolvedAt(OffsetDateTime.now());
+
+        log.info("Solicitud {} RESUELTA tipo={} por={} hermandad={}",
+                id, request.getType(), authenticatedEmail, request.getHermandad().getId());
+        return toResponse(request);
+    }
+
     private AdminChangeRequest getOrThrow(Integer id) {
         return requestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada: " + id));
@@ -192,6 +221,7 @@ public class AdminChangeRequestService {
         User resolver = entity.getResolvedBy();
         return new AdminChangeRequestResponse(
                 entity.getId(),
+                entity.getType().name(),
                 hermandad != null ? hermandad.getId() : null,
                 hermandad != null ? hermandad.getNombre() : null,
                 requester != null ? requester.getId() : null,

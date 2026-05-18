@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 /** Public view of an admin change request. */
 public record AdminChangeRequestResponse(
         Integer id,
+        String type,
         Integer hermandadId,
         String hermandadNombre,
         Integer requesterUserId,

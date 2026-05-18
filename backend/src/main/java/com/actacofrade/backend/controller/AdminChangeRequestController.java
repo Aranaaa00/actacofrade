@@ -82,4 +82,12 @@ public class AdminChangeRequestController {
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(service.reject(id, userDetails.getUsername()));
     }
+
+    @PatchMapping("/{id}/resolve")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    public ResponseEntity<AdminChangeRequestResponse> resolve(
+            @PathVariable Integer id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(service.resolve(id, userDetails.getUsername()));
+    }
 }

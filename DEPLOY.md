@@ -82,6 +82,9 @@ Toda la configuración viene del fichero `.env`. Las variables marcadas como **o
 | `SUPERADMIN_EMAIL`        | no          | Si se indica, crea un usuario `SUPER_ADMIN` en el primer arranque.        |
 | `SUPERADMIN_PASSWORD`     | no          | Contraseña de ese super-admin.                                            |
 | `SUPERADMIN_FULL_NAME`    | no          | Nombre visible del super-admin.                                           |
+| `PASSWORD_RESET_EXPIRATION_MINUTES` | no | Vida del enlace de restablecimiento (defecto `10080`, 7 días).            |
+| `SEED_TEST_USERS`         | no          | **Solo local.** A `true` siembra un usuario por rol no privilegiado.      |
+| `SEED_TEST_USERS_PASSWORD`| no          | Contraseña común de los usuarios sembrados (defecto `Test1234!`).         |
 
 `.env` está en `.gitignore` y nunca debe subirse al repositorio. Para CI/CD o producción real, los secretos van en el gestor de la plataforma (secrets de GitHub Actions, Docker secrets, etc.).
 

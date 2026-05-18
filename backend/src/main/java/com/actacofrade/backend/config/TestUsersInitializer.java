@@ -25,7 +25,8 @@ import java.util.Set;
 /**
  * Inicializador de datos de prueba para entorno local. Solo se ejecuta cuando la propiedad
  * app.seed.test-users es true (NUNCA debe activarse en producción). Crea una hermandad de
- * prueba y cuatro usuarios cubriendo todos los flujos del Centro de Intervención.
+ * prueba y un usuario por cada rol no privilegiado (ADMINISTRADOR, RESPONSABLE, COLABORADOR
+ * verificado y sin verificar, CONSULTA) cubriendo todos los flujos del Centro de Intervención.
  * Los usuarios sembrados comparten una contraseña conocida documentada en README de despliegue.
  */
 @Component
@@ -75,7 +76,8 @@ public class TestUsersInitializer implements CommandLineRunner {
                 new SeedUser("admin.test@actacofrade.local", "Admin Pruebas", RoleCode.ADMINISTRADOR, true),
                 new SeedUser("responsable.test@actacofrade.local", "Responsable Pruebas", RoleCode.RESPONSABLE, true),
                 new SeedUser("colab1.test@actacofrade.local", "Colaborador Uno", RoleCode.COLABORADOR, true),
-                new SeedUser("colab2.test@actacofrade.local", "Colaborador Dos", RoleCode.COLABORADOR, false)
+                new SeedUser("colab2.test@actacofrade.local", "Colaborador Dos", RoleCode.COLABORADOR, false),
+                new SeedUser("consulta.test@actacofrade.local", "Consulta Pruebas", RoleCode.CONSULTA, true)
         );
 
         for (SeedUser seed : seeds) {

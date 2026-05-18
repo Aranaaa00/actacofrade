@@ -29,7 +29,8 @@ import java.time.OffsetDateTime;
 @Entity
 @Table(name = "admin_change_requests", indexes = {
         @Index(name = "idx_admin_change_requests_status", columnList = "status"),
-        @Index(name = "idx_admin_change_requests_hermandad", columnList = "hermandad_id")
+        @Index(name = "idx_admin_change_requests_hermandad", columnList = "hermandad_id"),
+        @Index(name = "idx_admin_change_requests_type", columnList = "type")
 })
 @Getter
 @Setter
@@ -50,6 +51,12 @@ public class AdminChangeRequest {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "requester_user_id", nullable = false)
     private User requester;
+
+    /** Discriminator of the support request flow. */
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "type", nullable = false)
+    private SupportRequestType type = SupportRequestType.ADMIN_CHANGE;
 
     /** Reason written by the requester (sanitized before saving). */
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")

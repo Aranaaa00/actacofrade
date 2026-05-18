@@ -50,6 +50,11 @@ services:
       EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
       APP_BASE_URL: ${APP_BASE_URL}
       TOKEN_EXPIRATION_TIME: ${TOKEN_EXPIRATION_TIME}
+      # Password reset link lifetime (SuperAdmin Intervention Center)
+      PASSWORD_RESET_EXPIRATION_MINUTES: ${PASSWORD_RESET_EXPIRATION_MINUTES:-10080}
+      # Local test users seeding (NEVER enable in production)
+      SEED_TEST_USERS: ${SEED_TEST_USERS:-false}
+      SEED_TEST_USERS_PASSWORD: ${SEED_TEST_USERS_PASSWORD:-Test1234!}
     depends_on:
       db:
         condition: service_healthy
