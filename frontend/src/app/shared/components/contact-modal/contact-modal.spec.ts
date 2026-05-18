@@ -81,7 +81,8 @@ describe('ContactModal', () => {
     m.form.controls['message'].setValue('this is a valid message text');
     m.onSubmit();
     expect(req.create).toHaveBeenCalled();
-    const arg = req.create.calls.mostRecent().args[0] as { message: string };
+    const arg = req.create.calls.mostRecent().args[0] as { type: string; message: string };
+    expect(arg.type).toBe('ADMIN_CHANGE');
     expect(arg.message.startsWith('[Cambio de administrador]')).toBeTrue();
     expect(toast.success).toHaveBeenCalled();
     expect(closed).toBe(1);
@@ -93,7 +94,8 @@ describe('ContactModal', () => {
     m.selectCategory('VERIFICATION');
     m.form.controls['message'].setValue('this is a valid message text');
     m.onSubmit();
-    const arg = req.create.calls.mostRecent().args[0] as { message: string };
+    const arg = req.create.calls.mostRecent().args[0] as { type: string; message: string };
+    expect(arg.type).toBe('VERIFICATION');
     expect(arg.message.startsWith('[Verificación manual]')).toBeTrue();
   });
 

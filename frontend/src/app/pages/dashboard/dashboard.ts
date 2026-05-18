@@ -7,13 +7,11 @@ import { ToastService } from '../../services/toast.service';
 import { EventResponse } from '../../models/event.model';
 import { DashboardAlert, DashboardAlertType } from '../../models/dashboard.model';
 import { Badge } from '../../shared/components/badge/badge';
-import { getEventStatusLabel, getEventStatusBadgeVariant } from '../../shared/utils/label-maps.utils';
-
-const ALERT_TYPE_LABELS: Record<DashboardAlertType, string> = {
-  TASK: 'TAREA',
-  INCIDENT: 'INCIDENCIA',
-  DECISION: 'DECISIÓN'
-};
+import {
+  getEventStatusLabel,
+  getEventStatusBadgeVariant,
+  getAlertTypeLabel,
+} from '../../shared/utils/label-maps.utils';
 
 @Component({
   selector: 'app-dashboard',
@@ -65,6 +63,6 @@ export class Dashboard implements OnInit {
   getStatusBadgeVariant = getEventStatusBadgeVariant;
 
   getAlertTypeLabel(type: DashboardAlertType): string {
-    return ALERT_TYPE_LABELS[type];
+    return getAlertTypeLabel(type);
   }
 }

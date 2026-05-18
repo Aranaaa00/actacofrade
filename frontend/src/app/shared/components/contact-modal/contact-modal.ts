@@ -87,7 +87,7 @@ export class ContactModal {
 
     const raw = sanitizeFormValues(this.form.value) as { category: SupportCategoryKey; message: string };
     const category = this.categories.find(c => c.key === raw.category) ?? this.categories[0];
-    const payload = { message: `${category.prefix} ${raw.message}` };
+    const payload = { type: category.key, message: `${category.prefix} ${raw.message}` };
     this.requestService.create(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

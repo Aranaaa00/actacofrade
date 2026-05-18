@@ -13,6 +13,7 @@ import { DecisionResponse } from '../../models/decision.model';
 import { IncidentResponse } from '../../models/incident.model';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { Banner } from '../../shared/components/banner/banner';
+import { getTaskStatusLabel } from '../../shared/utils/label-maps.utils';
 import { Badge } from '../../shared/components/badge/badge';
 
 interface BlockingItem {
@@ -102,15 +103,6 @@ export class CloseEvent implements OnInit {
     });
   }
 
-  private readonly taskStatusLabelMap: Record<string, string> = {
-    'PLANNED': 'Planificada',
-    'ACCEPTED': 'Aceptada',
-    'IN_PREPARATION': 'En preparación',
-    'CONFIRMED': 'Confirmada',
-    'COMPLETED': 'Completada',
-    'REJECTED': 'Rechazada',
-  };
-
   private buildBlockingItems(tasks: TaskResponse[], decisions: DecisionResponse[], incidents: IncidentResponse[]): BlockingItem[] {
     const items: BlockingItem[] = [];
 
@@ -119,7 +111,7 @@ export class CloseEvent implements OnInit {
         items.push({
           type: 'TAREA',
           label: task.title,
-          status: this.taskStatusLabelMap[task.status] || task.status
+          status: getTaskStatusLabel(task.status)
         });
       }
     }

@@ -1,4 +1,6 @@
-export type SupportCategoryKey = 'ADMIN_CHANGE' | 'PASSWORD_RESET' | 'VERIFICATION' | 'CONTACT';
+import { SupportRequestType } from '../../models/admin-change-request.model';
+
+export type SupportCategoryKey = SupportRequestType;
 
 export interface SupportCategory {
   key: SupportCategoryKey;
@@ -28,7 +30,7 @@ export const SUPPORT_CATEGORIES: readonly SupportCategory[] = [
   },
   {
     key: 'VERIFICATION',
-    label: 'Solicitar verificación manual',
+    label: 'Pedir verificación',
     icon: 'badge-check',
     prefix: '[Verificación manual]',
     description: 'Pide la verificación manual de tu cuenta. Aporta los datos o motivos que avalen tu identidad.',
@@ -36,7 +38,7 @@ export const SUPPORT_CATEGORIES: readonly SupportCategory[] = [
   },
   {
     key: 'CONTACT',
-    label: 'Contactar con SuperAdmin',
+    label: 'Contactar con soporte',
     icon: 'mail',
     prefix: '[Contacto general]',
     description: 'Envía un mensaje libre al SuperAdmin para cualquier otra cuestión de soporte.',
