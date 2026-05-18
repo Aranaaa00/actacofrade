@@ -100,7 +100,10 @@
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  @include motion-safe {
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
 
   &:hover:not(:disabled) {
     border-color: var(--nav-bg);

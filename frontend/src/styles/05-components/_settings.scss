@@ -27,13 +27,20 @@
 
 .settings__title {
   font-family: $font-heading;
-  font-size: $text-h2;
+  font-size: $text-h3;
   font-weight: $weight-bold;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  max-inline-size: 100%;
 
   @include from-tablet {
+    font-size: $text-h2;
+  }
+
+  @include from-desktop {
     font-size: $text-h1;
   }
 }
@@ -130,7 +137,10 @@
   font-family: $font-body;
   font-size: $text-body;
   color: var(--text-primary);
-  transition: border-color $motion-hover $motion-ease;
+
+  @include motion-safe {
+    transition: border-color $motion-hover $motion-ease;
+  }
 }
 
 .settings__input {
@@ -228,7 +238,10 @@
   font-weight: $weight-semibold;
   color: var(--text-primary);
   text-decoration: none;
-  transition: background-color $motion-hover $motion-ease, border-color $motion-hover $motion-ease;
+
+  @include motion-safe {
+    transition: background-color $motion-hover $motion-ease, border-color $motion-hover $motion-ease;
+  }
 }
 
 .settings__link:hover {
@@ -293,7 +306,10 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color $motion-hover $motion-ease;
+
+  @include motion-safe {
+    transition: color $motion-hover $motion-ease;
+  }
 
   &:disabled {
     color: var(--text-secondary);
@@ -322,5 +338,8 @@
   display: inline-block;
   font-size: $text-body;
   line-height: 1;
-  transition: transform $motion-hover $motion-ease;
+
+  @include motion-safe {
+    transition: transform $motion-hover $motion-ease;
+  }
 }

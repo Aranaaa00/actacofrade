@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../00-settings/variables' as *;
+@use '../01-tools/mixins' as *;
 
 
 $toast-paper-base:    #ece2c8;
@@ -178,10 +179,13 @@ $toast-fibre:
     color: $toast-ink-soft;
     cursor: pointer;
     border-radius: 50%;
-    transition:
-      background-color $motion-hover $motion-ease,
-      color            $motion-hover $motion-ease,
-      box-shadow       $motion-hover $motion-ease;
+
+    @include motion-safe {
+      transition:
+        background-color $motion-hover $motion-ease,
+        color            $motion-hover $motion-ease,
+        box-shadow       $motion-hover $motion-ease;
+    }
 
     &:hover {
       background-color: rgba($toast-ink, 0.08);
