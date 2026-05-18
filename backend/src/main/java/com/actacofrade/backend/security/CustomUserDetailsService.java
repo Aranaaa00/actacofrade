@@ -1,5 +1,6 @@
 package com.actacofrade.backend.security;
 
+import com.actacofrade.backend.entity.AccountStatus;
 import com.actacofrade.backend.entity.User;
 import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,10 +29,13 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getCode().name()))
                 .collect(Collectors.toList());
 
+        boolean enabled = Boolean.TRUE.equals(user.getActive())
+                && user.getStatus() == AccountStatus.ACTIVE;
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
-                true,
+                enabled,
                 true, true, true,
                 authorities
         );

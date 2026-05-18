@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.actacofrade.backend.entity.AccountStatus;
 import com.actacofrade.backend.repository.UserRepository;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -82,6 +83,9 @@ class JwtAuthenticationFilterTest {
         when(jwtService.extractEmail("tok")).thenReturn("u@e.com");
         when(userDetailsService.loadUserByUsername("u@e.com")).thenReturn(u);
         when(jwtService.isTokenValid("tok", u)).thenReturn(true);
+        com.actacofrade.backend.entity.User active = new com.actacofrade.backend.entity.User();
+        active.setStatus(AccountStatus.ACTIVE);
+        when(userRepository.findByEmail("u@e.com")).thenReturn(java.util.Optional.of(active));
 
         filter.doFilter(req, new MockHttpServletResponse(), filterChain);
 
