@@ -190,9 +190,13 @@
 .act-list__cards {
   display: flex;
   flex-direction: column;
-  gap: $border-1;
+  // Visible hairline between alternating light/dark rows: a 2px (0.125rem)
+  // gap shows through to the container background so each card reads as an
+  // independent unit. A light separator keeps contrast against the dark
+  // rows without darkening the page.
+  gap: $border-2;
   list-style: none;
-  background-color: var(--border-default);
+  background-color: var(--bg-surface);
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
   overflow: hidden;
