@@ -93,13 +93,16 @@ class DashboardServiceTest {
         when(decisionRepository.findByReviewedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(eq(1), eq(DecisionStatus.PENDING), eq(1)))
                 .thenReturn(List.of());
         when(taskRepository.countByAssignedToIdAndStatusInAndEventHermandadId(eq(1), any(), eq(1))).thenReturn(4L);
-        when(eventRepository.count(any(Specification.class))).thenReturn(2L);
+        when(incidentRepository.countByReportedByIdAndStatusAndEventHermandadId(eq(1), eq(IncidentStatus.OPEN), eq(1))).thenReturn(1L);
+        when(decisionRepository.countByReviewedByIdAndStatusAndEventHermandadId(eq(1), eq(DecisionStatus.PENDING), eq(1))).thenReturn(2L);
+        when(eventRepository.count(any(Specification.class))).thenReturn(2L, 7L);
 
         DashboardResponse res = service.getDashboard("admin@e.com");
         assertThat(res.recentEvents()).hasSize(1);
         assertThat(res.alerts()).isEmpty();
-        assertThat(res.pendingTasksCount()).isEqualTo(4);
+        assertThat(res.pendingItemsCount()).isEqualTo(7);
         assertThat(res.readyToCloseCount()).isEqualTo(2);
+        assertThat(res.totalEventsCount()).isEqualTo(7);
     }
 
     @Test

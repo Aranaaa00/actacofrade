@@ -117,11 +117,11 @@ Operaciones del usuario sobre su propia cuenta. No requieren ningún rol concret
 
 ### Dashboard — `/api/dashboard`
 
-Un único endpoint que agrega las métricas relevantes para la hermandad del usuario autenticado: cuántos actos están activos, cuántas tareas siguen sin aceptar, cuántas decisiones están pendientes de revisión y cuántas incidencias siguen abiertas. El frontend lo usa para construir los contadores de la pantalla de inicio.
+Un único endpoint que devuelve las métricas que el usuario necesita ver nada más entrar: cuántos actos tiene la hermandad en marcha (`totalEventsCount`), cuántos están listos para cerrar (`readyToCloseCount`) y cuántas acciones tiene él mismo aún pendientes —tareas, decisiones e incidencias sumadas— en `pendingItemsCount`. También entrega los actos más recientes y las alertas que le afectan directamente. El frontend lo usa para construir la pantalla de inicio.
 
 | Método | Ruta | Descripción | Respuesta |
 |--------|------|-------------|-----------|
-| `GET` | `/api/dashboard` | Métricas agregadas de la hermandad: actos activos, tareas sin aceptar, decisiones sin revisar e incidencias abiertas. | `200 OK` → `DashboardResponse` |
+| `GET` | `/api/dashboard` | Métricas agregadas de la hermandad y del usuario: total de actos, actos listos para cerrar, acciones propias pendientes, actos recientes y alertas personales. | `200 OK` → `DashboardResponse` |
 
 ### Actos — `/api/events`
 

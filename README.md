@@ -212,8 +212,9 @@ Respuesta `200 OK`:
       "eventDate": "2025-03-15"
     }
   ],
-  "pendingTasksCount": 2,
-  "readyToCloseCount": 0
+  "pendingItemsCount": 2,
+  "readyToCloseCount": 0,
+  "totalEventsCount": 8
 }
 ```
 

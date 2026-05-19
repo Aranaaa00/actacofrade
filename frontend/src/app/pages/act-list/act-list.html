@@ -48,7 +48,11 @@
             <dt class="act-card__meta-label">Fecha</dt>
             <dd class="act-card__meta-value">{{ formatDate(act.eventDate) }}</dd>
             <dt class="act-card__meta-label">Responsable</dt>
-            <dd class="act-card__meta-value">{{ act.responsibleName || '—' }}<app-verified-badge [verified]="!!act.responsibleVerified" /></dd>
+            <dd class="act-card__meta-value">
+              <span class="act-card__user-cell">
+                {{ act.responsibleName || '—' }}<app-verified-badge [verified]="!!act.responsibleVerified" />
+              </span>
+            </dd>
           </dl>
           <section class="act-card__progress" aria-label="Progreso: paso {{ getCurrentStep(act.status) }} de {{ stepLabels.length }}">
             <ol class="act-card__steps">

@@ -49,13 +49,14 @@ class DashboardControllerIntegrationTest {
     void getDashboard_returns200() throws Exception {
         DashboardAlertResponse alert = new DashboardAlertResponse(
                 "INCIDENT_OPEN", "Incidencia sin resolver", 1, LocalDate.of(2030, 4, 1), 7);
-        DashboardResponse resp = new DashboardResponse(List.of(), List.of(alert), 4, 2);
+        DashboardResponse resp = new DashboardResponse(List.of(), List.of(alert), 4, 2, 9);
         given(dashboardService.getDashboard(anyString())).willReturn(resp);
 
         mockMvc.perform(get("/api/dashboard"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.pendingTasksCount").value(4))
+                .andExpect(jsonPath("$.pendingItemsCount").value(4))
                 .andExpect(jsonPath("$.readyToCloseCount").value(2))
+                .andExpect(jsonPath("$.totalEventsCount").value(9))
                 .andExpect(jsonPath("$.alerts[0].type").value("INCIDENT_OPEN"));
     }
 }

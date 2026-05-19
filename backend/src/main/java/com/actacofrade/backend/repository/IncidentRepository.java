@@ -13,4 +13,7 @@ public interface IncidentRepository extends JpaRepository<Incident, Integer>, Jp
 
     List<Incident> findByReportedByIdAndStatusAndEventHermandadIdOrderByCreatedAtDesc(
             Integer userId, IncidentStatus status, Integer hermandadId);
+
+    long countByReportedByIdAndStatusAndEventHermandadId(
+            Integer userId, IncidentStatus status, Integer hermandadId);
 }

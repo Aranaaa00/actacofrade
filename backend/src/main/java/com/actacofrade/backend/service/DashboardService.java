@@ -75,11 +75,21 @@ public class DashboardService {
 
         List<EventResponse> recentEvents = loadRecentEvents(hermandadId);
         List<DashboardAlertResponse> alerts = loadAlerts(userId, hermandadId);
-        long pendingTasksCount = taskRepository.countByAssignedToIdAndStatusInAndEventHermandadId(
-                userId, ACTIVE_TASK_STATUSES, hermandadId);
+        long pendingItemsCount = countPendingItems(userId, hermandadId);
         long readyToCloseCount = countReadyToCloseEvents(hermandadId);
+        long totalEventsCount = eventRepository.count(EventSpecification.hasHermandad(hermandadId));
 
-        return new DashboardResponse(recentEvents, alerts, pendingTasksCount, readyToCloseCount);
+        return new DashboardResponse(recentEvents, alerts, pendingItemsCount, readyToCloseCount, totalEventsCount);
+    }
+
+    private long countPendingItems(Integer userId, Integer hermandadId) {
+        long tasks = taskRepository.countByAssignedToIdAndStatusInAndEventHermandadId(
+                userId, ACTIVE_TASK_STATUSES, hermandadId);
+        long incidents = incidentRepository.countByReportedByIdAndStatusAndEventHermandadId(
+                userId, IncidentStatus.OPEN, hermandadId);
+        long decisions = decisionRepository.countByReviewedByIdAndStatusAndEventHermandadId(
+                userId, DecisionStatus.PENDING, hermandadId);
+        return tasks + incidents + decisions;
     }
 
     private List<EventResponse> loadRecentEvents(Integer hermandadId) {

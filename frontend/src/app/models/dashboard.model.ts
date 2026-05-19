@@ -13,6 +13,7 @@ export interface DashboardAlert {
 export interface DashboardData {
   recentEvents: EventResponse[];
   alerts: DashboardAlert[];
-  pendingTasksCount: number;
+  pendingItemsCount: number;
   readyToCloseCount: number;
+  totalEventsCount: number;
 }

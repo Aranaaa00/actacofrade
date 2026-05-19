@@ -27,6 +27,7 @@ export class Dashboard implements OnInit {
   alerts: DashboardAlert[] = [];
   alertCount = 0;
   readyToCloseCount = 0;
+  totalEventsCount = 0;
   loading = true;
 
   get userName(): string {
@@ -48,8 +49,9 @@ export class Dashboard implements OnInit {
       next: data => {
         this.events = data.recentEvents;
         this.alerts = data.alerts;
-        this.alertCount = data.pendingTasksCount;
+        this.alertCount = data.pendingItemsCount;
         this.readyToCloseCount = data.readyToCloseCount;
+        this.totalEventsCount = data.totalEventsCount;
         this.loading = false;
       },
       error: (err) => {

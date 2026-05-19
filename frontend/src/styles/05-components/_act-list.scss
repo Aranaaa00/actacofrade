@@ -335,6 +335,7 @@
 
   @include from-mobile {
     grid-template-rows: auto auto;
+    grid-template-columns: auto minmax(0, 1fr);
     grid-auto-flow: column;
   }
 }
@@ -351,6 +352,15 @@
   font-size: $text-paragraph;
   font-weight: $weight-semibold;
   color: var(--text-primary);
+  min-width: 0;
+}
+
+.act-card__user-cell {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: $space-4;
 }
 
 // Segmented progress bar

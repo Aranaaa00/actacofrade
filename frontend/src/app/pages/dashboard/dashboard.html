@@ -7,14 +7,18 @@
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Buenos días, {{ userName }}.</h1>
     @if (!isConsulta) {
-      <p class="dashboard__summary">Tienes {{ alertCount }} pendientes.</p>
+      <p class="dashboard__summary">
+        @if (alertCount === 0) { No tienes acciones pendientes. }
+        @else if (alertCount === 1) { Te queda 1 acción por completar. }
+        @else { Te quedan {{ alertCount }} acciones por completar. }
+      </p>
     }
   </header>
 
   @if (!isConsulta) {
     <ul class="dashboard__stats" role="list">
       <li class="dashboard__stat">
-        <strong class="dashboard__stat-number">{{ events.length }}</strong>
+        <strong class="dashboard__stat-number">{{ totalEventsCount }}</strong>
         <p class="dashboard__stat-label">Actos activos</p>
       </li>
       <li class="dashboard__stat">

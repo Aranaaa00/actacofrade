@@ -4898,7 +4898,7 @@
                   "pm.test('Status is 200', () => pm.response.to.have.status(200));",
                   "pm.test('Has expected fields', () => {",
                   "  const j = pm.response.json();",
-                  "  ['recentEvents','alerts','pendingTasksCount','readyToCloseCount'].forEach(k => pm.expect(j).to.have.property(k));",
+                  "  ['recentEvents','alerts','pendingItemsCount','readyToCloseCount','totalEventsCount'].forEach(k => pm.expect(j).to.have.property(k));",
                   "});"
                 ],
                 "type": "text/javascript"
