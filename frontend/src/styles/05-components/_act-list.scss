@@ -190,7 +190,9 @@
 .act-list__cards {
   display: flex;
   flex-direction: column;
+  gap: $border-1;
   list-style: none;
+  background-color: var(--border-default);
   border: $border-1 solid var(--border-default);
   border-radius: $radius-2;
   overflow: hidden;
@@ -201,11 +203,6 @@
   display: flex;
   align-items: stretch;
   background-color: var(--bg-surface);
-  border-bottom: $border-1 solid var(--border-default);
-
-  &:last-child {
-    border-bottom: none;
-  }
 }
 
 // Dark row (visually odd) — only applied from tablet upwards. On mobile the

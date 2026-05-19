@@ -28,6 +28,7 @@ export class Dashboard implements OnInit {
   alertCount = 0;
   readyToCloseCount = 0;
   totalEventsCount = 0;
+  myTasksCount = 0;
   loading = true;
 
   get userName(): string {
@@ -52,6 +53,7 @@ export class Dashboard implements OnInit {
         this.alertCount = data.pendingItemsCount;
         this.readyToCloseCount = data.readyToCloseCount;
         this.totalEventsCount = data.totalEventsCount;
+        this.myTasksCount = data.myTasksCount;
         this.loading = false;
       },
       error: (err) => {

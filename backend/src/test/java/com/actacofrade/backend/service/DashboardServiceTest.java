@@ -103,6 +103,7 @@ class DashboardServiceTest {
         assertThat(res.pendingItemsCount()).isEqualTo(7);
         assertThat(res.readyToCloseCount()).isEqualTo(2);
         assertThat(res.totalEventsCount()).isEqualTo(7);
+        assertThat(res.myTasksCount()).isEqualTo(4);
     }
 
     @Test

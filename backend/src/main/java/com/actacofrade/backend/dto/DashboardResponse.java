@@ -7,5 +7,6 @@ public record DashboardResponse(
         List<DashboardAlertResponse> alerts,
         long pendingItemsCount,
         long readyToCloseCount,
-        long totalEventsCount
+        long totalEventsCount,
+        long myTasksCount
 ) {}

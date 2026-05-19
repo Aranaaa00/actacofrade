@@ -16,4 +16,5 @@ export interface DashboardData {
   pendingItemsCount: number;
   readyToCloseCount: number;
   totalEventsCount: number;
+  myTasksCount: number;
 }
