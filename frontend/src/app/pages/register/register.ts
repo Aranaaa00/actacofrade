@@ -9,13 +9,14 @@ import { UserResponse } from '../../models/user.model';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { ModalOverlay } from '../../shared/components/modal-overlay/modal-overlay';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
+import { PasswordToggleDirective } from '../../shared/directives/password-toggle.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { passwordStrength } from '../../shared/validators/password-strength.validator';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-register',
-  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, FormField, ModalOverlay, AutofocusDirective],
+  imports: [ReactiveFormsModule, RouterLink, NgTemplateOutlet, FormField, ModalOverlay, AutofocusDirective, PasswordToggleDirective],
   templateUrl: './register.html',
 })
 export class Register implements OnInit {

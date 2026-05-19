@@ -6,6 +6,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { FormField } from '../../../shared/components/form-field/form-field';
+import { PasswordToggleDirective } from '../../../shared/directives/password-toggle.directive';
 
 type State = 'form' | 'loading' | 'success' | 'invalid';
 
@@ -17,7 +18,7 @@ type State = 'form' | 'loading' | 'success' | 'invalid';
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, FormField],
+  imports: [CommonModule, FormsModule, RouterLink, FormField, PasswordToggleDirective],
   templateUrl: './reset-password.html',
 })
 export class ResetPassword implements OnInit {

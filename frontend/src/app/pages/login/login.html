@@ -32,6 +32,7 @@
         <app-form-field label="Contraseña" fieldId="login-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
           <input id="login-password"
             type="password"
+            appPasswordToggle
             formControlName="password"
             placeholder="••••••••"
             autocomplete="current-password"

@@ -23,6 +23,7 @@
       <app-form-field label="Contraseña" fieldId="register-password" [hasError]="hasError('password')" [errorMessage]="hasError('password') ? getError('password') : ''">
         <input id="register-password"
           type="password"
+          appPasswordToggle
           formControlName="password"
           placeholder="••••••••"
           autocomplete="new-password">
@@ -31,6 +32,7 @@
       <app-form-field label="Confirmar" fieldId="register-confirm" [hasError]="hasError('confirmPassword')" [errorMessage]="hasError('confirmPassword') ? getError('confirmPassword') : ''">
         <input id="register-confirm"
           type="password"
+          appPasswordToggle
           formControlName="confirmPassword"
           placeholder="••••••••"
           autocomplete="new-password">

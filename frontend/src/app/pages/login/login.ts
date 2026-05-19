@@ -5,12 +5,13 @@ import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { FormField } from '../../shared/components/form-field/form-field';
 import { AutofocusDirective } from '../../shared/directives/autofocus.directive';
+import { PasswordToggleDirective } from '../../shared/directives/password-toggle.directive';
 import { hasFieldError, getFieldError } from '../../shared/utils/form-validation.utils';
 import { sanitizeFormValues } from '../../shared/utils/sanitize.utils';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink, FormField, AutofocusDirective],
+  imports: [ReactiveFormsModule, RouterLink, FormField, AutofocusDirective, PasswordToggleDirective],
   templateUrl: './login.html',
 })
 export class Login {

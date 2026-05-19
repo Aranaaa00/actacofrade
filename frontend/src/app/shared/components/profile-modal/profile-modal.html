@@ -67,7 +67,7 @@
 
             <fieldset class="form-field" [class.form-field--error]="controlInvalid(passwordForm, 'currentPassword')">
               <label class="form-field__label" for="profileCurrentPassword">Contraseña actual</label>
-              <input id="profileCurrentPassword" class="input" type="password" formControlName="currentPassword" autocomplete="current-password" maxlength="100">
+              <input id="profileCurrentPassword" class="input" type="password" appPasswordToggle formControlName="currentPassword" autocomplete="current-password" maxlength="100">
               @if (controlInvalid(passwordForm, 'currentPassword')) {
                 <small class="form-field__error" role="alert">{{ controlError(passwordForm, 'currentPassword') }}</small>
               }
@@ -75,7 +75,7 @@
 
             <fieldset class="form-field" [class.form-field--error]="controlInvalid(passwordForm, 'newPassword')">
               <label class="form-field__label" for="profileNewPassword">Nueva contraseña</label>
-              <input id="profileNewPassword" class="input" type="password" formControlName="newPassword" autocomplete="new-password" maxlength="100">
+              <input id="profileNewPassword" class="input" type="password" appPasswordToggle formControlName="newPassword" autocomplete="new-password" maxlength="100">
               @if (controlInvalid(passwordForm, 'newPassword')) {
                 <small class="form-field__error" role="alert">{{ controlError(passwordForm, 'newPassword') }}</small>
               }
@@ -83,7 +83,7 @@
 
             <fieldset class="form-field" [class.form-field--error]="controlInvalid(passwordForm, 'confirmPassword') || formError(passwordForm, 'passwordMismatch')">
               <label class="form-field__label" for="profileConfirmPassword">Confirmar nueva contraseña</label>
-              <input id="profileConfirmPassword" class="input" type="password" formControlName="confirmPassword" autocomplete="new-password" maxlength="100">
+              <input id="profileConfirmPassword" class="input" type="password" appPasswordToggle formControlName="confirmPassword" autocomplete="new-password" maxlength="100">
               @if (formError(passwordForm, 'passwordMismatch') && passwordForm.get('confirmPassword')?.touched) {
                 <small class="form-field__error" role="alert">Las contraseñas no coinciden</small>
               } @else if (controlInvalid(passwordForm, 'confirmPassword')) {
