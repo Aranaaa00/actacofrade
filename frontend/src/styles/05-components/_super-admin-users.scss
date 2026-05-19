@@ -1,10 +1,7 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
-// Centro de Intervención SuperAdmin.
-// Solo layout: tipografía, inputs, botones y chips se delegan al sistema de
-// diseño (.button, .badge y estilos globales de input/select/textarea) para
-// garantizar coherencia visual con el resto de la aplicación.
+// SuperAdmin intervention center: layout only; visuals come from the design system.
 .super-admin-users {
   display: flex;
   flex-direction: column;
@@ -59,23 +56,20 @@
 
   &__verified {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: -0.15em;
     color: var(--nav-bg);
-    vertical-align: middle;
   }
 
   &__search {
-    display: flex;
-    flex-direction: column;
-    gap: $space-12;
-    padding: $space-12;
-    background-color: var(--bg-surface);
-    border: $border-1 solid var(--border-default);
-    border-radius: $radius-2;
+    > button[type='submit'] {
+      flex-shrink: 0;
+      width: 100%;
 
-    @include from-tablet {
-      flex-direction: row;
-      align-items: flex-end;
-      padding: $space-16;
+      @include from-tablet {
+        width: auto;
+      }
     }
   }
 
@@ -219,12 +213,14 @@
   &__props {
     display: grid;
     grid-template-columns: 1fr;
-    gap: $space-8 $space-16;
+    gap: $space-16 $space-24;
     margin: 0;
+    padding: $space-12 0;
 
     @include from-tablet {
       grid-template-columns: max-content 1fr;
       align-items: baseline;
+      gap: $space-16 $space-32;
     }
 
     dt {
@@ -239,7 +235,8 @@
     dd {
       display: flex;
       flex-wrap: wrap;
-      gap: $space-4;
+      align-items: center;
+      gap: $space-8;
       margin: 0;
       font-size: $text-body;
       color: var(--text-primary);

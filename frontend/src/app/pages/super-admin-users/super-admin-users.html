@@ -7,18 +7,21 @@
     </p>
   </hgroup>
 
-  <form class="super-admin-users__search" (ngSubmit)="search()">
-    <app-form-field label="Buscar" fieldId="super-admin-users-query">
+  <form class="super-admin-users__search act-list__filters" (ngSubmit)="search()" aria-label="Buscar usuarios">
+    <search class="act-list__search-wrapper" aria-label="Buscar usuarios">
+      <lucide-icon name="search" class="act-list__search-icon" [size]="16" aria-hidden="true"></lucide-icon>
       <input
         id="super-admin-users-query"
+        class="act-list__filter-search"
         type="search"
         name="query"
         [(ngModel)]="query"
-        placeholder="email, nombre, apellidos…"
+        placeholder="Buscar por email, nombre o apellidos..."
+        aria-label="Buscar usuarios"
         autocomplete="off"
         maxlength="120"
       />
-    </app-form-field>
+    </search>
     <button type="submit" class="button button--primary" [disabled]="loading()" [attr.aria-busy]="loading()">
       <lucide-icon name="search" [size]="16" aria-hidden="true"></lucide-icon>
       Buscar
@@ -102,7 +105,7 @@
           <dd>
             @if (user.manuallyVerified) {
               <lucide-icon name="badge-check" class="super-admin-users__verified" [size]="16" aria-hidden="true"></lucide-icon>
-              <span>Sí (manual)</span>
+              <span>Sí</span>
             } @else {
               <span>—</span>
             }
@@ -148,9 +151,9 @@
         </fieldset>
 
         <fieldset class="super-admin-users__action" [disabled]="processing() || isSelf(user) || isSuperAdmin(user)">
-          <legend>Verificación manual</legend>
+          <legend>Verificación</legend>
           <p class="super-admin-users__hint">
-            Marca la cuenta como verificada de forma manual cuando la verificación por correo no sea posible.
+            Marca la cuenta como verificada cuando la verificación por correo no sea posible.
           </p>
           <footer class="super-admin-users__action-footer">
             <button

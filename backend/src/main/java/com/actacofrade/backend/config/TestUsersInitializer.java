@@ -85,11 +85,11 @@ public class TestUsersInitializer implements CommandLineRunner {
                 });
 
         List<SeedUser> seeds = List.of(
-                new SeedUser("admin.test@actacofrade.local", "Admin Pruebas", RoleCode.ADMINISTRADOR, true),
-                new SeedUser("responsable.test@actacofrade.local", "Responsable Pruebas", RoleCode.RESPONSABLE, true),
-                new SeedUser("colab1.test@actacofrade.local", "Colaborador Uno", RoleCode.COLABORADOR, true),
+                new SeedUser("admin.test@actacofrade.local", "Admin Pruebas", RoleCode.ADMINISTRADOR, false),
+                new SeedUser("responsable.test@actacofrade.local", "Responsable Pruebas", RoleCode.RESPONSABLE, false),
+                new SeedUser("colab1.test@actacofrade.local", "Colaborador Uno", RoleCode.COLABORADOR, false),
                 new SeedUser("colab2.test@actacofrade.local", "Colaborador Dos", RoleCode.COLABORADOR, false),
-                new SeedUser("consulta.test@actacofrade.local", "Consulta Pruebas", RoleCode.CONSULTA, true)
+                new SeedUser("consulta.test@actacofrade.local", "Consulta Pruebas", RoleCode.CONSULTA, false)
         );
 
         for (SeedUser seed : seeds) {

@@ -1,7 +1,9 @@
 .verified-badge {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: -0.15em;
   margin-inline-start: 0.25rem;
   color: var(--nav-bg);
-  vertical-align: middle;
   flex-shrink: 0;
 }

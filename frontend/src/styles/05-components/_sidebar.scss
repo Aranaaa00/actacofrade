@@ -321,9 +321,11 @@
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  color: var(--text-on-dark);
-  background-color: var(--nav-bg);
-  border-radius: 50%;
+  padding: 0;
+  color: var(--text-primary);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   cursor: pointer;
 
   & lucide-icon {

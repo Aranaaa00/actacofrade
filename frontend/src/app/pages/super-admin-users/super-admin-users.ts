@@ -129,7 +129,7 @@ export class SuperAdminUsers implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (page) => {
-          this.users.set(page.content);
+          this.users.set(page.content.filter((u) => !u.roles.includes(SUPER_ADMIN_ROLE)));
           this.loading.set(false);
         },
         error: (err) => {
@@ -229,8 +229,6 @@ export class SuperAdminUsers implements OnInit {
   trackByLogId(_: number, entry: InterventionLogEntry): number {
     return entry.id;
   }
-
-  // ───────── diálogo de confirmación ─────────
 
   requestStatus(): void {
     if (!this.canSubmitStatus()) {

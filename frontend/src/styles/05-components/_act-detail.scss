@@ -321,19 +321,36 @@
 }
 
 .act-detail__table {
+  width: 100%;
+  table-layout: fixed;
   border-top: $border-1 solid var(--border-default);
 }
+
+// Stable column widths so the layout never shifts when descriptions appear.
+.act-detail__table th:nth-child(1),
+.act-detail__table td:nth-child(1) { width: 30%; }
+.act-detail__table th:nth-child(2),
+.act-detail__table td:nth-child(2) { width: 18%; }
+.act-detail__table th:nth-child(3),
+.act-detail__table td:nth-child(3) { width: 14%; }
+.act-detail__table th:nth-child(4),
+.act-detail__table td:nth-child(4) { width: 14%; }
+.act-detail__table th:nth-child(5),
+.act-detail__table td:nth-child(5) { width: 24%; }
 
 .act-detail__task-title {
   display: block;
   font-weight: $weight-bold;
+  overflow-wrap: anywhere;
 }
 
 .act-detail__task-desc {
   display: block;
+  margin-top: $space-4;
   font-size: $text-label;
   color: var(--text-secondary);
-  margin-top: $space-4;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
 }
 
 .act-detail__date {
@@ -366,6 +383,15 @@
   align-items: center;
   gap: $space-12;
   flex-wrap: nowrap;
+}
+
+// Keep name and verified badge on the same line in every user cell.
+.act-detail__user-cell {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  gap: $space-4;
 }
 
 .act-detail__row-link {
@@ -583,6 +609,8 @@
   .act-detail__table tbody td .act-detail__user-cell {
     display: inline-flex;
     align-items: center;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     gap: $space-4;
     margin-inline-start: auto;
     text-align: end;
