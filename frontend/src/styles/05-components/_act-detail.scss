@@ -329,7 +329,7 @@
 
 // Stable column widths so the layout never shifts when descriptions appear.
 .act-detail__table th:nth-child(1),
-.act-detail__table td:nth-child(1) { width: 26%; }
+.act-detail__table td:nth-child(1) { width: 20%; }
 .act-detail__table th:nth-child(2),
 .act-detail__table td:nth-child(2) { width: 16%; }
 .act-detail__table th:nth-child(3),
@@ -337,7 +337,14 @@
 .act-detail__table th:nth-child(4),
 .act-detail__table td:nth-child(4) { width: 14%; }
 .act-detail__table th:nth-child(5),
-.act-detail__table td:nth-child(5) { width: 32%; }
+.act-detail__table td:nth-child(5) { width: 38%; }
+
+// Actions column: always anchored to the top so content never drifts to
+// the vertical centre of a tall row and cannot visually collide with the
+// data on the left (desktop only – mobile resets the table to block layout).
+.act-detail__table td:last-child {
+  vertical-align: top;
+}
 
 .act-detail__task-title {
   display: block;
@@ -382,7 +389,7 @@
 .act-detail__row-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: $space-8;
   flex-wrap: nowrap;
 }

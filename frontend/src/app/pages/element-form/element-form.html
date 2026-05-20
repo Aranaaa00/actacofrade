@@ -71,7 +71,7 @@
     </section>
 
     <app-form-field label="Descripción" fieldId="element-notes" [hasError]="hasError('notes')" [errorMessage]="hasError('notes') ? getError('notes') : ''">
-      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones…" maxlength="1000"></textarea>
+      <textarea id="element-notes" formControlName="notes" rows="4" placeholder="Detalles u observaciones…" maxlength="100"></textarea>
     </app-form-field>
 
     <aside class="element-form__status-box" aria-label="Estado inicial">

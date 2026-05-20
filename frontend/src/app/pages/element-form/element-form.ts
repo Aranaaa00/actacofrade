@@ -97,7 +97,7 @@ export class ElementForm implements OnInit {
       title: ['', [Validators.required, Validators.maxLength(255), noHtmlValidator()]],
       assignedToId: [null, [Validators.required]],
       deadline: ['', [Validators.required]],
-      notes: ['', [Validators.maxLength(1000), noHtmlValidator()]],
+      notes: ['', [Validators.maxLength(100), noHtmlValidator()]],
       area: ['MAYORDOMIA']
     });
 
