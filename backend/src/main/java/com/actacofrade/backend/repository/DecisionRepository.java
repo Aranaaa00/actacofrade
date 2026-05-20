@@ -16,4 +16,6 @@ public interface DecisionRepository extends JpaRepository<Decision, Integer>, Jp
 
     long countByReviewedByIdAndStatusAndEventHermandadId(
             Integer userId, DecisionStatus status, Integer hermandadId);
+
+    long countByStatusAndEventHermandadId(DecisionStatus status, Integer hermandadId);
 }

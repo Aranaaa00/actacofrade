@@ -49,7 +49,7 @@ class DashboardControllerIntegrationTest {
     void getDashboard_returns200() throws Exception {
         DashboardAlertResponse alert = new DashboardAlertResponse(
                 "INCIDENT_OPEN", "Incidencia sin resolver", 1, LocalDate.of(2030, 4, 1), 7);
-        DashboardResponse resp = new DashboardResponse(List.of(), List.of(alert), 4, 2, 9, 2);
+        DashboardResponse resp = new DashboardResponse(List.of(), List.of(alert), 4, 2, 9, 2, 15);
         given(dashboardService.getDashboard(anyString())).willReturn(resp);
 
         mockMvc.perform(get("/api/dashboard"))

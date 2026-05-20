@@ -29,6 +29,8 @@ export class Dashboard implements OnInit {
   readyToCloseCount = 0;
   totalEventsCount = 0;
   myTasksCount = 0;
+  myPendingCount = 0;
+  hermandadPendingCount = 0;
   loading = true;
 
   get userName(): string {
@@ -54,6 +56,8 @@ export class Dashboard implements OnInit {
         this.readyToCloseCount = data.readyToCloseCount;
         this.totalEventsCount = data.totalEventsCount;
         this.myTasksCount = data.myTasksCount;
+        this.myPendingCount = data.pendingItemsCount;
+        this.hermandadPendingCount = data.hermandadPendingCount;
         this.loading = false;
       },
       error: (err) => {

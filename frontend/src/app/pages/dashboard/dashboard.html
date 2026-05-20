@@ -8,9 +8,9 @@
     <h1 class="dashboard__welcome">Bienvenido de nuevo, {{ userName }}.</h1>
     @if (!isConsulta) {
       <p class="dashboard__summary">
-        @if (myTasksCount === 0) { No tienes tareas asignadas pendientes. }
-        @else if (myTasksCount === 1) { Tienes 1 tarea asignada pendiente. }
-        @else { Tienes {{ myTasksCount }} tareas asignadas pendientes. }
+        @if (myPendingCount === 0) { No tienes eventos asignados pendientes. }
+        @else if (myPendingCount === 1) { Te queda <strong>1 evento asignado pendiente</strong>. }
+        @else { Te quedan <strong>{{ myPendingCount }} eventos asignados pendientes</strong>. }
       </p>
     }
   </header>
@@ -22,7 +22,7 @@
         <p class="dashboard__stat-label">Actos activos</p>
       </li>
       <li class="dashboard__stat">
-        <strong class="dashboard__stat-number">{{ alertCount }}</strong>
+        <strong class="dashboard__stat-number">{{ hermandadPendingCount }}</strong>
         <p class="dashboard__stat-label">Acciones pendientes</p>
       </li>
       <li class="dashboard__stat">

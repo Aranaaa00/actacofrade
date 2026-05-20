@@ -8,5 +8,6 @@ public record DashboardResponse(
         long pendingItemsCount,
         long readyToCloseCount,
         long totalEventsCount,
-        long myTasksCount
+        long myTasksCount,
+        long hermandadPendingCount
 ) {}

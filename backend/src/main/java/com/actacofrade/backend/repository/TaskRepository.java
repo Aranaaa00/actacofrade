@@ -16,6 +16,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecifi
 
     long countByAssignedToIdAndStatusInAndEventHermandadId(Integer userId, Collection<TaskStatus> statuses, Integer hermandadId);
 
+    long countByStatusInAndEventHermandadId(Collection<TaskStatus> statuses, Integer hermandadId);
+
     List<Task> findByAssignedToIdAndStatusInAndEventHermandadIdOrderByCreatedAtDesc(
             Integer userId, Collection<TaskStatus> statuses, Integer hermandadId);
 }
