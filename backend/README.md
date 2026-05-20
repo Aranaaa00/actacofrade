@@ -197,8 +197,8 @@ running on, so the same paths work locally and on any deployed environment.
 
 | Resource | Local development | Deployed website |
 |---|---|---|
-| Swagger UI | <http://localhost:8080/swagger-ui.html> | `https://<your-domain>/swagger-ui.html` |
-| OpenAPI JSON | <http://localhost:8080/v3/api-docs> | `https://<your-domain>/v3/api-docs` |
+| Swagger UI | <http://localhost:8080/swagger-ui.html> | `https://actacofrade.com/swagger-ui.html` |
+| OpenAPI JSON | <http://localhost:8080/v3/api-docs> | `https://actacofrade.com/v3/api-docs` |
 
 With Docker Compose the backend container publishes port `8080` on
 `127.0.0.1`, so the URLs above work as soon as `docker compose up` finishes,
