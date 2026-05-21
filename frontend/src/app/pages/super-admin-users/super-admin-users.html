@@ -67,6 +67,9 @@
             </li>
           }
         </ul>
+        @if (totalPages() > 1) {
+          <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChanged)="goToPage($event)" />
+        }
       }
     </article>
 

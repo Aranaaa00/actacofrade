@@ -346,11 +346,8 @@ app-act-detail {
   .act-detail__table td:nth-child(5) { width: 38%; }
 }
 
-// Actions column: always anchored to the top so content never drifts to
-// the vertical centre of a tall row and cannot visually collide with the
-// data on the left (desktop only – mobile resets the table to block layout).
 .act-detail__table td:last-child {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .act-detail__task-title {

@@ -24,6 +24,7 @@ import {
 import { ROLE_LABELS, Role } from '../../shared/constants/roles.const';
 import { ConfirmDialog } from '../../shared/components/confirm-dialog/confirm-dialog';
 import { FormField } from '../../shared/components/form-field/form-field';
+import { Pagination } from '../../shared/components/pagination/pagination';
 
 type AssignableRole = SuperAdminRoleRequest['roleCode'];
 
@@ -34,7 +35,7 @@ const ASSIGNABLE_ROLES: readonly AssignableRole[] = [
   'CONSULTA',
 ];
 const SUPER_ADMIN_ROLE: Role = 'SUPER_ADMIN';
-const LIST_PAGE_SIZE = 50;
+const LIST_PAGE_SIZE = 10;
 const LOG_PAGE_SIZE = 20;
 
 type PendingAction =
@@ -89,7 +90,7 @@ export interface ChangeRow {
 @Component({
   selector: 'app-super-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ConfirmDialog, FormField],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ConfirmDialog, FormField, Pagination],
   templateUrl: './super-admin-users.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -107,6 +108,8 @@ export class SuperAdminUsers implements OnInit {
   readonly processing = signal(false);
   readonly users = signal<readonly SuperAdminUserResponse[]>([]);
   readonly selected = signal<SuperAdminUserResponse | null>(null);
+  readonly currentPage = signal(1);
+  readonly totalPages = signal(1);
 
   readonly logsLoading = signal(false);
   readonly logs = signal<readonly InterventionLogEntry[]>([]);
@@ -122,14 +125,16 @@ export class SuperAdminUsers implements OnInit {
     this.search();
   }
 
-  search(): void {
+  search(page = 0): void {
     this.loading.set(true);
     this.service
-      .search(this.query.trim(), 0, LIST_PAGE_SIZE)
+      .search(this.query.trim(), page, LIST_PAGE_SIZE)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (page) => {
-          this.users.set(page.content.filter((u) => !u.roles.includes(SUPER_ADMIN_ROLE)));
+        next: (result) => {
+          this.users.set(result.content.filter((u) => !u.roles.includes(SUPER_ADMIN_ROLE)));
+          this.currentPage.set(result.page + 1);
+          this.totalPages.set(result.totalPages || 1);
           this.loading.set(false);
         },
         error: (err) => {
@@ -137,6 +142,10 @@ export class SuperAdminUsers implements OnInit {
           this.toast.fromHttpError(err, 'No se pudo cargar la lista de usuarios.');
         },
       });
+  }
+
+  goToPage(page: number): void {
+    this.search(page - 1);
   }
 
   select(user: SuperAdminUserResponse): void {
