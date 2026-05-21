@@ -39,17 +39,19 @@
       <p class="contact-modal__category-desc">{{ activeCategory.description }}</p>
 
       <form class="contact-modal__form" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
-        <app-form-field label="Mensaje" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
-          <textarea
-            id="contactMessage"
-            class="contact-modal__textarea"
-            formControlName="message"
-            rows="6"
-            maxlength="2000"
-            [placeholder]="activeCategory.placeholder"
-            aria-describedby="contactCounter"></textarea>
-          <small id="contactCounter" class="contact-modal__counter">{{ remainingChars }} caracteres restantes</small>
-        </app-form-field>
+        @if (activeCategory.key !== 'PASSWORD_RESET') {
+          <app-form-field label="Mensaje" fieldId="contactMessage" [hasError]="hasError('message')" [errorMessage]="getError('message')">
+            <textarea
+              id="contactMessage"
+              class="contact-modal__textarea"
+              formControlName="message"
+              rows="6"
+              maxlength="1000"
+              [placeholder]="activeCategory.placeholder"
+              aria-describedby="contactCounter"></textarea>
+            <small id="contactCounter" class="contact-modal__counter">{{ remainingChars }} caracteres restantes</small>
+          </app-form-field>
+        }
       </form>
     </section>
 

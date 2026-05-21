@@ -177,6 +177,8 @@
   white-space: nowrap;
   cursor: pointer;
 
+  @include responsive-action-underline;
+
   &:hover:not(:disabled) {
     color: var(--nav-bg);
   }

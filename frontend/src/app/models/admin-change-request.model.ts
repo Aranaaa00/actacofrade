@@ -2,7 +2,7 @@
 export type AdminChangeRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 // Discriminator that identifies which support flow originated the request.
-export type SupportRequestType = 'ADMIN_CHANGE' | 'PASSWORD_RESET' | 'VERIFICATION' | 'CONTACT';
+export type SupportRequestType = 'ADMIN_CHANGE' | 'VERIFICATION' | 'CONTACT';
 
 // Public view of a request (mirrors backend AdminChangeRequestResponse).
 export interface AdminChangeRequestResponse {

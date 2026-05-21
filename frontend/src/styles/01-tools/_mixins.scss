@@ -99,3 +99,16 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+// Subtle underline used on plain-text action buttons (rows, cards, lists) to
+// make their interactivity obvious on touch devices. Desktop pointers keep
+// the cleaner, underline-on-hover behaviour.
+@mixin responsive-action-underline {
+  text-decoration: underline;
+  text-decoration-thickness: 0.0625rem;
+  text-underline-offset: 0.25rem;
+
+  @include from-desktop {
+    text-decoration: none;
+  }
+}

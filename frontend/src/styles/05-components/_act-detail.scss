@@ -1,6 +1,10 @@
 @use '../00-settings/variables' as *;
 @use '../01-tools/mixins' as *;
 
+app-act-detail {
+  display: block;
+}
+
 .act-detail {
   display: flex;
   flex-direction: column;
@@ -129,11 +133,11 @@
   font-weight: $weight-semibold;
   color: var(--text-on-dark-muted);
   text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: $space-4;
   letter-spacing: 0.04em;
   white-space: nowrap;
   cursor: pointer;
+
+  @include responsive-action-underline;
 
   &:hover {
     color: var(--text-on-dark);
@@ -190,10 +194,10 @@
   font-size: $text-label;
   font-weight: $weight-bold;
   color: var(--text-on-dark);
-  text-decoration: underline;
-  text-underline-offset: $space-4;
   white-space: nowrap;
   cursor: pointer;
+
+  @include responsive-action-underline;
   flex-shrink: 0;
 
   @include from-tablet {
@@ -328,16 +332,19 @@
 }
 
 // Stable column widths so the layout never shifts when descriptions appear.
-.act-detail__table th:nth-child(1),
-.act-detail__table td:nth-child(1) { width: 20%; }
-.act-detail__table th:nth-child(2),
-.act-detail__table td:nth-child(2) { width: 16%; }
-.act-detail__table th:nth-child(3),
-.act-detail__table td:nth-child(3) { width: 12%; }
-.act-detail__table th:nth-child(4),
-.act-detail__table td:nth-child(4) { width: 14%; }
-.act-detail__table th:nth-child(5),
-.act-detail__table td:nth-child(5) { width: 38%; }
+// Only applied on desktop; mobile/tablet use the stacked-card layout below.
+@include from-desktop {
+  .act-detail__table th:nth-child(1),
+  .act-detail__table td:nth-child(1) { width: 20%; }
+  .act-detail__table th:nth-child(2),
+  .act-detail__table td:nth-child(2) { width: 16%; }
+  .act-detail__table th:nth-child(3),
+  .act-detail__table td:nth-child(3) { width: 12%; }
+  .act-detail__table th:nth-child(4),
+  .act-detail__table td:nth-child(4) { width: 14%; }
+  .act-detail__table th:nth-child(5),
+  .act-detail__table td:nth-child(5) { width: 38%; }
+}
 
 // Actions column: always anchored to the top so content never drifts to
 // the vertical centre of a tall row and cannot visually collide with the
@@ -413,6 +420,8 @@
   letter-spacing: 0.04em;
   white-space: nowrap;
   cursor: pointer;
+
+  @include responsive-action-underline;
 
   &:hover {
     color: var(--text-primary);
@@ -591,10 +600,7 @@
     @include visually-hidden;
   }
 
-  // Reset fixed column widths inherited from the desktop table layout.
-  .act-detail__table th,
   .act-detail__table td {
-    width: auto;
     padding: 0;
     vertical-align: top;
   }

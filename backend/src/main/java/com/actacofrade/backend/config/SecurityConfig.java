@@ -53,6 +53,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Self-service password reset must run with an authenticated principal so
+                        // we can identify the requesting user from the JWT. Place this rule BEFORE
+                        // the broader /api/auth/** permitAll so it wins by ordering.
+                        .requestMatchers(HttpMethod.POST, "/api/auth/me/password-reset").authenticated()
                         .requestMatchers("/api/auth/**", "/error").permitAll()
                         // OpenAPI / Swagger UI public (docs only, no data exposed)
                         .requestMatchers(

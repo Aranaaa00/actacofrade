@@ -6,13 +6,6 @@
 
   <header class="dashboard__greeting">
     <h1 class="dashboard__welcome">Bienvenido de nuevo, {{ userName }}.</h1>
-    @if (!isConsulta) {
-      <p class="dashboard__summary">
-        @if (myPendingCount === 0) { No tienes eventos asignados pendientes. }
-        @else if (myPendingCount === 1) { Te queda <strong>1 evento asignado pendiente</strong>. }
-        @else { Te quedan <strong>{{ myPendingCount }} eventos asignados pendientes</strong>. }
-      </p>
-    }
   </header>
 
   @if (!isConsulta) {
@@ -22,13 +15,15 @@
         <p class="dashboard__stat-label">Actos activos</p>
       </li>
       <li class="dashboard__stat">
-        <strong class="dashboard__stat-number">{{ hermandadPendingCount }}</strong>
+        <strong class="dashboard__stat-number">{{ myPendingCount }}</strong>
         <p class="dashboard__stat-label">Acciones pendientes</p>
       </li>
-      <li class="dashboard__stat">
-        <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
-        <p class="dashboard__stat-label">Listos para cerrar</p>
-      </li>
+      @if (canManage) {
+        <li class="dashboard__stat">
+          <strong class="dashboard__stat-number">{{ readyToCloseCount }}</strong>
+          <p class="dashboard__stat-label">Listos para cerrar</p>
+        </li>
+      }
     </ul>
   }
 

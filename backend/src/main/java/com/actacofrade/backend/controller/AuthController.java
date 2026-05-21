@@ -24,6 +24,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -136,7 +138,25 @@ public class AuthController {
         passwordResetService.consumeAndResetPassword(request.token(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
-
+    @Operation(summary = "Solicitar restablecimiento de contrase\u00f1a (self-service)",
+            description = "Emite un token de restablecimiento para el usuario autenticado y env\u00eda el correo de recuperaci\u00f3n. Requiere JWT v\u00e1lido.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Correo de recuperaci\u00f3n enviado"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "500", description = "Fallo al enviar el correo")
+    })
+    @PostMapping("/me/password-reset")
+    public ResponseEntity<Void> requestSelfPasswordReset(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Autenticaci\u00f3n requerida");
+        }
+        try {
+            authService.requestSelfPasswordReset(userDetails.getUsername());
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+        }
+        return ResponseEntity.noContent().build();
+    }
     private String resolveClientKey(HttpServletRequest request, String email) {
         String forwarded = request.getHeader("X-Forwarded-For");
         String ip = (forwarded != null && !forwarded.isBlank())

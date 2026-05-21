@@ -52,11 +52,11 @@
   font-size: $text-label;
   font-weight: $weight-bold;
   color: var(--text-on-dark);
-  text-decoration: underline;
-  text-underline-offset: $space-4;
   white-space: nowrap;
   cursor: pointer;
   flex-shrink: 0;
+
+  @include responsive-action-underline;
 
   @include from-tablet {
     font-size: $text-paragraph;
@@ -236,6 +236,10 @@
   text-decoration: none;
   color: inherit;
 
+  & .my-tasks__card-title {
+    @include responsive-action-underline;
+  }
+
   &:hover .my-tasks__card-title,
   &:focus-visible .my-tasks__card-title {
     color: var(--link-hover);
@@ -263,6 +267,8 @@
   letter-spacing: 0.04em;
   white-space: nowrap;
   cursor: pointer;
+
+  @include responsive-action-underline;
 
   &:hover,
   &:active {

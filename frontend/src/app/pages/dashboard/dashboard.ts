@@ -30,7 +30,6 @@ export class Dashboard implements OnInit {
   totalEventsCount = 0;
   myTasksCount = 0;
   myPendingCount = 0;
-  hermandadPendingCount = 0;
   loading = true;
 
   get userName(): string {
@@ -46,6 +45,10 @@ export class Dashboard implements OnInit {
     return this.authService.isConsulta();
   }
 
+  get canManage(): boolean {
+    return this.authService.canManage();
+  }
+
   ngOnInit(): void {
     // single endpoint that aggregates events, alerts and counters in one network call
     this.dashboardService.getDashboard().subscribe({
@@ -57,7 +60,6 @@ export class Dashboard implements OnInit {
         this.totalEventsCount = data.totalEventsCount;
         this.myTasksCount = data.myTasksCount;
         this.myPendingCount = data.pendingItemsCount;
-        this.hermandadPendingCount = data.hermandadPendingCount;
         this.loading = false;
       },
       error: (err) => {

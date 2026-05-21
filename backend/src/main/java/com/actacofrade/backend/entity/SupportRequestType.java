@@ -7,7 +7,6 @@ package com.actacofrade.backend.entity;
  */
 public enum SupportRequestType {
     ADMIN_CHANGE,
-    PASSWORD_RESET,
     VERIFICATION,
     CONTACT
 }

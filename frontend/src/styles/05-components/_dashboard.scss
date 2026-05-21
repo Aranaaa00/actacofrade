@@ -212,7 +212,7 @@
 .dashboard__alert-item {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   gap: $space-8;
   padding-bottom: $space-16;
   border-bottom: $border-1 solid var(--border-default);

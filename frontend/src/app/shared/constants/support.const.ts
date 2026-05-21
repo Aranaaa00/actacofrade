@@ -1,6 +1,8 @@
 import { SupportRequestType } from '../../models/admin-change-request.model';
 
-export type SupportCategoryKey = SupportRequestType;
+// PASSWORD_RESET is a UI-only key used by the contact modal to trigger the
+// self-service flow; it never reaches the AdminChangeRequest backend type.
+export type SupportCategoryKey = SupportRequestType | 'PASSWORD_RESET';
 
 export interface SupportCategory {
   key: SupportCategoryKey;
@@ -25,7 +27,7 @@ export const SUPPORT_CATEGORIES: readonly SupportCategory[] = [
     label: 'Recuperar contraseña',
     icon: 'key-round',
     prefix: '[Recuperación de contraseña]',
-    description: 'Solicita el restablecimiento de tu contraseña. El SuperAdmin te enviará un enlace de restablecimiento por correo.',
+    description: 'Solicita el restablecimiento de tu contraseña. Recibirás un enlace en tu correo para crear una nueva.',
     placeholder: 'Indica el motivo de la solicitud (por ejemplo: no recuerdo la contraseña, accesos comprometidos, etc.).',
   },
   {

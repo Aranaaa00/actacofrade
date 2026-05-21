@@ -51,6 +51,7 @@ class AuthServiceTest {
     @Mock private JwtService jwtService;
     @Mock private AuthenticationManager authenticationManager;
     @Mock private ResendEmailService resendEmailService;
+    @Mock private PasswordResetService passwordResetService;
 
     private PendingRegistrationStore pendingStore;
     private AuthService service;
@@ -60,7 +61,7 @@ class AuthServiceTest {
         pendingStore = new PendingRegistrationStore(30L);
         service = new AuthService(userRepository, roleRepository, hermandadRepository,
                 userAvatarRepository, passwordEncoder, jwtService, authenticationManager,
-                pendingStore, resendEmailService);
+                pendingStore, resendEmailService, passwordResetService);
         when(resendEmailService.sendVerificationEmail(anyString(), anyString(), anyString(), anyLong()))
                 .thenReturn(true);
     }

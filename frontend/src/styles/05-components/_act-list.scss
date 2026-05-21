@@ -434,6 +434,8 @@
   white-space: nowrap;
   cursor: pointer;
 
+  @include responsive-action-underline;
+
   &:hover,
   &:active {
     color: var(--nav-active);

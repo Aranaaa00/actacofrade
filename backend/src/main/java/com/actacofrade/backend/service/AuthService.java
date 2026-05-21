@@ -46,6 +46,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final PendingRegistrationStore pendingRegistrationStore;
     private final ResendEmailService resendEmailService;
+    private final PasswordResetService passwordResetService;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
@@ -55,7 +56,8 @@ public class AuthService {
                        JwtService jwtService,
                        AuthenticationManager authenticationManager,
                        PendingRegistrationStore pendingRegistrationStore,
-                       ResendEmailService resendEmailService) {
+                       ResendEmailService resendEmailService,
+                       PasswordResetService passwordResetService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.hermandadRepository = hermandadRepository;
@@ -65,6 +67,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.pendingRegistrationStore = pendingRegistrationStore;
         this.resendEmailService = resendEmailService;
+        this.passwordResetService = passwordResetService;
     }
 
     /**
@@ -227,6 +230,34 @@ public class AuthService {
         return new AuthResponse(user.getId(), token, user.getEmail(), user.getFullName(), roles, hermandadNombre,
                 userAvatarRepository.existsByUserId(user.getId()),
                 Boolean.TRUE.equals(user.getManuallyVerified()));
+    }
+
+    /**
+     * Self-service password reset for an authenticated user. Emits a fresh
+     * reset token (issuedBy = the user themselves) and delivers the recovery
+     * email reusing the existing {@link PasswordResetService} +
+     * {@link ResendEmailService} pipeline. Throws if the email delivery fails
+     * so the frontend can surface a meaningful error instead of a silent
+     * success.
+     */
+    @Transactional(noRollbackFor = IllegalStateException.class)
+    public void requestSelfPasswordReset(String email) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalStateException("No se pudo identificar al usuario autenticado.");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado."));
+        if (user.getStatus() == AccountStatus.BANNED) {
+            throw new IllegalStateException("No se puede restablecer la contrase\u00f1a de una cuenta bloqueada.");
+        }
+
+        String secret = passwordResetService.issueTokenFor(user, user);
+        boolean delivered = resendEmailService.sendPasswordResetEmail(
+                user.getEmail(), user.getFullName(), secret, passwordResetService.expirationMinutes());
+        if (!delivered) {
+            throw new IllegalStateException("No se pudo enviar el correo de recuperaci\u00f3n. Int\u00e9ntalo de nuevo m\u00e1s tarde.");
+        }
+        log.info("Self-service password reset solicitado por userId={}", user.getId());
     }
 
     /**

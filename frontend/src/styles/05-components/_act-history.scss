@@ -234,6 +234,8 @@
   white-space: nowrap;
   text-decoration: none;
 
+  @include responsive-action-underline;
+
   &:hover {
     color: var(--link-hover);
   }

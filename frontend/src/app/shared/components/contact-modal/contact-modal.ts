@@ -55,6 +55,26 @@ export class ContactModal {
       return;
     }
     this.form.controls['category'].setValue(key);
+    this.applyCategoryValidators(key);
+  }
+
+  // PASSWORD_RESET is a self-service flow that does NOT require an explanation,
+  // so we strip the message validators for that category to keep the submit
+  // button enabled. Every other category keeps the original required/length
+  // rules unchanged.
+  private applyCategoryValidators(key: SupportCategoryKey): void {
+    const message = this.form.controls['message'];
+    if (key === 'PASSWORD_RESET') {
+      message.clearValidators();
+    } else {
+      message.setValidators([
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(1000),
+        noHtmlValidator(),
+      ]);
+    }
+    message.updateValueAndValidity({ emitEvent: false });
   }
 
   hasError(field: string): boolean {
@@ -70,6 +90,7 @@ export class ContactModal {
       return;
     }
     this.form.reset({ category: this.categories[0].key, message: '' });
+    this.applyCategoryValidators(this.categories[0].key);
     this.closed.emit();
   }
 
@@ -87,6 +108,30 @@ export class ContactModal {
 
     const raw = sanitizeFormValues(this.form.value) as { category: SupportCategoryKey; message: string };
     const category = this.categories.find(c => c.key === raw.category) ?? this.categories[0];
+
+    // Password recovery is fulfilled inline by the backend self-service
+    // endpoint and must NOT enqueue a SuperAdmin change-request. We reuse the
+    // existing PasswordResetService + ResendEmailService pipeline server-side
+    // and surface a concrete success toast to the user.
+    if (category.key === 'PASSWORD_RESET') {
+      this.auth.requestSelfPasswordReset()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.submitting = false;
+            this.toast.success('Se ha enviado un correo de recuperación a su bandeja de entrada.');
+            this.form.reset({ category: this.categories[0].key, message: '' });
+            this.applyCategoryValidators(this.categories[0].key);
+            this.closed.emit();
+          },
+          error: (err) => {
+            this.submitting = false;
+            this.toast.fromHttpError(err, 'No se pudo enviar el correo de recuperación. Inténtalo de nuevo.');
+          },
+        });
+      return;
+    }
+
     const payload = { type: category.key, message: `${category.prefix} ${raw.message}` };
     this.requestService.create(payload)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -95,6 +140,7 @@ export class ContactModal {
           this.submitting = false;
           this.toast.success('Solicitud enviada correctamente. El equipo la revisará pronto.');
           this.form.reset({ category: this.categories[0].key, message: '' });
+          this.applyCategoryValidators(this.categories[0].key);
           this.closed.emit();
         },
         error: (err) => {

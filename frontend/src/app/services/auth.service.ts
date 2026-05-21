@@ -68,6 +68,12 @@ export class AuthService {
     return this.http.post<void>(`${this.baseUrl}/reset-password`, { token, newPassword });
   }
 
+  // Solicita un correo de recuperación de contraseña para el usuario autenticado.
+  // El backend emite un nuevo token y envía el correo reutilizando el flujo existente.
+  requestSelfPasswordReset(): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/me/password-reset`, {});
+  }
+
   // Lists existing hermandades so non-admin users can pick theirs at registration.
   listHermandades(): Observable<{ id: number; nombre: string }[]> {
     return this.http.get<{ id: number; nombre: string }[]>(`${this.baseUrl}/hermandades`);

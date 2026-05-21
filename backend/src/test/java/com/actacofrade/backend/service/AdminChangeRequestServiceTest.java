@@ -245,7 +245,7 @@ class AdminChangeRequestServiceTest {
 
     @Test
     void resolve_nonAdminChange_setsApproved() {
-        AdminChangeRequest req = pending(SupportRequestType.PASSWORD_RESET);
+        AdminChangeRequest req = pending(SupportRequestType.VERIFICATION);
         when(requestRepository.findById(100)).thenReturn(Optional.of(req));
         when(userRepository.findByEmail("sa@e.com")).thenReturn(Optional.empty());
         AdminChangeRequestResponse r = service.resolve(100, "sa@e.com");
